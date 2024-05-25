@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using Parser.AST.Enums;
+using Parser.AST.Utils;
+using Parser.Interfaces;
 
 namespace Parser.Tables
 {

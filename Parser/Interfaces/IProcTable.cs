@@ -1,4 +1,5 @@
 using Parser.AST.Utils;
+using Parser.Tables;
 
 namespace Parser.Interfaces;
 

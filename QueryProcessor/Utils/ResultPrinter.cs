@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Parser.AST.Enums;
+using Parser.Tables;
 
 namespace QueryProcessor.Utils
 {
@@ -56,7 +53,7 @@ namespace QueryProcessor.Utils
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
-                    results.Add(Tables.VarTable.Instance.GetVar(indexes[i]).Name);
+                    results.Add(VarTable.Instance.GetVar(indexes[i]).Name);
                 }
             }
 
@@ -70,7 +67,7 @@ namespace QueryProcessor.Utils
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
-                    results.Add(ProcTable.ProcTable.Instance.GetProc(indexes[i]).Name);
+                    results.Add(ProcTable.Instance.GetProc(indexes[i]).Name);
                 }
             }
 

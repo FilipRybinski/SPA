@@ -1,4 +1,5 @@
 using Parser.Interfaces;
+using Parser.Tables;
 
 namespace Parser.Modifies;
 
@@ -25,21 +26,21 @@ public class Modifies : IModifies
         {
             List<int> varIndexes = stmt.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
         }
 
         public List<Variable> GetModified(Procedure proc)
         {
             List<int> varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
         }
 
         public List<Procedure> GetModifiesForProcs(Variable var)
         {
             List<Procedure> procedures = new List<Procedure>();
 
-            foreach(Procedure procedure in ProcTable.ProcTable.Instance.Procedures)
+            foreach(Procedure procedure in ProcTable.Instance.Procedures)
             {
                 if (IsModified(var, procedure))
                 {
@@ -54,7 +55,7 @@ public class Modifies : IModifies
         {
             List<Statement> statements = new List<Statement>();
 
-            foreach (Statement statement in StmtTable.StmtTable.Instance.Statements)
+            foreach (Statement statement in StmtTable.Instance.Statements)
             {
                 if (IsModified(var,statement))
                 {

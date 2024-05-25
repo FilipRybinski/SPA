@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+﻿using Parser.AST;
+using Parser.AST.Enums;
+using Parser.AST.Utils;
+using Parser.Calls;
+using Parser.Modifies;
+using Parser.Tables;
+using Parser.Uses;
 
 namespace QueryProcessor.Utils
 {
@@ -119,7 +120,7 @@ namespace QueryProcessor.Utils
 
             char[] charsToTrim = { '"', };
 
-            foreach (Procedure p in ProcTable.ProcTable.Instance.Procedures)
+            foreach (Procedure p in ProcTable.Instance.Procedures)
             {
                 if (procName.Count == 1)
                 {
@@ -144,7 +145,7 @@ namespace QueryProcessor.Utils
 
             char[] charsToTrim = { '"', };
 
-            foreach (Variable v in VarTable.VarTable.Instance.Variables)
+            foreach (Variable v in VarTable.Instance.Variables)
             {
                 if (varName.Count == 1)
                 {
@@ -168,7 +169,7 @@ namespace QueryProcessor.Utils
             if (procLine.Count > 1)
                 return indexes;
 
-            foreach (Statement stmt in StmtTable.StmtTable.Instance.Statements)
+            foreach (Statement stmt in StmtTable.Instance.Statements)
             {
                 if (procLine.Count == 1)
                 {
@@ -196,10 +197,10 @@ namespace QueryProcessor.Utils
                 if (!int.TryParse(constantV[0], out _))
                     return indexes;
 
-            foreach (Statement stmt in StmtTable.StmtTable.Instance.Statements)
+            foreach (Statement stmt in StmtTable.Instance.Statements)
             {
                 TNODE node = stmt.AstRoot;
-                List<int> consts = AST.AST.Instance.GetConstants(node);
+                List<int> consts = AST.Instance.GetConstants(node);
                 if (constantV.Count == 1)
                 {
                     if (consts.Contains(Int32.Parse(constantV[0])))
@@ -224,7 +225,7 @@ namespace QueryProcessor.Utils
                 return indexes;
 
             if (stmtNr.Count != 1)
-                foreach (Statement s in StmtTable.StmtTable.Instance.Statements)
+                foreach (Statement s in StmtTable.Instance.Statements)
                 {
                     if (s.Type == enumType)
                         indexes.Add(s.CodeLine);
@@ -235,7 +236,7 @@ namespace QueryProcessor.Utils
             {
                 try
                 {
-                    Statement s = StmtTable.StmtTable.Instance.GetStmt(Int32.Parse(stmtNr[0]));
+                    Statement s = StmtTable.Instance.GetStmt(Int32.Parse(stmtNr[0]));
                     if (s != null)
                         indexes.Add(s.CodeLine);
                 }
@@ -289,34 +290,28 @@ namespace QueryProcessor.Utils
             switch (typeAndArguments[0].ToLower())
             {
                 case "modifies":
-                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Modifies.Modifies.Instance.IsModified, Modifies.Modifies.Instance.IsModified);
+                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Modifies.Instance.IsModified, Modifies.Instance.IsModified);
                     break;
                 case "uses":
-                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Uses.Uses.Instance.IsUsed, Uses.Uses.Instance.IsUsed);
+                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Uses.Instance.IsUsed, Uses.Instance.IsUsed);
                     break;
                 case "parent":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.AST.Instance.IsParent);
+                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParent);
                     break;
                 case "parent*":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.AST.Instance.IsParentStar);
+                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParentStar);
                     break;
                 case "follows":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.AST.Instance.IsFollowed);
+                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowed);
                     break;
                 case "follows*":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.AST.Instance.IsFollowedStar);
+                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowedStar);
                     break;
                 case "calls":
-                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Calls.Instance.IsCalls);
+                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCalls);
                     break;
                 case "calls*":
-                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Calls.Instance.IsCallsStar);
-                    break;
-                case "next":
-                    QueryMethodChecker.CheckNext(typeAndArguments[1], typeAndArguments[2], Next.Next.Instance.IsNext);
-                    break;
-                case "next*":
-                    QueryMethodChecker.CheckNext(typeAndArguments[1], typeAndArguments[2], Next.Next.Instance.IsNextStar);
+                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCallsStar);
                     break;
                 default:
                     throw new ArgumentException(string.Format("# Niepoprawna metoda: \"{0}\"", typeAndArguments[0]));
@@ -332,10 +327,10 @@ namespace QueryProcessor.Utils
             {
                 string name = var.Substring(1, var.Length - 2);
                 if (type == EntityTypeEnum.Procedure)
-                    return new List<int>(new int[] { ProcTable.ProcTable.Instance.GetProcIndex(name) });
+                    return new List<int>(new int[] { ProcTable.Instance.GetProcIndex(name) });
 
                 else if (type == EntityTypeEnum.Variable)
-                    return new List<int>(new int[] { VarTable.VarTable.Instance.GetVarIndex(name) });
+                    return new List<int>(new int[] { VarTable.Instance.GetVarIndex(name) });
             }
 
             if (int.TryParse(var, out _))
@@ -347,14 +342,14 @@ namespace QueryProcessor.Utils
         {
             List<int> result = new List<int>();
             if (type == EntityTypeEnum.Variable)
-                foreach (Variable v in VarTable.VarTable.Instance.Variables)
+                foreach (Variable v in VarTable.Instance.Variables)
                     result.Add(v.Index);
 
             else if (type == EntityTypeEnum.Procedure)
-                foreach (Procedure p in ProcTable.ProcTable.Instance.Procedures)
+                foreach (Procedure p in ProcTable.Instance.Procedures)
                     result.Add(p.Index);
             else
-                foreach (Statement s in StmtTable.StmtTable.Instance.Statements)
+                foreach (Statement s in StmtTable.Instance.Statements)
                     result.Add(s.CodeLine);
 
             return result;

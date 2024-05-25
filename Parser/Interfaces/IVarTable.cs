@@ -1,3 +1,5 @@
+using Parser.Tables;
+
 namespace Parser.Interfaces;
 
 public interface IVarTable

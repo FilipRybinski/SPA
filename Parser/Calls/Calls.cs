@@ -1,6 +1,7 @@
 using Parser.AST.Enums;
 using Parser.AST.Utils;
 using Parser.Interfaces;
+using Parser.Tables;
 
 namespace Parser.Calls;
 
@@ -27,7 +28,7 @@ public class Calls : ICalls
         public List<Procedure> GetCalledBy(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            foreach (Procedure procedure in ProcTable.ProcTable.Instance.Procedures)
+            foreach (Procedure procedure in ProcTable.Instance.Procedures)
             {
                 if (IsCalls(procedure.Name, proc))
                 {
@@ -40,7 +41,7 @@ public class Calls : ICalls
         public List<Procedure> GetCalledByStar(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            foreach(Procedure procedure in ProcTable.ProcTable.Instance.Procedures)
+            foreach(Procedure procedure in ProcTable.Instance.Procedures)
             {
                 if (IsCallsStar(procedure.Name, proc))
                 {
@@ -61,7 +62,7 @@ public class Calls : ICalls
                 .ToList();
             foreach(string proce in procNames)
             {
-                Procedure findProcedure = ProcTable.ProcTable.Instance.GetProc(proce);
+                Procedure findProcedure = ProcTable.Instance.GetProc(proce);
                 if(findProcedure != null)
                 {
                     procedures.Add(findProcedure);
@@ -96,7 +97,7 @@ public class Calls : ICalls
         public List<Procedure> GetCalls(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            TNODE procNode = ProcTable.ProcTable.Instance.GetAstRoot(proc);
+            TNODE procNode = ProcTable.Instance.GetAstRoot(proc);
             TNODE stmtLstChild = AST.AST.Instance.GetFirstChild(procNode);
             GetCalls(procedures, stmtLstChild);
 
