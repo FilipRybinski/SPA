@@ -51,14 +51,14 @@ public class Calls : ICalls
             return procedures;
         }
 
-        public List<Procedure> GetCalls(List<Procedure> procedures, TNODE stmtNode)
+        public List<Procedure> GetCalls(List<Procedure> procedures, Node stmtNode)
         {
             
 
             List<string> procNames = AST.AST.Instance
-                .GetLinkedNodes(stmtNode, LinkTypeEnum.Child)
-                .Where(i => i.EntityTypeEnum == EntityTypeEnum.Call)
-                .Select(i => i.Attr.Name)
+                .GetLinkedNodes(stmtNode, LinkType.Child)
+                .Where(i => i.EntityType == EntityType.Call)
+                .Select(i => i.NodeAttribute.Name)
                 .ToList();
             foreach(string proce in procNames)
             {
@@ -70,15 +70,15 @@ public class Calls : ICalls
             }
 
 
-            List<TNODE> ifOrWhileNodes = AST.AST.Instance
-                .GetLinkedNodes(stmtNode, LinkTypeEnum.Child)
-                .Where(i => i.EntityTypeEnum == EntityTypeEnum.While || i.EntityTypeEnum == EntityTypeEnum.If).ToList();
+            List<Node> ifOrWhileNodes = AST.AST.Instance
+                .GetLinkedNodes(stmtNode, LinkType.Child)
+                .Where(i => i.EntityType == EntityType.While || i.EntityType == EntityType.If).ToList();
 
             foreach(var node in ifOrWhileNodes)
             {
-                List<TNODE> stmtLstNodes = AST.AST.Instance
-                .GetLinkedNodes(node, LinkTypeEnum.Child)
-                .Where(i => i.EntityTypeEnum == EntityTypeEnum.Stmtlist).ToList();
+                List<Node> stmtLstNodes = AST.AST.Instance
+                .GetLinkedNodes(node, LinkType.Child)
+                .Where(i => i.EntityType == EntityType.Stmtlist).ToList();
 
 
                 foreach(var stmtL in stmtLstNodes)
@@ -97,8 +97,8 @@ public class Calls : ICalls
         public List<Procedure> GetCalls(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            TNODE procNode = ProcTable.Instance.GetAstRoot(proc);
-            TNODE stmtLstChild = AST.AST.Instance.GetFirstChild(procNode);
+            Node procNode = ProcTable.Instance.GetAstRoot(proc);
+            Node stmtLstChild = AST.AST.Instance.GetFirstChild(procNode);
             GetCalls(procedures, stmtLstChild);
 
             

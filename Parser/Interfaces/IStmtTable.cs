@@ -6,9 +6,9 @@ namespace Parser.Interfaces;
 
 public interface IStmtTable
 {
-    int InsertStmt(EntityTypeEnum entityTypeEnum, int codeLine);
+    int InsertStmt(EntityType entityType, int codeLine);
     Statement GetStmt(int codeLine);
     int GetSize();
-    int SetAstRoot(int codeLine, TNODE node);
-    TNODE GetAstRoot(int codeLine);
+    int SetAstRoot(int codeLine, Node node);
+    Node GetAstRoot(int codeLine);
 }

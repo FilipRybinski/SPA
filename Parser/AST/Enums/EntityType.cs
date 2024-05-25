@@ -1,6 +1,6 @@
 namespace Parser.AST.Enums;
 
-public enum EntityTypeEnum
+public enum EntityType
 {
     Program = 0,
     Procedure = 1,

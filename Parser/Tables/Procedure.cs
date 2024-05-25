@@ -6,7 +6,7 @@ namespace Parser.Tables
     {
         public int Index { get; set; }
         public string Name { get; set; }
-        public TNODE AstRoot { get; set; }
+        public Node AstRoot { get; set; }
         public Dictionary<int, bool> ModifiesList { get; set; }
         public Dictionary<int, bool> UsesList { get; set; }
         public Procedure(string name)

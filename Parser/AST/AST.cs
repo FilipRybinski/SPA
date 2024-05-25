@@ -24,43 +24,43 @@ public class AST:IAST
         {
 
         }
-        public TNODE Root { get; set; }
+        public Node Root { get; set; }
 
-        public TNODE CreateTNode(EntityTypeEnum et)
+        public Node CreateTNode(EntityType et)
         {
-            return new TNODE(et);
+            return new Node(et);
         }
 
-        public TNODE GetTNodeDeepCopy(TNODE node)
+        public Node GetTNodeDeepCopy(Node node)
         {
-            return new TNODE(node);
+            return new Node(node);
         }
 
-        public ATTR GetAttr(TNODE node)
+        public NodeAttribute GetAttr(Node node)
         {
-            return node.Attr;
+            return node.NodeAttribute;
         }
 
-        public TNODE GetFirstChild(TNODE parent)
+        public Node GetFirstChild(Node parent)
         {
-            List<TNODE> childNodes = GetLinkedNodes(parent, LinkTypeEnum.Child);
+            List<Node> childNodes = GetLinkedNodes(parent, LinkType.Child);
             return childNodes.FirstOrDefault();
         }
 
-        public List<TNODE> GetFollowedBy(TNODE node)
+        public List<Node> GetFollowedBy(Node node)
         {
-            return GetPrevLinkedNodes(node, LinkTypeEnum.Follows);
+            return GetPrevLinkedNodes(node, LinkType.Follows);
         }
 
-        public List<TNODE> GetFollowedStarBy(TNODE node)
+        public List<Node> GetFollowedStarBy(Node node)
         {
-            List<TNODE> nodes = new List<TNODE>();
+            List<Node> nodes = new List<Node>();
             return GetFollowedStarBy(node, nodes);
         }
 
-        private List<TNODE> GetFollowedStarBy(TNODE node, List<TNODE> tempList)
+        private List<Node> GetFollowedStarBy(Node node, List<Node> tempList)
         {
-            foreach (TNODE tnode in GetFollowedBy(node))
+            foreach (Node tnode in GetFollowedBy(node))
             {
                 tempList.Add(tnode);
                 GetFollowedStarBy(tnode, tempList);
@@ -68,21 +68,21 @@ public class AST:IAST
             return tempList;
         }
 
-        public List<TNODE> GetFollows(TNODE node)
+        public List<Node> GetFollows(Node node)
         {
-            return GetLinkedNodes(node,LinkTypeEnum.Follows);
+            return GetLinkedNodes(node,LinkType.Follows);
         }
 
-        public List<TNODE> GetFollowsStar(TNODE node)
+        public List<Node> GetFollowsStar(Node node)
         {
-            List<TNODE> nodes = new List<TNODE>();
+            List<Node> nodes = new List<Node>();
             return GetFollowsStar(node, nodes);
             
         }
 
-        private List<TNODE> GetFollowsStar(TNODE node, List<TNODE> tempList)
+        private List<Node> GetFollowsStar(Node node, List<Node> tempList)
         {
-            foreach(TNODE tnode in GetFollows(node))
+            foreach(Node tnode in GetFollows(node))
             {
                 tempList.Add(tnode);
                 GetFollowsStar(tnode, tempList);
@@ -90,46 +90,46 @@ public class AST:IAST
             return tempList;
         }
 
-        public List<TNODE> GetLinkedNodes(TNODE node, LinkTypeEnum linkTypeEnum)
+        public List<Node> GetLinkedNodes(Node node, LinkType linkType)
         {
-            List<TNODE> nodes = new List<TNODE>();
-            nodes = node.Links.Where(i => i.LinkTypeEnum == linkTypeEnum).Select(i => i.LinkNode).ToList();
+            List<Node> nodes = new List<Node>();
+            nodes = node.Links.Where(i => i.LinkType == linkType).Select(i => i.LinkNode).ToList();
             return nodes;
 
         }
 
-        public List<TNODE> GetPrevLinkedNodes(TNODE node, LinkTypeEnum linkTypeEnum)
+        public List<Node> GetPrevLinkedNodes(Node node, LinkType linkType)
         {
-            List<TNODE> nodes = new List<TNODE>();
-            nodes = node.PrevLinks.Where(i => i.LinkTypeEnum == linkTypeEnum).Select(i => i.LinkNode).ToList();
+            List<Node> nodes = new List<Node>();
+            nodes = node.PrevLinks.Where(i => i.LinkType == linkType).Select(i => i.LinkNode).ToList();
             return nodes;
 
         }
 
-        public TNODE GetNthChild(int nth, TNODE parent)
+        public Node GetNthChild(int nth, Node parent)
         {
-            return GetLinkedNodes(parent, LinkTypeEnum.Child).ElementAtOrDefault(nth);
+            return GetLinkedNodes(parent, LinkType.Child).ElementAtOrDefault(nth);
         }
 
-        public TNODE GetParent(TNODE node)
+        public Node GetParent(Node node)
         {
-            return GetLinkedNodes(node, LinkTypeEnum.Parent).FirstOrDefault();
+            return GetLinkedNodes(node, LinkType.Parent).FirstOrDefault();
         }
 
-        public List<TNODE> GetParentedBy(TNODE node)
+        public List<Node> GetParentedBy(Node node)
         {
-            return GetPrevLinkedNodes(node, LinkTypeEnum.Parent);
+            return GetPrevLinkedNodes(node, LinkType.Parent);
         }
 
-        public List<TNODE> GetParentedStarBy(TNODE node)
+        public List<Node> GetParentedStarBy(Node node)
         {
-            List<TNODE> nodes = new List<TNODE>();
+            List<Node> nodes = new List<Node>();
             return GetParentedStarBy(node, nodes);
         }
 
-        private List<TNODE> GetParentedStarBy(TNODE node, List<TNODE> tempList)
+        private List<Node> GetParentedStarBy(Node node, List<Node> tempList)
         {
-            foreach (TNODE tnode in GetParentedBy(node))
+            foreach (Node tnode in GetParentedBy(node))
             {
                 tempList.Add(tnode);
                 GetParentedStarBy(tnode, tempList);
@@ -138,13 +138,13 @@ public class AST:IAST
         }
 
 
-        public List<TNODE> GetParentStar(TNODE node)
+        public List<Node> GetParentStar(Node node)
         {
-            List<TNODE> nodes = new List<TNODE>();
-            TNODE tempNode = node;
+            List<Node> nodes = new List<Node>();
+            Node tempNode = node;
             while(tempNode != null)
             {
-                TNODE parentNode = GetParent(tempNode);
+                Node parentNode = GetParent(tempNode);
                 if(parentNode != null)
                 {
                     nodes.Add(parentNode);
@@ -154,55 +154,55 @@ public class AST:IAST
             return nodes;
         }
 
-        public TNODE GetRoot()
+        public Node GetRoot()
         {
             return Root;
         }
 
-        public EntityTypeEnum GetType(TNODE node)
+        public EntityType GetType(Node node)
         {
-            return node.EntityTypeEnum;
+            return node.EntityType;
         }
 
         //Does node2 follow node1
-        public bool IsFollowed(TNODE node1, TNODE node2)
+        public bool IsFollowed(Node node1, Node node2)
         {
             return GetFollows(node2).Contains(node1);
         }
 
-        public bool IsFollowedStar(TNODE node1, TNODE node2)
+        public bool IsFollowedStar(Node node1, Node node2)
         {
             return GetFollowsStar(node2).Contains(node1);
         }
 
-        public bool IsLinked(LinkTypeEnum linkTypeEnum, TNODE node1, TNODE node2)
+        public bool IsLinked(LinkType linkType, Node node1, Node node2)
         {
-            return GetLinkedNodes(node1, linkTypeEnum).Contains(node2);
+            return GetLinkedNodes(node1, linkType).Contains(node2);
         }
 
-        public bool IsParent(TNODE parent, TNODE child)
+        public bool IsParent(Node parent, Node child)
         {
             return GetParent(child) == parent;
         }
 
-        public bool IsParentStar(TNODE parent, TNODE child)
+        public bool IsParentStar(Node parent, Node child)
         {
             return GetParentStar(child).Contains(parent);
 
         }
 
-        public void SetAttr(TNODE node, ATTR attr)
+        public void SetAttr(Node node, NodeAttribute nodeAttribute)
         {
-            node.Attr = attr;
+            node.NodeAttribute = nodeAttribute;
         }
 
-        public void SetChildOfLink(TNODE child, TNODE parent)
+        public void SetChildOfLink(Node child, Node parent)
         {
-            SetLink(LinkTypeEnum.Child, parent, child);
+            SetLink(LinkType.Child, parent, child);
 
         }
 
-        public void SetFirstChild(TNODE parent, TNODE child)
+        public void SetFirstChild(Node parent, Node child)
         {
             
             if(GetFirstChild(parent) == null)
@@ -216,72 +216,72 @@ public class AST:IAST
     
         }
 
-        public void SetFollows(TNODE node1, TNODE node2)
+        public void SetFollows(Node node1, Node node2)
         {
-            SetLink(LinkTypeEnum.Follows, node2, node1);
-            SetPrevLink(LinkTypeEnum.Follows, node1, node2);
+            SetLink(LinkType.Follows, node2, node1);
+            SetPrevLink(LinkType.Follows, node1, node2);
         }
 
-        public void SetLeftSibling(TNODE nodeL, TNODE nodeR)
+        public void SetLeftSibling(Node nodeL, Node nodeR)
         {
-            SetLink(LinkTypeEnum.LeftSibling, nodeL, nodeR);
-            SetLink(LinkTypeEnum.RightSibling, nodeL, nodeR);
+            SetLink(LinkType.LeftSibling, nodeL, nodeR);
+            SetLink(LinkType.RightSibling, nodeL, nodeR);
 
         }
 
-        public void SetLink(LinkTypeEnum linkTypeEnum, TNODE node1, TNODE node2)
+        public void SetLink(LinkType linkType, Node node1, Node node2)
         {
-            node1.Links.Add(new LINK(linkTypeEnum, node2));
+            node1.Links.Add(new LINK(linkType, node2));
         }
 
-        public void SetPrevLink(LinkTypeEnum linkTypeEnum, TNODE node1, TNODE node2)
+        public void SetPrevLink(LinkType linkType, Node node1, Node node2)
         {
-            node1.PrevLinks.Add(new LINK(linkTypeEnum, node2));
+            node1.PrevLinks.Add(new LINK(linkType, node2));
         }
 
-        public void SetNthChild(int nth, TNODE parent, TNODE child)
+        public void SetNthChild(int nth, Node parent, Node child)
         {
             if (parent.Links.Count() > nth)
             {
-                if (parent.Links[nth - 1].LinkTypeEnum == LinkTypeEnum.Child)
+                if (parent.Links[nth - 1].LinkType == LinkType.Child)
                 {
                     parent.Links[nth - 1].LinkNode = child;
                 }
             }
             else if (parent.Links.Count() - 1 == nth)
             {
-                parent.Links.Add(new LINK(LinkTypeEnum.Child, child));
+                parent.Links.Add(new LINK(LinkType.Child, child));
             }
         }
 
-        public void SetParent(TNODE child, TNODE parent)
+        public void SetParent(Node child, Node parent)
         {
-            SetLink(LinkTypeEnum.Parent, child, parent);
-            SetPrevLink(LinkTypeEnum.Parent, parent, child);
+            SetLink(LinkType.Parent, child, parent);
+            SetPrevLink(LinkType.Parent, parent, child);
         }
 
-        public void SetRightSibling(TNODE nodeL, TNODE nodeR)
+        public void SetRightSibling(Node nodeL, Node nodeR)
         {
-            SetLink(LinkTypeEnum.RightSibling, nodeL, nodeR);
-            SetLink(LinkTypeEnum.LeftSibling, nodeL, nodeR);
+            SetLink(LinkType.RightSibling, nodeL, nodeR);
+            SetLink(LinkType.LeftSibling, nodeL, nodeR);
         }
 
-        public void SetRoot(TNODE node)
+        public void SetRoot(Node node)
         {
             Root = node;
         }
 
-        public List<int> GetConstants(TNODE node)
+        public List<int> GetConstants(Node node)
         {
             List<int> constans = new List<int>();
-            List<TNODE> childs = GetLinkedNodes(node, LinkTypeEnum.Child);
+            List<Node> childs = GetLinkedNodes(node, LinkType.Child);
             if(childs != null)
                 if(childs.Count > 1)
-                    foreach(TNODE child in childs)
+                    foreach(Node child in childs)
                     {
-                        if(child.EntityTypeEnum == EntityTypeEnum.Constant)
+                        if(child.EntityType == EntityType.Constant)
                         {
-                            //int value = Int32.Parse(child.Attr.Name);
+                            //int value = Int32.Parse(child.NodeAttribute.Name);
                             int value = Int32.Parse("0");
                             constans.Add(value);
                         }

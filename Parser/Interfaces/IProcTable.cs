@@ -10,7 +10,7 @@ public interface IProcTable
         Procedure GetProc(string procName);
         int GetProcIndex(string procName);
         int GetSize();
-        int SetAstRoot(string procName, TNODE node);
-        TNODE GetAstRoot(string procName);
-        TNODE GetAstRoot(int index);
+        int SetAstRoot(string procName, Node node);
+        Node GetAstRoot(string procName);
+        Node GetAstRoot(int index);
 }

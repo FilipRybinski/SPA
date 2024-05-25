@@ -6,18 +6,18 @@ namespace Parser.Tables
     public class Statement
     {
         public int CodeLine { get; set; }
-        public EntityTypeEnum Type { get; set; }
-        public TNODE AstRoot { get; set; }
+        public EntityType Type { get; set; }
+        public Node AstRoot { get; set; }
         public Dictionary<int, bool> ModifiesList { get; set; }
         public Dictionary<int, bool> UsesList { get; set; }
-        public Statement(EntityTypeEnum entityTypeEnum, int codeLine)
+        public Statement(EntityType entityType, int codeLine)
         {
-            if (!(entityTypeEnum == EntityTypeEnum.Assign || entityTypeEnum == EntityTypeEnum.If || entityTypeEnum == EntityTypeEnum.While || entityTypeEnum == EntityTypeEnum.Call))
+            if (!(entityType == EntityType.Assign || entityType == EntityType.If || entityType == EntityType.While || entityType == EntityType.Call))
             {
                 throw new InvalidOperationException();
             }
             CodeLine = codeLine;
-            Type = entityTypeEnum;
+            Type = entityType;
             ModifiesList = new Dictionary<int, bool>();
             UsesList = new Dictionary<int, bool>();
 

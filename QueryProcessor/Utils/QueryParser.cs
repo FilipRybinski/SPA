@@ -8,7 +8,7 @@ using Parser.Uses;
 
 namespace QueryProcessor.Utils
 {
-    public static class QueryDataGetter
+    public static class QueryParser
     {
         private static Dictionary<string, List<int>> variableIndexes = null;
         private static int Sum;
@@ -63,7 +63,7 @@ namespace QueryProcessor.Utils
         {
             Dictionary<string, List<string>> varAttributes = QueryProcessor.GetVarAttributes();
 
-            foreach (KeyValuePair<string, EntityTypeEnum> oneVar in QueryProcessor.GetQueryVars())
+            foreach (KeyValuePair<string, EntityType> oneVar in QueryProcessor.GetQueryVars())
             {
                 Dictionary<string, List<string>> attributes = new Dictionary<string, List<string>>();
                 foreach (KeyValuePair<string, List<string>> entry in varAttributes)
@@ -75,35 +75,35 @@ namespace QueryProcessor.Utils
 
                 switch (oneVar.Value)
                 {
-                    case EntityTypeEnum.Procedure:
+                    case EntityType.Procedure:
                         variableIndexes.Add(oneVar.Key, GetProcedureIndexes(attributes));
                         break;
 
-                    case EntityTypeEnum.Variable:
+                    case EntityType.Variable:
                         variableIndexes.Add(oneVar.Key, GetVariableIndexes(attributes));
                         break;
 
-                    case EntityTypeEnum.Assign:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityTypeEnum.Assign));
+                    case EntityType.Assign:
+                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Assign));
                         break;
 
-                    case EntityTypeEnum.If:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityTypeEnum.If));
+                    case EntityType.If:
+                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.If));
                         break;
 
-                    case EntityTypeEnum.While:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityTypeEnum.While));
+                    case EntityType.While:
+                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.While));
                         break;
-                    case EntityTypeEnum.Call:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityTypeEnum.Call));
+                    case EntityType.Call:
+                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Call));
                         break;
-                    case EntityTypeEnum.Statement:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityTypeEnum.Statement));
+                    case EntityType.Statement:
+                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Statement));
                         break;
-                    case EntityTypeEnum.Prog_line:
+                    case EntityType.Prog_line:
                         variableIndexes.Add(oneVar.Key, GetProglineIndexes(attributes));
                         break;
-                    case EntityTypeEnum.Constant:
+                    case EntityType.Constant:
                         variableIndexes.Add(oneVar.Key, GetConstantIndexes(attributes));
                         break;
                     default:
@@ -203,7 +203,7 @@ namespace QueryProcessor.Utils
 
             foreach (Statement stmt in StmtTable.Instance.Statements)
             {
-                TNODE node = stmt.AstRoot;
+                Node node = stmt.AstRoot;
                 List<int> consts = AST.Instance.GetConstants(node);
                 if (constantV.Count == 1)
                 {
@@ -217,7 +217,7 @@ namespace QueryProcessor.Utils
             return indexes.Distinct().ToList();
         }
 
-        private static List<int> GetStatementIndexes(Dictionary<string, List<string>> attributes, EntityTypeEnum enumType)
+        private static List<int> GetStatementIndexes(Dictionary<string, List<string>> attributes, EntityType type)
         {
             List<int> indexes = new List<int>();
             List<string> stmtNr = new List<string>();
@@ -231,9 +231,9 @@ namespace QueryProcessor.Utils
             if (stmtNr.Count != 1)
                 foreach (Statement s in StmtTable.Instance.Statements)
                 {
-                    if (s.Type == enumType)
+                    if (s.Type == type)
                         indexes.Add(s.CodeLine);
-                    else if (enumType == EntityTypeEnum.Statement)
+                    else if (type == EntityType.Statement)
                         indexes.Add(s.CodeLine);
                 }
             else
@@ -322,7 +322,7 @@ namespace QueryProcessor.Utils
             }
         }
 
-        public static List<int> GetArgIndexes(string var, EntityTypeEnum type)
+        public static List<int> GetArgIndexes(string var, EntityType type)
         {
             if (var == "_")
                 return GetAllArgIndexes(type);
@@ -330,10 +330,10 @@ namespace QueryProcessor.Utils
             if (var[0] == '\"' & var[var.Length - 1] == '\"')
             {
                 string name = var.Substring(1, var.Length - 2);
-                if (type == EntityTypeEnum.Procedure)
+                if (type == EntityType.Procedure)
                     return new List<int>(new int[] { ProcTable.Instance.GetProcIndex(name) });
 
-                else if (type == EntityTypeEnum.Variable)
+                else if (type == EntityType.Variable)
                     return new List<int>(new int[] { VarTable.Instance.GetVarIndex(name) });
             }
 
@@ -342,14 +342,14 @@ namespace QueryProcessor.Utils
             return variableIndexes[var];
         }
 
-        public static List<int> GetAllArgIndexes(EntityTypeEnum type)
+        public static List<int> GetAllArgIndexes(EntityType type)
         {
             List<int> result = new List<int>();
-            if (type == EntityTypeEnum.Variable)
+            if (type == EntityType.Variable)
                 foreach (Variable v in VarTable.Instance.Variables)
                     result.Add(v.Index);
 
-            else if (type == EntityTypeEnum.Procedure)
+            else if (type == EntityType.Procedure)
                 foreach (Procedure p in ProcTable.Instance.Procedures)
                     result.Add(p.Index);
             else

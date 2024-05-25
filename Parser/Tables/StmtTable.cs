@@ -24,7 +24,7 @@ namespace Parser.Tables
         {
             Statements = new List<Statement>();
         }
-        public TNODE GetAstRoot(int codeLine)
+        public Node GetAstRoot(int codeLine)
         {
             var proc = GetStmt(codeLine);
             return proc == null ? null : proc.AstRoot;
@@ -40,7 +40,7 @@ namespace Parser.Tables
             return Statements.Where(i => i.CodeLine == codeLine).FirstOrDefault();
         }
 
-        public int InsertStmt(EntityTypeEnum entityTypeEnum, int codeLine)
+        public int InsertStmt(EntityType entityType, int codeLine)
         {
             if (Statements.Where(i => i.CodeLine == codeLine).Any())
             {
@@ -48,13 +48,13 @@ namespace Parser.Tables
             }
             else
             {
-                Statement variable = new Statement(entityTypeEnum, codeLine);
+                Statement variable = new Statement(entityType, codeLine);
                 Statements.Add(variable);
                 return 0;
             }
         }
 
-        public int SetAstRoot(int codeLine, TNODE node)
+        public int SetAstRoot(int codeLine, Node node)
         {
             var procedure = GetStmt(codeLine);
             if (procedure == null)

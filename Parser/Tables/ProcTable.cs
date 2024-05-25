@@ -25,13 +25,13 @@ namespace Parser.Tables
             Procedures = new List<Procedure>();
         }
 
-        public TNODE GetAstRoot(string procName)
+        public Node GetAstRoot(string procName)
         {
             var proc = GetProc(procName);
             return proc == null ? null : proc.AstRoot;
         }
 
-        public TNODE GetAstRoot(int index)
+        public Node GetAstRoot(int index)
         {
             var proc = GetProc(index);
             return proc == null ? null : proc.AstRoot;
@@ -73,7 +73,7 @@ namespace Parser.Tables
             }
         }
 
-        public int SetAstRoot(string procName, TNODE node)
+        public int SetAstRoot(string procName, Node node)
         {
             var procedure = GetProc(procName);
             if (procedure == null)

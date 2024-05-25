@@ -6,12 +6,12 @@ namespace QueryProcessor
 {
     public class QueryProcessor
     {
-        private static Dictionary<string, EntityTypeEnum> vars = null;
+        private static Dictionary<string, EntityType> vars = null;
         private static Dictionary<string, List<string>> queryDetails = null;
 
         private static void Init()
         {
-            vars = new Dictionary<string, EntityTypeEnum>();
+            vars = new Dictionary<string, EntityType>();
             queryDetails = new Dictionary<string, List<string>>();
 
         }
@@ -36,7 +36,7 @@ namespace QueryProcessor
             ProcessSelectPart(selectPart.Trim()); //dekoduje część "Select ... "
             try
             {
-                return QueryDataGetter.GetData(testing);
+                return QueryParser.GetData(testing);
             }
             catch (ArgumentException e)
             {
@@ -72,36 +72,36 @@ namespace QueryProcessor
         {
             string[] varsParts = varsDefinition.Replace(" ", ",").Split(',');
             string varTypeAsString = varsParts[0]; //Typ jako string (statement, assign, wgile albo procedure)
-            EntityTypeEnum typeEnum;
+            EntityType type;
 
             switch (varTypeAsString.ToLower())
             {
                 case "stmt":
-                    typeEnum = EntityTypeEnum.Statement;
+                    type = EntityType.Statement;
                     break;
                 case "assign":
-                    typeEnum = EntityTypeEnum.Assign;
+                    type = EntityType.Assign;
                     break;
                 case "while":
-                    typeEnum = EntityTypeEnum.While;
+                    type = EntityType.While;
                     break;
                 case "procedure":
-                    typeEnum = EntityTypeEnum.Procedure;
+                    type = EntityType.Procedure;
                     break;
                 case "variable":
-                    typeEnum = EntityTypeEnum.Variable;
+                    type = EntityType.Variable;
                     break;
                 case "constant":
-                    typeEnum = EntityTypeEnum.Constant;
+                    type = EntityType.Constant;
                     break;
                 case "prog_line":
-                    typeEnum = EntityTypeEnum.Prog_line;
+                    type = EntityType.Prog_line;
                     break;
                 case "if":
-                    typeEnum = EntityTypeEnum.If;
+                    type = EntityType.If;
                     break;
                 case "call":
-                    typeEnum = EntityTypeEnum.Call;
+                    type = EntityType.Call;
                     break;
                 default:
                     throw new System.ArgumentException(string.Format("# Wrong argument: \"{0}\"", varTypeAsString));
@@ -110,7 +110,7 @@ namespace QueryProcessor
             for (int i = 1; i < varsParts.Length; i++)
             {
                 if (varsParts[i] != "") //tak nawet takie coś jak "" dodawało...
-                    vars.Add(varsParts[i], typeEnum);
+                    vars.Add(varsParts[i], type);
             }
         }
 
@@ -175,7 +175,7 @@ namespace QueryProcessor
         private static void PrintParsingResults()
         {
             Console.WriteLine("QUERY VARIABLES:");
-            foreach (KeyValuePair<string, EntityTypeEnum> oneVar in vars)
+            foreach (KeyValuePair<string, EntityType> oneVar in vars)
             {
                 Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
             }
@@ -191,7 +191,7 @@ namespace QueryProcessor
             }
         }
 
-        public static Dictionary<string, EntityTypeEnum> GetQueryVars()
+        public static Dictionary<string, EntityType> GetQueryVars()
         {
             return vars;
         }
@@ -224,7 +224,7 @@ namespace QueryProcessor
             return queryDetails["SELECT"];
         }
 
-        public static EntityTypeEnum GetVarEnumType(string var)
+        public static EntityType GetVarEnumType(string var)
         {
             try
             {

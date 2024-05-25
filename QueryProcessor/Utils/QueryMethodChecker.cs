@@ -11,17 +11,17 @@ namespace QueryProcessor.Utils
                                         Func<Variable, Procedure, bool> methodForProc,
                                         Func<Variable, Statement, bool> methodForStmt)
         {
-            EntityTypeEnum firstArgType;
+            EntityType firstArgType;
             if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
-                firstArgType = EntityTypeEnum.Procedure;
+                firstArgType = EntityType.Procedure;
             else if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else if (firstArgument == "_")
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
-            if (firstArgType == EntityTypeEnum.Procedure)
+            if (firstArgType == EntityType.Procedure)
                 CheckProcedureModifiesOrUses(firstArgument, secondArgument, methodForProc);
             else
                 CheckStatementModifiesOrUses(firstArgument, secondArgument, methodForStmt);
@@ -29,23 +29,23 @@ namespace QueryProcessor.Utils
 
         private static void CheckProcedureModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Procedure, bool> IsModifiedOrUsedByProc)
         {
-            EntityTypeEnum secondArgType;
-            EntityTypeEnum firstArgType;
+            EntityType secondArgType;
+            EntityType firstArgType;
 
             if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
-                firstArgType = EntityTypeEnum.Procedure;
+                firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
-                secondArgType = EntityTypeEnum.Variable;
+                secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
-                secondArgType = EntityTypeEnum.Variable;
+                secondArgType = EntityType.Variable;
             else
                 secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryDataGetter.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryDataGetter.GetArgIndexes(secondArgument, secondArgType);
+            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
             List<int> procStayinIndexes = new List<int>();
             List<int> varStayinIndexes = new List<int>();
@@ -65,32 +65,32 @@ namespace QueryProcessor.Utils
 
                     }
                 }
-            QueryDataGetter.RemoveIndexesFromLists(firstArgument, secondArgument,
+            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
                                                    procStayinIndexes,
                                                    varStayinIndexes);
         }
 
         private static void CheckStatementModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Statement, bool> IsModifiedOrUsedByStmt)
         {
-            EntityTypeEnum secondArgType;
-            EntityTypeEnum firstArgType;
+            EntityType secondArgType;
+            EntityType firstArgType;
 
             if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else if (firstArgument == "_")
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
-                secondArgType = EntityTypeEnum.Variable;
+                secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
-                secondArgType = EntityTypeEnum.Variable;
+                secondArgType = EntityType.Variable;
             else
                 secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryDataGetter.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryDataGetter.GetArgIndexes(secondArgument, secondArgType);
+            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
             List<int> stmtStayinIndexes = new List<int>();
             List<int> varStayinIndexes = new List<int>();
@@ -109,37 +109,37 @@ namespace QueryProcessor.Utils
                         varStayinIndexes.Add(secondInd);
                     }
                 }
-            QueryDataGetter.RemoveIndexesFromLists(firstArgument, secondArgument,
+            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
                                                    stmtStayinIndexes,
                                                    varStayinIndexes);
         }
 
-        public static void CheckParentOrFollows(string firstArgument, string secondArgument, Func<TNODE, TNODE, bool> method)
+        public static void CheckParentOrFollows(string firstArgument, string secondArgument, Func<Node, Node, bool> method)
         {
-            EntityTypeEnum firstArgType;
-            EntityTypeEnum secondArgType;
+            EntityType firstArgType;
+            EntityType secondArgType;
             if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else if (firstArgument == "_")
-                firstArgType = EntityTypeEnum.Statement;
+                firstArgType = EntityType.Statement;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
             if (int.TryParse(secondArgument, out _))
-                secondArgType = EntityTypeEnum.Statement;
+                secondArgType = EntityType.Statement;
             else if (secondArgument == "_")
-                secondArgType = EntityTypeEnum.Statement;
+                secondArgType = EntityType.Statement;
             else
                 secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryDataGetter.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryDataGetter.GetArgIndexes(secondArgument, secondArgType);
+            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
             List<int> firstStayinIndexes = new List<int>();
             List<int> secondStayinIndexes = new List<int>();
 
-            TNODE first;
-            TNODE second;
+            Node first;
+            Node second;
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
@@ -152,7 +152,7 @@ namespace QueryProcessor.Utils
                     }
                 }
 
-            QueryDataGetter.RemoveIndexesFromLists(firstArgument, secondArgument,
+            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
                                                   firstStayinIndexes,
                                                   secondStayinIndexes);
 
@@ -160,32 +160,32 @@ namespace QueryProcessor.Utils
 
         public static void CheckCalls(string firstArgument, string secondArgument, Func<string, string, bool> method)
         {
-            EntityTypeEnum secondArgType;
-            EntityTypeEnum firstArgType;
+            EntityType secondArgType;
+            EntityType firstArgType;
 
             if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
-                firstArgType = EntityTypeEnum.Procedure;
+                firstArgType = EntityType.Procedure;
             else if (firstArgument == "_")
-                firstArgType = EntityTypeEnum.Procedure;
+                firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
-                secondArgType = EntityTypeEnum.Procedure;
+                secondArgType = EntityType.Procedure;
             else if (secondArgument == "_")
-                secondArgType = EntityTypeEnum.Procedure;
+                secondArgType = EntityType.Procedure;
             else
                 secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryDataGetter.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryDataGetter.GetArgIndexes(secondArgument, secondArgType);
+            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
             List<int> firstStayinIndexes = new List<int>();
             List<int> secondStayinIndexes = new List<int>();
 
-            if (firstArgType != EntityTypeEnum.Procedure)
+            if (firstArgType != EntityType.Procedure)
                 throw new ArgumentException("Not a procedure: {0}", firstArgument);
-            else if (secondArgType != EntityTypeEnum.Procedure)
+            else if (secondArgType != EntityType.Procedure)
                 throw new ArgumentException("Not a procedure: {0}", secondArgument);
 
             string first, second;
@@ -206,31 +206,31 @@ namespace QueryProcessor.Utils
                     }
                 }
 
-            QueryDataGetter.RemoveIndexesFromLists(firstArgument, secondArgument,
+            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
                                                   firstStayinIndexes,
                                                   secondStayinIndexes);
         }
 
         public static void CheckNext(string firstArgument, string secondArgument, Func<int, int, bool> method)
         {
-            EntityTypeEnum firstArgType;
-            EntityTypeEnum secondArgType;
+            EntityType firstArgType;
+            EntityType secondArgType;
             if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityTypeEnum.Prog_line;
+                firstArgType = EntityType.Prog_line;
             else if (firstArgument == "_")
-                firstArgType = EntityTypeEnum.Prog_line;
+                firstArgType = EntityType.Prog_line;
             else
                 firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
 
             if (int.TryParse(secondArgument, out _))
-                secondArgType = EntityTypeEnum.Prog_line;
+                secondArgType = EntityType.Prog_line;
             else if (secondArgument == "_")
-                secondArgType = EntityTypeEnum.Prog_line;
+                secondArgType = EntityType.Prog_line;
             else
                 secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryDataGetter.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryDataGetter.GetArgIndexes(secondArgument, secondArgType);
+            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
             List<int> firstStayinIndexes = new List<int>();
             List<int> secondStayinIndexes = new List<int>();
@@ -245,16 +245,16 @@ namespace QueryProcessor.Utils
                     }
                 }
 
-            QueryDataGetter.RemoveIndexesFromLists(firstArgument, secondArgument,
+            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
                                                   firstStayinIndexes,
                                                   secondStayinIndexes);
 
         }
 
-        private static TNODE GetNodeByType(EntityTypeEnum et, int ind)
+        private static Node GetNodeByType(EntityType et, int ind)
         {
-            TNODE node;
-            if (et == EntityTypeEnum.Procedure)
+            Node node;
+            if (et == EntityType.Procedure)
             {
                 node = ProcTable.Instance.GetAstRoot(ind);
             }

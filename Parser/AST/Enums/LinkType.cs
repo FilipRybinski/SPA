@@ -1,6 +1,6 @@
 namespace Parser.AST.Enums;
 
-public enum LinkTypeEnum
+public enum LinkType
 {
     Child = 0,
     RightSibling = 1,

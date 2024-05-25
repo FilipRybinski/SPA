@@ -12,15 +12,15 @@ namespace QueryProcessor.Utils
 
             foreach (KeyValuePair<string, List<int>> oneVar in resultToPrint)
             {
-                EntityTypeEnum type = QueryProcessor.GetVarEnumType(oneVar.Key);
+                EntityType type = QueryProcessor.GetVarEnumType(oneVar.Key);
 
 
                 switch (type)
                 {
-                    case EntityTypeEnum.Variable:
+                    case EntityType.Variable:
                         results.AddRange(PrintVariables(oneVar.Value));
                         break;
-                    case EntityTypeEnum.Procedure:
+                    case EntityType.Procedure:
                         results.AddRange(PrintProcedures(oneVar.Value));
                         break;
                     default:
