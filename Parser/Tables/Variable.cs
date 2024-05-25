@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace Parser.Tables
 {
-    internal class Variable
+    public class Variable
     {
+        public int Index { get; set; }
+        public string Name { get; set; }
+        public Variable(string name)
+        {
+            Name = name;
+        }
+
     }
 }
