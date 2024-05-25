@@ -7,11 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="AST\" />
-      <Folder Include="Calls\" />
-      <Folder Include="Enums\" />
-      <Folder Include="Interfaces\" />
-      <Folder Include="Modifies\" />
       <Folder Include="Tables\" />
       <Folder Include="Uses\" />
     </ItemGroup>
