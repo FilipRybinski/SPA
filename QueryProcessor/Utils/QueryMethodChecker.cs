@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Parser.AST.Enums;
+using Parser.AST.Utils;
+using Parser.Tables;
 
 namespace QueryProcessor.Utils
 {
@@ -57,8 +55,8 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    proc = ProcTable.ProcTable.Instance.GetProc(firstInd);
-                    var = VarTable.VarTable.Instance.GetVar(secondInd);
+                    proc = ProcTable.Instance.GetProc(firstInd);
+                    var = VarTable.Instance.GetVar(secondInd);
                     //Modifies.Modifies.Instance.IsModified
                     if (IsModifiedOrUsedByProc(var, proc))
                     {
@@ -102,8 +100,8 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    stmt = StmtTable.StmtTable.Instance.GetStmt(firstInd);
-                    var = VarTable.VarTable.Instance.GetVar(secondInd);
+                    stmt = StmtTable.Instance.GetStmt(firstInd);
+                    var = VarTable.Instance.GetVar(secondInd);
                     //Modifies.Modifies.Instance.IsModified
                     if (IsModifiedOrUsedByStmt(var, stmt))
                     {
@@ -195,8 +193,8 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    p1 = ProcTable.ProcTable.Instance.GetProc(firstInd);
-                    p2 = ProcTable.ProcTable.Instance.GetProc(secondInd);
+                    p1 = ProcTable.Instance.GetProc(firstInd);
+                    p2 = ProcTable.Instance.GetProc(secondInd);
 
                     first = p1 == null ? "" : p1.Name;
                     second = p2 == null ? "" : p2.Name;
@@ -258,11 +256,11 @@ namespace QueryProcessor.Utils
             TNODE node;
             if (et == EntityTypeEnum.Procedure)
             {
-                node = ProcTable.ProcTable.Instance.GetAstRoot(ind);
+                node = ProcTable.Instance.GetAstRoot(ind);
             }
             else
             {
-                node = StmtTable.StmtTable.Instance.GetAstRoot(ind);
+                node = StmtTable.Instance.GetAstRoot(ind);
             }
 
             return node;
