@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="AST\" />
+      <Folder Include="Calls\" />
+      <Folder Include="Enums\" />
+      <Folder Include="Interfaces\" />
+      <Folder Include="Modifies\" />
+      <Folder Include="Tables\" />
+      <Folder Include="Uses\" />
+    </ItemGroup>
+
+</Project>
