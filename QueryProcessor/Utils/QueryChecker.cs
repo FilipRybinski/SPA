@@ -4,7 +4,7 @@ using Parser.Tables;
 
 namespace QueryProcessor.Utils
 {
-    public static class QueryMethodChecker
+    public static class QueryChecker
     {
 
         public static void CheckModifiesOrUses(string firstArgument, string secondArgument,

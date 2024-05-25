@@ -294,28 +294,28 @@ namespace QueryProcessor.Utils
             switch (typeAndArguments[0].ToLower())
             {
                 case "modifies":
-                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Modifies.Instance.IsModified, Modifies.Instance.IsModified);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Modifies.Instance.IsModified, Modifies.Instance.IsModified);
                     break;
                 case "uses":
-                    QueryMethodChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Uses.Instance.IsUsed, Uses.Instance.IsUsed);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Uses.Instance.IsUsed, Uses.Instance.IsUsed);
                     break;
                 case "parent":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParent);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParent);
                     break;
                 case "parent*":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParentStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParentStar);
                     break;
                 case "follows":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowed);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowed);
                     break;
                 case "follows*":
-                    QueryMethodChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowedStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowedStar);
                     break;
                 case "calls":
-                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCalls);
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCalls);
                     break;
                 case "calls*":
-                    QueryMethodChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCallsStar);
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCallsStar);
                     break;
                 default:
                     throw new ArgumentException(string.Format("# Niepoprawna metoda: \"{0}\"", typeAndArguments[0]));
