@@ -13,6 +13,10 @@ namespace QueryProcessor.Utils
         private static Dictionary<string, List<int>> variableIndexes = null;
         private static int Sum;
         private static bool AlgorithmNotEnd;
+        private static readonly string procname = "procname";
+        private static readonly string varname = "varname";
+        private static readonly string value = "value";
+        private static readonly string stmth = "stmt#";
 
         private static void Init()
         {
@@ -113,8 +117,8 @@ namespace QueryProcessor.Utils
             List<int> indexes = new List<int>();
             List<string> procName = new List<string>();
 
-            if (attributes.ContainsKey("procname"))
-                procName = attributes["procname"];
+            if (attributes.ContainsKey(procname))
+                procName = attributes[procname];
             if (procName.Count > 1)
                 return indexes;
 
@@ -138,8 +142,8 @@ namespace QueryProcessor.Utils
             List<int> indexes = new List<int>();
             List<string> varName = new List<string>();
 
-            if (attributes.ContainsKey("varname"))
-                varName = attributes["varname"];
+            if (attributes.ContainsKey(varname))
+                varName = attributes[varname];
             if (varName.Count > 1)
                 return indexes;
 
@@ -164,8 +168,8 @@ namespace QueryProcessor.Utils
             List<int> indexes = new List<int>();
             List<string> procLine = new List<string>();
 
-            if (attributes.ContainsKey("value"))
-                procLine = attributes["value"];
+            if (attributes.ContainsKey(value))
+                procLine = attributes[value];
             if (procLine.Count > 1)
                 return indexes;
 
@@ -188,8 +192,8 @@ namespace QueryProcessor.Utils
             List<int> indexes = new List<int>();
             List<string> constantV = new List<string>();
 
-            if (attributes.ContainsKey("value"))
-                constantV = attributes["value"];
+            if (attributes.ContainsKey(value))
+                constantV = attributes[value];
             if (constantV.Count > 1)
                 return indexes;
 
@@ -218,8 +222,8 @@ namespace QueryProcessor.Utils
             List<int> indexes = new List<int>();
             List<string> stmtNr = new List<string>();
 
-            if (attributes.ContainsKey("stmt#"))
-                stmtNr = attributes["stmt#"];
+            if (attributes.ContainsKey(stmth))
+                stmtNr = attributes[stmth];
 
             if (stmtNr.Count > 1)
                 return indexes;
