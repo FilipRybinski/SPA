@@ -12,10 +12,10 @@ namespace QueryProcessor.Utils
 
             foreach (KeyValuePair<string, List<int>> oneVar in resultToPrint)
             {
-                EntityType type = QueryProcessor.GetVariableEnumType(oneVar.Key);
+                EntityType entityType = QueryProcessor.GetVariableEnumType(oneVar.Key);
 
 
-                switch (type)
+                switch (entityType)
                 {
                     case EntityType.Variable:
                         results.AddRange(PrintVariables(oneVar.Value));
@@ -49,13 +49,18 @@ namespace QueryProcessor.Utils
         private static List<string> PrintVariables(List<int> indexes)
         {
             List<string> results = new List<string>();
-            if (indexes.Count != 0)
+            foreach (int index in indexes)
+            {
+                results.Add(ViariableTable.Instance.GetVar(index).Identifier);
+            }
+
+            /*if (indexes.Count != 0)
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
                     results.Add(ViariableTable.Instance.GetVar(indexes[i]).Identifier);
                 }
-            }
+            }*/
 
             return results;
         }
@@ -63,13 +68,20 @@ namespace QueryProcessor.Utils
         private static List<string> PrintProcedures(List<int> indexes)
         {
             List<string> results = new List<string>();
-            if (indexes.Count != 0)
+            foreach (int index in indexes)
+            {
+                results.Add(ProcedureTable.Instance.GetProcedure(index).Identifier);
+
+            }
+
+            /*
+                if (indexes.Count != 0)
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
                     results.Add(ProcedureTable.Instance.GetProcedure(indexes[i]).Identifier);
                 }
-            }
+            }*/
 
             return results;
         }
@@ -77,14 +89,20 @@ namespace QueryProcessor.Utils
         private static List<string> PrintStatements(List<int> indexes)
         {
             List<string> results = new List<string>();
-            if (indexes.Count != 0)
+            foreach (int index in indexes)
+            {
+                results.Add(index.ToString());
+            }
+
+            /*
+                if (indexes.Count != 0)
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
                     results.Add(indexes[i].ToString());
 
                 }
-            }
+            }*/
             return results;
         }
     }

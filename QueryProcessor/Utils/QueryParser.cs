@@ -11,23 +11,23 @@ namespace QueryProcessor.Utils
     public static class QueryParser
     {
         private static Dictionary<string, List<int>> variableIndexes = null;
-        private static int Sum;
-        private static bool AlgorithmNotEnd;
-        private static readonly string procname = "procname";
-        private static readonly string varname = "varname";
-        private static readonly string value = "value";
-        private static readonly string stmth = "stmt#";
+        private static int currentSum;
+        private static bool algorithmNotFinished;
+        private static readonly string procedureNameKey = "procname";
+        private static readonly string variableNameKey = "varname";
+        private static readonly string valueKey = "value";
+        private static readonly string statementKey = "stmt#";
 
-        private static void Init()
+        private static void Initialize()
         {
-            AlgorithmNotEnd = true;
-            Sum = -1;
+            algorithmNotFinished = true;
+            currentSum = -1;
             variableIndexes = new Dictionary<string, List<int>>();
         }
 
         public static List<string> GetData(bool testing)
         {
-            Init();
+            Initialize();
             InsertIndexesIntoVarTables();
             Dictionary<string, List<string>> queryDetails = QueryProcessor.GetQueryDetails();
             List<string> suchThatPart = new List<string>();
@@ -52,7 +52,7 @@ namespace QueryProcessor.Utils
                             DecodeMethod(method);
                     }
                     CheckSum();
-                } while (AlgorithmNotEnd);
+                } while (algorithmNotFinished);
             }
 
             //After algorithm....
@@ -63,51 +63,51 @@ namespace QueryProcessor.Utils
         {
             Dictionary<string, List<string>> varAttributes = QueryProcessor.GetVariableAttributes();
 
-            foreach (KeyValuePair<string, EntityType> oneVar in QueryProcessor.GetQueryVariables())
+            foreach (KeyValuePair<string, EntityType> variable in QueryProcessor.GetQueryVariables())
             {
                 Dictionary<string, List<string>> attributes = new Dictionary<string, List<string>>();
                 foreach (KeyValuePair<string, List<string>> entry in varAttributes)
                 {
                     string[] attrSplitted = entry.Key.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (oneVar.Key == attrSplitted[0])
+                    if (variable.Key == attrSplitted[0])
                         attributes.Add(attrSplitted[1].ToLower(), entry.Value);
                 }
 
-                switch (oneVar.Value)
+                switch (variable.Value)
                 {
                     case EntityType.Procedure:
-                        variableIndexes.Add(oneVar.Key, GetProcedureIndexes(attributes));
+                        variableIndexes.Add(variable.Key, GetProcedureIndexes(attributes));
                         break;
 
                     case EntityType.Variable:
-                        variableIndexes.Add(oneVar.Key, GetVariableIndexes(attributes));
+                        variableIndexes.Add(variable.Key, GetVariableIndexes(attributes));
                         break;
 
                     case EntityType.Assign:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Assign));
+                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Assign));
                         break;
 
                     case EntityType.If:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.If));
+                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.If));
                         break;
 
                     case EntityType.While:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.While));
+                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.While));
                         break;
                     case EntityType.Call:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Call));
+                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Call));
                         break;
                     case EntityType.Statement:
-                        variableIndexes.Add(oneVar.Key, GetStatementIndexes(attributes, EntityType.Statement));
+                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Statement));
                         break;
                     case EntityType.Prog_line:
-                        variableIndexes.Add(oneVar.Key, GetProglineIndexes(attributes));
+                        variableIndexes.Add(variable.Key, GetProglineIndexes(attributes));
                         break;
                     case EntityType.Constant:
-                        variableIndexes.Add(oneVar.Key, GetConstantIndexes(attributes));
+                        variableIndexes.Add(variable.Key, GetConstantIndexes(attributes));
                         break;
                     default:
-                        throw new System.ArgumentException("# Wrong typo!");
+                        throw new System.ArgumentException("# Invalid entity type!");
                 }
             }
         }
@@ -115,20 +115,20 @@ namespace QueryProcessor.Utils
         private static List<int> GetProcedureIndexes(Dictionary<string, List<string>> attributes)
         {
             List<int> indexes = new List<int>();
-            List<string> procName = new List<string>();
+            List<string> procNames = new List<string>();
 
-            if (attributes.ContainsKey(procname))
-                procName = attributes[procname];
-            if (procName.Count > 1)
+            if (attributes.ContainsKey(procedureNameKey))
+                procNames = attributes[procedureNameKey];
+            if (procNames.Count > 1)
                 return indexes;
 
             char[] charsToTrim = { '"', };
 
             foreach (Procedure p in ProcedureTable.Instance.ProceduresList)
             {
-                if (procName.Count == 1)
+                if (procNames.Count == 1)
                 {
-                    if (p.Identifier == procName[0].Trim(charsToTrim))
+                    if (p.Identifier == procNames[0].Trim(charsToTrim))
                         indexes.Add(p.Id);
                 }
                 else
@@ -140,20 +140,20 @@ namespace QueryProcessor.Utils
         private static List<int> GetVariableIndexes(Dictionary<string, List<string>> attributes)
         {
             List<int> indexes = new List<int>();
-            List<string> varName = new List<string>();
+            List<string> varNames = new List<string>();
 
-            if (attributes.ContainsKey(varname))
-                varName = attributes[varname];
-            if (varName.Count > 1)
+            if (attributes.ContainsKey(variableNameKey))
+                varNames = attributes[variableNameKey];
+            if (varNames.Count > 1)
                 return indexes;
 
             char[] charsToTrim = { '"', };
 
             foreach (Variable v in ViariableTable.Instance.VariablesList)
             {
-                if (varName.Count == 1)
+                if (varNames.Count == 1)
                 {
-                    if (v.Identifier == varName[0].Trim(charsToTrim))
+                    if (v.Identifier == varNames[0].Trim(charsToTrim))
                         indexes.Add(v.Id);
                 }
                 else
@@ -166,18 +166,18 @@ namespace QueryProcessor.Utils
         private static List<int> GetProglineIndexes(Dictionary<string, List<string>> attributes)
         {
             List<int> indexes = new List<int>();
-            List<string> procLine = new List<string>();
+            List<string> procLines = new List<string>();
 
-            if (attributes.ContainsKey(value))
-                procLine = attributes[value];
-            if (procLine.Count > 1)
+            if (attributes.ContainsKey(valueKey))
+                procLines = attributes[valueKey];
+            if (procLines.Count > 1)
                 return indexes;
 
             foreach (Statement stmt in StatementTable.Instance.StatementsList)
             {
-                if (procLine.Count == 1)
+                if (procLines.Count == 1)
                 {
-                    if (stmt.LineNumber.ToString() == procLine[0])
+                    if (stmt.LineNumber.ToString() == procLines[0])
                         indexes.Add(stmt.LineNumber);
                 }
                 else
@@ -190,28 +190,28 @@ namespace QueryProcessor.Utils
         private static List<int> GetConstantIndexes(Dictionary<string, List<string>> attributes)
         {
             List<int> indexes = new List<int>();
-            List<string> constantV = new List<string>();
+            List<string> constants = new List<string>();
 
-            if (attributes.ContainsKey(value))
-                constantV = attributes[value];
-            if (constantV.Count > 1)
+            if (attributes.ContainsKey(valueKey))
+                constants = attributes[valueKey];
+            if (constants.Count > 1)
                 return indexes;
 
-            if (constantV.Count == 1)
-                if (!int.TryParse(constantV[0], out _))
+            if (constants.Count == 1)
+                if (!int.TryParse(constants[0], out _))
                     return indexes;
 
-            foreach (Statement stmt in StatementTable.Instance.StatementsList)
+            foreach (Statement statement in StatementTable.Instance.StatementsList)
             {
-                Node node = stmt.AstRoot;
-                List<int> consts = AST.Instance.GetConstants(node);
-                if (constantV.Count == 1)
+                Node node = statement.AstRoot;
+                List<int> constValues = AST.Instance.GetConstants(node);
+                if (constants.Count == 1)
                 {
-                    if (consts.Contains(Int32.Parse(constantV[0])))
-                        indexes.Add(Int32.Parse(constantV[0]));
+                    if (constValues.Contains(Int32.Parse(constants[0])))
+                        indexes.Add(Int32.Parse(constants[0]));
                 }
                 else
-                    indexes.AddRange(consts);
+                    indexes.AddRange(constValues);
             }
 
             return indexes.Distinct().ToList();
@@ -220,33 +220,33 @@ namespace QueryProcessor.Utils
         private static List<int> GetStatementIndexes(Dictionary<string, List<string>> attributes, EntityType type)
         {
             List<int> indexes = new List<int>();
-            List<string> stmtNr = new List<string>();
+            List<string> stmtNumbers = new List<string>();
 
-            if (attributes.ContainsKey(stmth))
-                stmtNr = attributes[stmth];
+            if (attributes.ContainsKey(statementKey))
+                stmtNumbers = attributes[statementKey];
 
-            if (stmtNr.Count > 1)
+            if (stmtNumbers.Count > 1)
                 return indexes;
 
-            if (stmtNr.Count != 1)
-                foreach (Statement s in StatementTable.Instance.StatementsList)
+            if (stmtNumbers.Count != 1)
+                foreach (Statement statement in StatementTable.Instance.StatementsList)
                 {
-                    if (s.StmtType == type)
-                        indexes.Add(s.LineNumber);
+                    if (statement.StmtType == type)
+                        indexes.Add(statement.LineNumber);
                     else if (type == EntityType.Statement)
-                        indexes.Add(s.LineNumber);
+                        indexes.Add(statement.LineNumber);
                 }
             else
             {
                 try
                 {
-                    Statement s = StatementTable.Instance.GetStatement(Int32.Parse(stmtNr[0]));
-                    if (s != null)
-                        indexes.Add(s.LineNumber);
+                    Statement statement = StatementTable.Instance.GetStatement(Int32.Parse(stmtNumbers[0]));
+                    if (statement != null)
+                        indexes.Add(statement.LineNumber);
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException(string.Format("# Wrong stmt# = {0}", stmtNr[0]));
+                    throw new ArgumentException(string.Format("# Wrong stmt# = {0}", stmtNumbers[0]));
                 }
             }
 
@@ -258,9 +258,9 @@ namespace QueryProcessor.Utils
         {
             List<string> varsToSelect = QueryProcessor.GetVariableToSelect();
             Dictionary<string, List<int>> varIndexesToPrint = new Dictionary<string, List<int>>();
-            foreach (string var in varsToSelect)
+            foreach (string variable in varsToSelect)
             {
-                string trimedVar = var.Trim();
+                string trimedVar = variable.Trim();
                 try
                 {
                     varIndexesToPrint.Add(trimedVar, variableIndexes[trimedVar]);
@@ -276,16 +276,16 @@ namespace QueryProcessor.Utils
 
         private static void CheckSum()
         {
-            int TmpSum = 0;
+            int tmpSum = 0;
             foreach (KeyValuePair<string, List<int>> item in variableIndexes)
             {
-                TmpSum += item.Value.Count;
+                tmpSum += item.Value.Count;
             }
 
-            if (TmpSum != Sum)
-                Sum = TmpSum;
+            if (tmpSum != currentSum)
+                currentSum = tmpSum;
             else
-                AlgorithmNotEnd = false;
+                algorithmNotFinished = false;
         }
 
         private static void DecodeMethod(string method)
@@ -374,9 +374,9 @@ namespace QueryProcessor.Utils
 
         private static List<string> SortSuchThatPart(List<string> stp)
         {
-            List<string> newstp = stp.OrderBy(x => x.Contains("\"")).ToList();
-            newstp.Reverse();
-            return newstp;
+            List<string> sortedSuchThatPart = stp.OrderBy(x => x.Contains("\"")).ToList();
+            sortedSuchThatPart.Reverse();
+            return sortedSuchThatPart;
         }
     }
 }

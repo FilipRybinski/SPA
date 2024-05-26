@@ -11,20 +11,23 @@ namespace QueryProcessor.Utils
                                         Func<Variable, Procedure, bool> methodForProc,
                                         Func<Variable, Statement, bool> methodForStmt)
         {
-            EntityType firstArgType;
-            if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
-                firstArgType = EntityType.Procedure;
-            else if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityType.Statement;
-            else if (firstArgument == "_")
-                firstArgType = EntityType.Statement;
-            else
-                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
+            EntityType firstArgType = DetermineEntityType(firstArgument);
 
             if (firstArgType == EntityType.Procedure)
                 CheckProcedureModifiesOrUses(firstArgument, secondArgument, methodForProc);
             else
                 CheckStatementModifiesOrUses(firstArgument, secondArgument, methodForStmt);
+        }
+        private static EntityType DetermineEntityType(string argument)
+        {
+            if (argument[0] == '\"' && argument[argument.Length - 1] == '\"')
+                return EntityType.Procedure;
+            else if (int.TryParse(argument, out _))
+                return EntityType.Statement;
+            else if (argument == "_")
+                return EntityType.Statement;
+            else
+                return QueryProcessor.GetVariableEnumType(argument);
         }
 
         private static void CheckProcedureModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Procedure, bool> IsModifiedOrUsedByProc)
@@ -52,16 +55,16 @@ namespace QueryProcessor.Utils
 
             Procedure proc;
             Variable var;
-            foreach (int firstInd in firstArgIndexes)
-                foreach (int secondInd in secondArgIndexes)
+            foreach (int firstIndex in firstArgIndexes)
+                foreach (int secondIndex in secondArgIndexes)
                 {
-                    proc = ProcedureTable.Instance.GetProcedure(firstInd);
-                    var = ViariableTable.Instance.GetVar(secondInd);
+                    proc = ProcedureTable.Instance.GetProcedure(firstIndex);
+                    var = ViariableTable.Instance.GetVar(secondIndex);
                     //Modifies.Modifies.Instance.IsModified
                     if (IsModifiedOrUsedByProc(var, proc))
                     {
-                        procStayinIndexes.Add(firstInd);
-                        varStayinIndexes.Add(secondInd);
+                        procStayinIndexes.Add(firstIndex);
+                        varStayinIndexes.Add(secondIndex);
 
                     }
                 }
@@ -72,8 +75,8 @@ namespace QueryProcessor.Utils
 
         private static void CheckStatementModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Statement, bool> IsModifiedOrUsedByStmt)
         {
-            EntityType secondArgType;
             EntityType firstArgType;
+            EntityType secondArgType;
 
             if (int.TryParse(firstArgument, out _))
                 firstArgType = EntityType.Statement;
@@ -95,18 +98,16 @@ namespace QueryProcessor.Utils
             List<int> stmtStayinIndexes = new List<int>();
             List<int> varStayinIndexes = new List<int>();
 
-            Statement stmt;
-            Variable var;
-            foreach (int firstInd in firstArgIndexes)
-                foreach (int secondInd in secondArgIndexes)
+            foreach (int firstIndex in firstArgIndexes)
+                foreach (int secondIndex in secondArgIndexes)
                 {
-                    stmt = StatementTable.Instance.GetStatement(firstInd);
-                    var = ViariableTable.Instance.GetVar(secondInd);
+                    Statement statement = StatementTable.Instance.GetStatement(firstIndex);
+                    Variable variable = ViariableTable.Instance.GetVar(secondIndex);
                     //Modifies.Modifies.Instance.IsModified
-                    if (IsModifiedOrUsedByStmt(var, stmt))
+                    if (IsModifiedOrUsedByStmt(variable, statement))
                     {
-                        stmtStayinIndexes.Add(firstInd);
-                        varStayinIndexes.Add(secondInd);
+                        stmtStayinIndexes.Add(firstIndex);
+                        varStayinIndexes.Add(secondIndex);
                     }
                 }
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
@@ -140,15 +141,15 @@ namespace QueryProcessor.Utils
 
             Node first;
             Node second;
-            foreach (int firstInd in firstArgIndexes)
-                foreach (int secondInd in secondArgIndexes)
+            foreach (int firstIndex in firstArgIndexes)
+                foreach (int secondIndex in secondArgIndexes)
                 {
-                    first = GetNodeByType(firstArgType, firstInd);
-                    second = GetNodeByType(secondArgType, secondInd);
+                    first = GetNodeByType(firstArgType, firstIndex);
+                    second = GetNodeByType(secondArgType, secondIndex);
                     if (method(first, second))
                     {
-                        firstStayinIndexes.Add(firstInd);
-                        secondStayinIndexes.Add(secondInd);
+                        firstStayinIndexes.Add(firstIndex);
+                        secondStayinIndexes.Add(secondIndex);
                     }
                 }
 
@@ -190,19 +191,19 @@ namespace QueryProcessor.Utils
 
             string first, second;
             Procedure p1, p2;
-            foreach (int firstInd in firstArgIndexes)
-                foreach (int secondInd in secondArgIndexes)
+            foreach (int firstIndex in firstArgIndexes)
+                foreach (int secondIndex in secondArgIndexes)
                 {
-                    p1 = ProcedureTable.Instance.GetProcedure(firstInd);
-                    p2 = ProcedureTable.Instance.GetProcedure(secondInd);
+                    p1 = ProcedureTable.Instance.GetProcedure(firstIndex);
+                    p2 = ProcedureTable.Instance.GetProcedure(secondIndex);
 
                     first = p1 == null ? "" : p1.Identifier;
                     second = p2 == null ? "" : p2.Identifier;
 
                     if (method(first, second))
                     {
-                        firstStayinIndexes.Add(firstInd);
-                        secondStayinIndexes.Add(secondInd);
+                        firstStayinIndexes.Add(firstIndex);
+                        secondStayinIndexes.Add(secondIndex);
                     }
                 }
 
@@ -235,13 +236,13 @@ namespace QueryProcessor.Utils
             List<int> firstStayinIndexes = new List<int>();
             List<int> secondStayinIndexes = new List<int>();
 
-            foreach (int firstInd in firstArgIndexes)
-                foreach (int secondInd in secondArgIndexes)
+            foreach (int firstIndex in firstArgIndexes)
+                foreach (int secondIndex in secondArgIndexes)
                 {
-                    if (method(firstInd, secondInd))
+                    if (method(firstIndex, secondIndex))
                     {
-                        firstStayinIndexes.Add(firstInd);
-                        secondStayinIndexes.Add(secondInd);
+                        firstStayinIndexes.Add(firstIndex);
+                        secondStayinIndexes.Add(secondIndex);
                     }
                 }
 
@@ -251,19 +252,17 @@ namespace QueryProcessor.Utils
 
         }
 
-        private static Node GetNodeByType(EntityType et, int ind)
+        private static Node GetNodeByType(EntityType entityType, int index)
         {
-            Node node;
-            if (et == EntityType.Procedure)
+            if (entityType == EntityType.Procedure)
             {
-                node = ProcedureTable.Instance.GetAstRoot(ind);
+                return ProcedureTable.Instance.GetAstRoot(index);
             }
             else
             {
-                node = StatementTable.Instance.GetAstRoot(ind);
+                return StatementTable.Instance.GetAstRoot(index);
             }
 
-            return node;
         }
 
 

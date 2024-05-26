@@ -8,7 +8,6 @@ namespace  Program
         private const string Failed = "none";
         public static void Main(string[] args)
         {
-            
             try
             {           
                 string SimpleCode = File.ReadAllText(args[0]); //pobieranie nazwy pliku z kodem simple
