@@ -4,7 +4,7 @@ using PKB.Interfaces;
 
 namespace PKB;
 
-public class Pkb : IPkb
+public sealed class Pkb : IPkb
 {
     private static Pkb? _singletonInstance;
     public IUses? Uses => Parser.Uses.Uses.Instance;
