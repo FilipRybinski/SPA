@@ -124,15 +124,15 @@ namespace QueryProcessor.Utils
 
             char[] charsToTrim = { '"', };
 
-            foreach (Procedure p in ProcTable.Instance.Procedures)
+            foreach (Procedure p in ProcedureTable.Instance.ProceduresList)
             {
                 if (procName.Count == 1)
                 {
-                    if (p.Name == procName[0].Trim(charsToTrim))
-                        indexes.Add(p.Index);
+                    if (p.Identifier == procName[0].Trim(charsToTrim))
+                        indexes.Add(p.Id);
                 }
                 else
-                    indexes.Add(p.Index);
+                    indexes.Add(p.Id);
             }
             return indexes;
         }
@@ -149,15 +149,15 @@ namespace QueryProcessor.Utils
 
             char[] charsToTrim = { '"', };
 
-            foreach (Variable v in VarTable.Instance.Variables)
+            foreach (Variable v in ViariableTable.Instance.VariablesList)
             {
                 if (varName.Count == 1)
                 {
-                    if (v.Name == varName[0].Trim(charsToTrim))
-                        indexes.Add(v.Index);
+                    if (v.Identifier == varName[0].Trim(charsToTrim))
+                        indexes.Add(v.Id);
                 }
                 else
-                    indexes.Add(v.Index);
+                    indexes.Add(v.Id);
             }
 
             return indexes;
@@ -173,15 +173,15 @@ namespace QueryProcessor.Utils
             if (procLine.Count > 1)
                 return indexes;
 
-            foreach (Statement stmt in StmtTable.Instance.Statements)
+            foreach (Statement stmt in StatementTable.Instance.StatementsList)
             {
                 if (procLine.Count == 1)
                 {
-                    if (stmt.CodeLine.ToString() == procLine[0])
-                        indexes.Add(stmt.CodeLine);
+                    if (stmt.LineNumber.ToString() == procLine[0])
+                        indexes.Add(stmt.LineNumber);
                 }
                 else
-                    indexes.Add(stmt.CodeLine);
+                    indexes.Add(stmt.LineNumber);
             }
 
             return indexes;
@@ -201,7 +201,7 @@ namespace QueryProcessor.Utils
                 if (!int.TryParse(constantV[0], out _))
                     return indexes;
 
-            foreach (Statement stmt in StmtTable.Instance.Statements)
+            foreach (Statement stmt in StatementTable.Instance.StatementsList)
             {
                 Node node = stmt.AstRoot;
                 List<int> consts = AST.Instance.GetConstants(node);
@@ -229,20 +229,20 @@ namespace QueryProcessor.Utils
                 return indexes;
 
             if (stmtNr.Count != 1)
-                foreach (Statement s in StmtTable.Instance.Statements)
+                foreach (Statement s in StatementTable.Instance.StatementsList)
                 {
-                    if (s.Type == type)
-                        indexes.Add(s.CodeLine);
+                    if (s.StmtType == type)
+                        indexes.Add(s.LineNumber);
                     else if (type == EntityType.Statement)
-                        indexes.Add(s.CodeLine);
+                        indexes.Add(s.LineNumber);
                 }
             else
             {
                 try
                 {
-                    Statement s = StmtTable.Instance.GetStmt(Int32.Parse(stmtNr[0]));
+                    Statement s = StatementTable.Instance.GetStatement(Int32.Parse(stmtNr[0]));
                     if (s != null)
-                        indexes.Add(s.CodeLine);
+                        indexes.Add(s.LineNumber);
                 }
                 catch (Exception e)
                 {
@@ -331,10 +331,10 @@ namespace QueryProcessor.Utils
             {
                 string name = var.Substring(1, var.Length - 2);
                 if (type == EntityType.Procedure)
-                    return new List<int>(new int[] { ProcTable.Instance.GetProcIndex(name) });
+                    return new List<int>(new int[] { ProcedureTable.Instance.GetProcIndex(name) });
 
                 else if (type == EntityType.Variable)
-                    return new List<int>(new int[] { VarTable.Instance.GetVarIndex(name) });
+                    return new List<int>(new int[] { ViariableTable.Instance.GetVarIndex(name) });
             }
 
             if (int.TryParse(var, out _))
@@ -346,15 +346,15 @@ namespace QueryProcessor.Utils
         {
             List<int> result = new List<int>();
             if (type == EntityType.Variable)
-                foreach (Variable v in VarTable.Instance.Variables)
-                    result.Add(v.Index);
+                foreach (Variable v in ViariableTable.Instance.VariablesList)
+                    result.Add(v.Id);
 
             else if (type == EntityType.Procedure)
-                foreach (Procedure p in ProcTable.Instance.Procedures)
-                    result.Add(p.Index);
+                foreach (Procedure p in ProcedureTable.Instance.ProceduresList)
+                    result.Add(p.Id);
             else
-                foreach (Statement s in StmtTable.Instance.Statements)
-                    result.Add(s.CodeLine);
+                foreach (Statement s in StatementTable.Instance.StatementsList)
+                    result.Add(s.LineNumber);
 
             return result;
         }

@@ -26,21 +26,21 @@ public class Modifies : IModifies
         {
             List<int> varIndexes = stmt.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Variable> GetModified(Procedure proc)
         {
             List<int> varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Procedure> GetModifiesForProcs(Variable var)
         {
             List<Procedure> procedures = new List<Procedure>();
 
-            foreach(Procedure procedure in ProcTable.Instance.Procedures)
+            foreach(Procedure procedure in ProcedureTable.Instance.ProceduresList)
             {
                 if (IsModified(var, procedure))
                 {
@@ -55,7 +55,7 @@ public class Modifies : IModifies
         {
             List<Statement> statements = new List<Statement>();
 
-            foreach (Statement statement in StmtTable.Instance.Statements)
+            foreach (Statement statement in StatementTable.Instance.StatementsList)
             {
                 if (IsModified(var,statement))
                 {
@@ -72,7 +72,7 @@ public class Modifies : IModifies
             try
             {
                 if(stat!=null)
-                    flag = stat.ModifiesList.TryGetValue(var.Index, out bool value) && value;
+                    flag = stat.ModifiesList.TryGetValue(var.Id, out bool value) && value;
             } catch (Exception e) {}
             return flag;
         }
@@ -83,32 +83,32 @@ public class Modifies : IModifies
             try
             {
                 if(proc!=null)
-                    flag = proc.ModifiesList.TryGetValue(var.Index, out bool value) && value;
+                    flag = proc.ModifiesList.TryGetValue(var.Id, out bool value) && value;
             } catch (Exception e) {}
             return flag;
         }
 
         public void SetModifies(Statement stmt, Variable var)
         {
-            if (stmt.ModifiesList.TryGetValue(var.Index, out bool value))
+            if (stmt.ModifiesList.TryGetValue(var.Id, out bool value))
             {
-                stmt.ModifiesList[var.Index] = true;
+                stmt.ModifiesList[var.Id] = true;
             }
             else
             {
-                stmt.ModifiesList.Add(var.Index, true);
+                stmt.ModifiesList.Add(var.Id, true);
             }
         }
 
         public void SetModifies(Procedure proc, Variable var)
         {
-            if (proc.ModifiesList.TryGetValue(var.Index, out bool value))
+            if (proc.ModifiesList.TryGetValue(var.Id, out bool value))
             {
-                proc.ModifiesList[var.Index] = true;
+                proc.ModifiesList[var.Id] = true;
             }
             else
             {
-                proc.ModifiesList.Add(var.Index, true);
+                proc.ModifiesList.Add(var.Id, true);
             }
         }
 }

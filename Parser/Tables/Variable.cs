@@ -2,11 +2,11 @@
 {
     public class Variable
     {
-        public int Index { get; set; }
-        public string Name { get; set; }
-        public Variable(string name)
+        public int Id { get; set; }
+        public string Identifier { get; set; }
+        public Variable(string identifier)
         {
-            Name = name;
+            Identifier = identifier;
         }
 
     }

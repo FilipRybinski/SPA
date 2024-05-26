@@ -31,21 +31,21 @@ namespace Parser.Uses
         {
             List<int> varIndexes = stmt.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Variable> GetUsed(Procedure proc)
         {
             List<int> varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return VarTable.Instance.Variables.Where(i => varIndexes.Contains(i.Index)).ToList();
+            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Procedure> GetUsesForProcs(Variable var)
         {
             List<Procedure> procedures = new List<Procedure>();
 
-            foreach (Procedure procedure in ProcTable.Instance.Procedures)
+            foreach (Procedure procedure in ProcedureTable.Instance.ProceduresList)
             {
                 if (IsUsed(var, procedure))
                 {
@@ -60,7 +60,7 @@ namespace Parser.Uses
         {
             List<Statement> statements = new List<Statement>();
 
-            foreach (Statement statement in StmtTable.Instance.Statements)
+            foreach (Statement statement in StatementTable.Instance.StatementsList)
             {
                 if (IsUsed(var, statement))
                 {
@@ -74,38 +74,38 @@ namespace Parser.Uses
         public bool IsUsed(Variable var, Statement stat)
         {
             if (var != null & stat != null)
-                return stat.UsesList.TryGetValue(var.Index, out bool value) && value;
+                return stat.UsesList.TryGetValue(var.Id, out bool value) && value;
             return false;
         }
 
         public bool IsUsed(Variable var, Procedure proc)
         {
             if (var != null & proc != null)
-                return proc.UsesList.TryGetValue(var.Index, out bool value) && value;
+                return proc.UsesList.TryGetValue(var.Id, out bool value) && value;
             return false;
         }
 
         public void SetUses(Statement stmt, Variable var)
         {
-            if (stmt.UsesList.ContainsKey(var.Index))
+            if (stmt.UsesList.ContainsKey(var.Id))
             {
-                stmt.UsesList[var.Index] = true;
+                stmt.UsesList[var.Id] = true;
             }
             else
             {
-                stmt.UsesList.Add(var.Index, true);
+                stmt.UsesList.Add(var.Id, true);
             }
         }
 
         public void SetUses(Procedure proc, Variable var)
         {
-            if (proc.UsesList.ContainsKey(var.Index))
+            if (proc.UsesList.ContainsKey(var.Id))
             {
-                proc.UsesList[var.Index] = true;
+                proc.UsesList[var.Id] = true;
             }
             else
             {
-                proc.UsesList.Add(var.Index, true);
+                proc.UsesList.Add(var.Id, true);
             }
         }
     }

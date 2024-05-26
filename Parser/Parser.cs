@@ -147,8 +147,8 @@ public class Parser
             Node newNode = AST.AST.Instance.CreateTNode(EntityType.Procedure);
             if (IsVarName(token))
             {
-                ProcTable.Instance.InsertProc(token);
-                ProcTable.Instance.SetAstRoot(token, newNode);
+                ProcedureTable.Instance.AddProcedure(token);
+                ProcedureTable.Instance.SetAstRootNode(token, newNode);
                 AST.AST.Instance.SetChildOfLink(newNode, parent);
             }
             else throw new Exception("ParseProcedure: Błędna nazwa procedury, " + token + ", linia: " + lineNumber);
@@ -205,11 +205,11 @@ public class Parser
         {
             string token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
             if (token != "while") throw new Exception("ParseWhile: Brak słowa kluczowego while, linia: " + lineNumber);
-            StmtTable.Instance.InsertStmt(EntityType.While, lineNumberQuery);
+            StatementTable.Instance.AddStatement(EntityType.While, lineNumberQuery);
             startIndex = endIndex;
 
             Node whileNode = AST.AST.Instance.CreateTNode(EntityType.While); // tworzenie node dla while
-            StmtTable.Instance.SetAstRoot(lineNumberQuery, whileNode);
+            StatementTable.Instance.SetAstRoot(lineNumberQuery, whileNode);
             AST.AST.Instance.SetParent(whileNode, parent); //ustawianie parenta dla while
 
             //Node stmtListNode = AST.AST.Instance.GetNthChild(0, parent);
@@ -223,9 +223,9 @@ public class Parser
                 AST.AST.Instance.SetChildOfLink(variableNode, whileNode);
 
                 Variable var = new Variable(token);
-                if (VarTable.Instance.GetVarIndex(token) == -1)
+                if (ViariableTable.Instance.GetVarIndex(token) == -1)
                 {
-                    VarTable.Instance.InsertVar(token);
+                    ViariableTable.Instance.AddVariable(token);
                 }
                 SetUsesForFamily(whileNode, var);
             }
@@ -254,14 +254,14 @@ public class Parser
         {
             if (node.EntityType == EntityType.Procedure)
             {
-                Procedure proc = ProcTable.Instance.Procedures.Where(i => i.AstRoot == node).FirstOrDefault();
-                var.Index = VarTable.Instance.GetVarIndex(var.Name);
+                Procedure proc = ProcedureTable.Instance.ProceduresList.Where(i => i.AstNodeRoot == node).FirstOrDefault();
+                var.Id = ViariableTable.Instance.GetVarIndex(var.Identifier);
                 Modifies.Modifies.Instance.SetModifies(proc, var);
             }
             else
             {
-                Statement stmt = StmtTable.Instance.Statements.Where(i => i.AstRoot == node).FirstOrDefault();
-                var.Index = VarTable.Instance.GetVarIndex(var.Name);
+                Statement stmt = StatementTable.Instance.StatementsList.Where(i => i.AstRoot == node).FirstOrDefault();
+                var.Id = ViariableTable.Instance.GetVarIndex(var.Identifier);
                 Modifies.Modifies.Instance.SetModifies(stmt, var);
             }
             if (AST.AST.Instance.GetParent(node) != null) SetModifiesForFamily(AST.AST.Instance.GetParent(node), var);
@@ -271,14 +271,14 @@ public class Parser
         {
             if (node.EntityType == EntityType.Procedure)
             {
-                Procedure proc = ProcTable.Instance.Procedures.Where(i => i.AstRoot == node).FirstOrDefault();
-                var.Index = VarTable.Instance.GetVarIndex(var.Name);
+                Procedure proc = ProcedureTable.Instance.ProceduresList.Where(i => i.AstNodeRoot == node).FirstOrDefault();
+                var.Id = ViariableTable.Instance.GetVarIndex(var.Identifier);
                 Uses.Uses.Instance.SetUses(proc, var);
             }
             else
             {
-                Statement stmt = StmtTable.Instance.Statements.Where(i => i.AstRoot == node).FirstOrDefault();
-                var.Index = VarTable.Instance.GetVarIndex(var.Name);
+                Statement stmt = StatementTable.Instance.StatementsList.Where(i => i.AstRoot == node).FirstOrDefault();
+                var.Id = ViariableTable.Instance.GetVarIndex(var.Identifier);
                 Uses.Uses.Instance.SetUses(stmt, var);
             }
             if (AST.AST.Instance.GetParent(node) != null) SetUsesForFamily(AST.AST.Instance.GetParent(node), var);
@@ -288,13 +288,13 @@ public class Parser
         {
             string token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
             if (!IsVarName(token)) throw new Exception("ParseAssign: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
-            StmtTable.Instance.InsertStmt(EntityType.Assign, lineNumberQuery);
+            StatementTable.Instance.AddStatement(EntityType.Assign, lineNumberQuery);
             startIndex = endIndex;
 
             Node assignNode = AST.AST.Instance.CreateTNode(EntityType.Assign); // tworzenie node dla assign
             Variable var = new Variable(token);
-            VarTable.Instance.InsertVar(token);
-            StmtTable.Instance.SetAstRoot(lineNumberQuery, assignNode);
+            ViariableTable.Instance.AddVariable(token);
+            StatementTable.Instance.SetAstRoot(lineNumberQuery, assignNode);
             AST.AST.Instance.SetParent(assignNode, parent); //ustawianie parenta dla assign
                                                             //Node stmtListNode = AST.AST.Instance.GetNthChild(0, parent);
             SettingFollows(assignNode, stmtListNode, parent);
@@ -317,13 +317,13 @@ public class Parser
         {
             string token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
             if (!IsVarName(token)) throw new Exception("ParseAssign: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
-            StmtTable.Instance.InsertStmt(EntityType.Assign, lineNumberQuery);
+            StatementTable.Instance.AddStatement(EntityType.Assign, lineNumberQuery);
             startIndex = endIndex;
 
             Node assignNode = AST.AST.Instance.CreateTNode(EntityType.Assign); // tworzenie node dla assign
             Variable var = new Variable(token);
-            VarTable.Instance.InsertVar(token);
-            StmtTable.Instance.SetAstRoot(lineNumberQuery, assignNode);
+            ViariableTable.Instance.AddVariable(token);
+            StatementTable.Instance.SetAstRoot(lineNumberQuery, assignNode);
             AST.AST.Instance.SetParent(assignNode, parent); //ustawianie parenta dla assign
 
             Node stmtListNode = AST.AST.Instance.GetNthChild(0, parent);
@@ -530,9 +530,9 @@ public class Parser
                             }
                         }
                         Variable usesVar = new Variable(token); // ustawianie Uses
-                        if (VarTable.Instance.GetVarIndex(token) == -1)
+                        if (ViariableTable.Instance.GetVarIndex(token) == -1)
                         {
-                            VarTable.Instance.InsertVar(token);
+                            ViariableTable.Instance.AddVariable(token);
                         }
                         SetUsesForFamily(assignNode, usesVar);
                         startIndex = endIndex;
@@ -632,9 +632,9 @@ public class Parser
 
             startIndex = endIndex;
 
-            StmtTable.Instance.InsertStmt(EntityType.Call, lineNumberQuery);
+            StatementTable.Instance.AddStatement(EntityType.Call, lineNumberQuery);
             Node callNode = AST.AST.Instance.CreateTNode(EntityType.Call);
-            StmtTable.Instance.SetAstRoot(lineNumberQuery, callNode);
+            StatementTable.Instance.SetAstRoot(lineNumberQuery, callNode);
 
             AST.AST.Instance.SetParent(callNode, parent); //ustawianie parenta dla call
                                                           //Node stmtListNode = AST.AST.Instance.GetLinkedNodes(parent, LinkType.Child)
@@ -668,9 +668,9 @@ public class Parser
 
             startIndex = endIndex;
 
-            StmtTable.Instance.InsertStmt(EntityType.If, lineNumberQuery);
+            StatementTable.Instance.AddStatement(EntityType.If, lineNumberQuery);
             Node ifNode = AST.AST.Instance.CreateTNode(EntityType.If);
-            StmtTable.Instance.SetAstRoot(lineNumberQuery, ifNode);
+            StatementTable.Instance.SetAstRoot(lineNumberQuery, ifNode);
 
             AST.AST.Instance.SetParent(ifNode, parent); //ustawianie parenta dla if
             //Node stmtListNode = AST.AST.Instance.GetNthChild(0, parent);
@@ -684,9 +684,9 @@ public class Parser
                 //else
                 //{
                 Variable var = new Variable(token);
-                if (VarTable.Instance.GetVarIndex(token) == -1)
+                if (ViariableTable.Instance.GetVarIndex(token) == -1)
                 {
-                    VarTable.Instance.InsertVar(token);
+                    ViariableTable.Instance.AddVariable(token);
                 }
                 SetUsesForFamily(ifNode, var);
                 //}
@@ -828,19 +828,19 @@ public class Parser
         public void UpdateModifiesAndUsesTablesInProcedures()
         {
             bool wasChange;
-            int sizeOfProcTable = ProcTable.Instance.GetSize();
+            int sizeOfProcTable = ProcedureTable.Instance.GetSize();
             do
             {
                 wasChange = false;
                 for (int i = 0; i < sizeOfProcTable; i++)
                 {
-                    Procedure p1 = ProcTable.Instance.GetProc(i);
+                    Procedure p1 = ProcedureTable.Instance.GetProcedure(i);
                     for (int j = 0; j < sizeOfProcTable; j++)
                     {
                         if (i != j)
                         {
-                            Procedure p2 = ProcTable.Instance.GetProc(j);
-                            if (Calls.Calls.Instance.IsCalls(p1.Name, p2.Name))
+                            Procedure p2 = ProcedureTable.Instance.GetProcedure(j);
+                            if (Calls.Calls.Instance.IsCalls(p1.Identifier, p2.Identifier))
                             {
                                 foreach (KeyValuePair<int, bool> variable in p2.ModifiesList)
                                     if (!p1.ModifiesList.ContainsKey(variable.Key))
@@ -863,11 +863,11 @@ public class Parser
                 }
             } while (wasChange);
 
-            foreach (Statement s in StmtTable.Instance.Statements)
-                if (s.Type == EntityType.Call)
+            foreach (Statement s in StatementTable.Instance.StatementsList)
+                if (s.StmtType == EntityType.Call)
                 {
                     string pname = s.AstRoot.NodeAttribute.Name;
-                    Procedure p = ProcTable.Instance.GetProc(pname);
+                    Procedure p = ProcedureTable.Instance.GetProcedure(pname);
                     if (p != null)
                     {
                         s.ModifiesList = p.ModifiesList;
@@ -878,7 +878,7 @@ public class Parser
 
         public void UpdateModifiesAndUsesTablesInWhilesAndIfs()
         {
-            List<Statement> ifOrWhileStmts = StmtTable.Instance.Statements
+            List<Statement> ifOrWhileStmts = StatementTable.Instance.StatementsList
                 .Where(i => i.AstRoot.EntityType == EntityType.While || i.AstRoot.EntityType == EntityType.If).ToList();
 
             foreach(var stmt in ifOrWhileStmts)
@@ -916,9 +916,9 @@ public class Parser
         public void CleanData()
         {
             AST.AST.Instance.Root = null;
-            VarTable.Instance.Variables.Clear();
-            StmtTable.Instance.Statements.Clear();
-            ProcTable.Instance.Procedures.Clear();
+            ViariableTable.Instance.VariablesList.Clear();
+            StatementTable.Instance.StatementsList.Clear();
+            ProcedureTable.Instance.ProceduresList.Clear();
         }
 
         private void addLineNumberQuery(string line, int lineNumber)

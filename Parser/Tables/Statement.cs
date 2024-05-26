@@ -5,19 +5,19 @@ namespace Parser.Tables
 {
     public class Statement
     {
-        public int CodeLine { get; set; }
-        public EntityType Type { get; set; }
+        public int LineNumber { get; set; }
+        public EntityType StmtType { get; set; }
         public Node AstRoot { get; set; }
         public Dictionary<int, bool> ModifiesList { get; set; }
         public Dictionary<int, bool> UsesList { get; set; }
-        public Statement(EntityType entityType, int codeLine)
+        public Statement(EntityType stmtType, int lineNumber)
         {
-            if (!(entityType == EntityType.Assign || entityType == EntityType.If || entityType == EntityType.While || entityType == EntityType.Call))
+            if (!(stmtType == EntityType.Assign || stmtType == EntityType.If || stmtType == EntityType.While || stmtType == EntityType.Call))
             {
                 throw new InvalidOperationException();
             }
-            CodeLine = codeLine;
-            Type = entityType;
+            LineNumber = lineNumber;
+            StmtType = stmtType;
             ModifiesList = new Dictionary<int, bool>();
             UsesList = new Dictionary<int, bool>();
 

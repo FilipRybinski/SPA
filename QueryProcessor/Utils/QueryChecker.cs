@@ -55,8 +55,8 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    proc = ProcTable.Instance.GetProc(firstInd);
-                    var = VarTable.Instance.GetVar(secondInd);
+                    proc = ProcedureTable.Instance.GetProcedure(firstInd);
+                    var = ViariableTable.Instance.GetVar(secondInd);
                     //Modifies.Modifies.Instance.IsModified
                     if (IsModifiedOrUsedByProc(var, proc))
                     {
@@ -100,8 +100,8 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    stmt = StmtTable.Instance.GetStmt(firstInd);
-                    var = VarTable.Instance.GetVar(secondInd);
+                    stmt = StatementTable.Instance.GetStatement(firstInd);
+                    var = ViariableTable.Instance.GetVar(secondInd);
                     //Modifies.Modifies.Instance.IsModified
                     if (IsModifiedOrUsedByStmt(var, stmt))
                     {
@@ -193,11 +193,11 @@ namespace QueryProcessor.Utils
             foreach (int firstInd in firstArgIndexes)
                 foreach (int secondInd in secondArgIndexes)
                 {
-                    p1 = ProcTable.Instance.GetProc(firstInd);
-                    p2 = ProcTable.Instance.GetProc(secondInd);
+                    p1 = ProcedureTable.Instance.GetProcedure(firstInd);
+                    p2 = ProcedureTable.Instance.GetProcedure(secondInd);
 
-                    first = p1 == null ? "" : p1.Name;
-                    second = p2 == null ? "" : p2.Name;
+                    first = p1 == null ? "" : p1.Identifier;
+                    second = p2 == null ? "" : p2.Identifier;
 
                     if (method(first, second))
                     {
@@ -256,11 +256,11 @@ namespace QueryProcessor.Utils
             Node node;
             if (et == EntityType.Procedure)
             {
-                node = ProcTable.Instance.GetAstRoot(ind);
+                node = ProcedureTable.Instance.GetAstRoot(ind);
             }
             else
             {
-                node = StmtTable.Instance.GetAstRoot(ind);
+                node = StatementTable.Instance.GetAstRoot(ind);
             }
 
             return node;

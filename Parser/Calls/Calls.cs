@@ -28,9 +28,9 @@ public class Calls : ICalls
         public List<Procedure> GetCalledBy(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            foreach (Procedure procedure in ProcTable.Instance.Procedures)
+            foreach (Procedure procedure in ProcedureTable.Instance.ProceduresList)
             {
-                if (IsCalls(procedure.Name, proc))
+                if (IsCalls(procedure.Identifier, proc))
                 {
                     procedures.Add(procedure);
                 }
@@ -41,9 +41,9 @@ public class Calls : ICalls
         public List<Procedure> GetCalledByStar(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            foreach(Procedure procedure in ProcTable.Instance.Procedures)
+            foreach(Procedure procedure in ProcedureTable.Instance.ProceduresList)
             {
-                if (IsCallsStar(procedure.Name, proc))
+                if (IsCallsStar(procedure.Identifier, proc))
                 {
                     procedures.Add(procedure);
                 }
@@ -62,7 +62,7 @@ public class Calls : ICalls
                 .ToList();
             foreach(string proce in procNames)
             {
-                Procedure findProcedure = ProcTable.Instance.GetProc(proce);
+                Procedure findProcedure = ProcedureTable.Instance.GetProcedure(proce);
                 if(findProcedure != null)
                 {
                     procedures.Add(findProcedure);
@@ -97,7 +97,7 @@ public class Calls : ICalls
         public List<Procedure> GetCalls(string proc)
         {
             List<Procedure> procedures = new List<Procedure>();
-            Node procNode = ProcTable.Instance.GetAstRoot(proc);
+            Node procNode = ProcedureTable.Instance.GetAstRoot(proc);
             Node stmtLstChild = AST.AST.Instance.GetFirstChild(procNode);
             GetCalls(procedures, stmtLstChild);
 
@@ -116,7 +116,7 @@ public class Calls : ICalls
             foreach (Procedure procedure in GetCalls(proc))
             {
                 procedures.Add(procedure);
-                GetCallsStar(procedure.Name, procedures);
+                GetCallsStar(procedure.Identifier, procedures);
             }
             return procedures;
         }
@@ -124,27 +124,27 @@ public class Calls : ICalls
         public bool IsCalls(string proc1, string proc2)
         {
             return GetCalls(proc1)
-                .Where(i => i.Name == proc2)
+                .Where(i => i.Identifier == proc2)
                 .Any();
         }
 
         public bool IsCallsStar(string proc1, string proc2)
         {
             return GetCallsStar(proc1)
-                .Where(i => i.Name == proc2)
+                .Where(i => i.Identifier == proc2)
                 .Any();
         }
         public bool IsCalledBy(string proc1, string proc2)
         {
             return GetCalledBy(proc1)
-                .Where(i => i.Name == proc2)
+                .Where(i => i.Identifier == proc2)
                 .Any();
         }
 
         public bool IsCalledStarBy(string proc1, string proc2)
         {
             return GetCalledByStar(proc1)
-                .Where(i => i.Name == proc2)
+                .Where(i => i.Identifier == proc2)
                 .Any();
         }
 }

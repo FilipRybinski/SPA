@@ -53,7 +53,7 @@ namespace QueryProcessor.Utils
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
-                    results.Add(VarTable.Instance.GetVar(indexes[i]).Name);
+                    results.Add(ViariableTable.Instance.GetVar(indexes[i]).Identifier);
                 }
             }
 
@@ -67,7 +67,7 @@ namespace QueryProcessor.Utils
             {
                 for (int i = 0; i < indexes.Count; i++)
                 {
-                    results.Add(ProcTable.Instance.GetProc(indexes[i]).Name);
+                    results.Add(ProcedureTable.Instance.GetProcedure(indexes[i]).Identifier);
                 }
             }
 
