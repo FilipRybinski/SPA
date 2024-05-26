@@ -1,5 +1,5 @@
-﻿using Parser.AST.Enums;
-using Parser.Tables;
+﻿using Parser.Tables;
+using Utils.Enums;
 
 namespace QueryProcessor.Utils
 {

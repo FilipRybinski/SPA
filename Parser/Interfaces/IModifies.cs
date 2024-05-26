@@ -1,4 +1,5 @@
 using Parser.Tables;
+using Parser.Tables.Models;
 
 namespace Parser.Interfaces;
 
@@ -13,9 +14,7 @@ public interface IModifies
         List<Variable> GetModified(Procedure proc);
         
         List<Statement> GetModifiesForStmts(Variable var);
-        
-        List<Procedure> GetModifiesForProcs(Variable var);
-        
+
         bool IsModified(Variable var, Statement stat);
         
         bool IsModified(Variable var, Procedure proc);

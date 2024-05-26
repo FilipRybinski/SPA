@@ -1,36 +1,37 @@
 ﻿using Parser.AST;
-using Parser.AST.Enums;
 using Parser.AST.Utils;
-using Parser.Calls;
-using Parser.Modifies;
-using Parser.Tables;
-using Parser.Uses;
+using Parser.Tables.Models;
+using PKB;
+using PKB.Interfaces;
+using QueryProcessor.Helper;
+using Utils.Enums;
 
 namespace QueryProcessor.Utils
 {
     public static class QueryParser
     {
-        private static Dictionary<string, List<int>> variableIndexes = null;
-        private static int currentSum;
-        private static bool algorithmNotFinished;
-        private static readonly string procedureNameKey = "procname";
-        private static readonly string variableNameKey = "varname";
-        private static readonly string valueKey = "value";
-        private static readonly string statementKey = "stmt#";
+        private static Dictionary<string, List<int>>? _variableIndexes;
+        private static int _currentSum;
+        private static bool _algorithmNotFinished;
+        private const string ProcedureNameKey = "procname";
+        private const string VariableNameKey = "varname";
+        private const string ValueKey = "value";
+        private const string StatementKey = "stmt#";
+        private static readonly IPkb Pkb= PKB.Pkb.Instance!;
 
         private static void Initialize()
         {
-            algorithmNotFinished = true;
-            currentSum = -1;
-            variableIndexes = new Dictionary<string, List<int>>();
+            _algorithmNotFinished = true;
+            _currentSum = -1;
+            _variableIndexes = new Dictionary<string, List<int>>();
         }
 
         public static List<string> GetData(bool testing)
         {
             Initialize();
             InsertIndexesIntoVarTables();
-            Dictionary<string, List<string>> queryDetails = QueryProcessor.GetQueryDetails();
-            List<string> suchThatPart = new List<string>();
+            var queryDetails = QueryProcessor.GetQueryDetails();
+            var suchThatPart = new List<string>();
             try
             {
                 suchThatPart = new List<string>(queryDetails["SUCH THAT"]);
@@ -39,72 +40,69 @@ namespace QueryProcessor.Utils
             {
                 Console.WriteLine("#" + e.Message);
             };
-
-            //Algorithm here...
+            
             if (suchThatPart.Count > 0)
             {
                 suchThatPart = SortSuchThatPart(suchThatPart);
                 do
                 {
-                    foreach (string method in suchThatPart)
+                    foreach (var method in suchThatPart)
                     {
                         if (method.Length > 0)
                             DecodeMethod(method);
                     }
                     CheckSum();
-                } while (algorithmNotFinished);
+                } while (_algorithmNotFinished);
             }
-
-            //After algorithm....
             return SendDataToPrint(testing);
         }
 
         private static void InsertIndexesIntoVarTables()
         {
-            Dictionary<string, List<string>> varAttributes = QueryProcessor.GetVariableAttributes();
+            var varAttributes = QueryProcessor.GetVariableAttributes();
 
-            foreach (KeyValuePair<string, EntityType> variable in QueryProcessor.GetQueryVariables())
+            foreach (var (key, value) in QueryProcessor.GetQueryVariables())
             {
-                Dictionary<string, List<string>> attributes = new Dictionary<string, List<string>>();
-                foreach (KeyValuePair<string, List<string>> entry in varAttributes)
+                var attributes = new Dictionary<string, List<string>>();
+                foreach (var entry in varAttributes)
                 {
-                    string[] attrSplitted = entry.Key.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (variable.Key == attrSplitted[0])
+                    var attrSplitted = entry.Key.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
+                    if (key == attrSplitted[0])
                         attributes.Add(attrSplitted[1].ToLower(), entry.Value);
                 }
 
-                switch (variable.Value)
+                switch (value)
                 {
                     case EntityType.Procedure:
-                        variableIndexes.Add(variable.Key, GetProcedureIndexes(attributes));
+                        _variableIndexes!.Add(key, GetProcedureIndexes(attributes));
                         break;
 
                     case EntityType.Variable:
-                        variableIndexes.Add(variable.Key, GetVariableIndexes(attributes));
+                        _variableIndexes!.Add(key, GetVariableIndexes(attributes));
                         break;
 
                     case EntityType.Assign:
-                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Assign));
+                        _variableIndexes!.Add(key, GetStatementIndexes(attributes, EntityType.Assign));
                         break;
 
                     case EntityType.If:
-                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.If));
+                        _variableIndexes!.Add(key, GetStatementIndexes(attributes, EntityType.If));
                         break;
 
                     case EntityType.While:
-                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.While));
+                        _variableIndexes!.Add(key, GetStatementIndexes(attributes, EntityType.While));
                         break;
                     case EntityType.Call:
-                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Call));
+                        _variableIndexes!.Add(key, GetStatementIndexes(attributes, EntityType.Call));
                         break;
                     case EntityType.Statement:
-                        variableIndexes.Add(variable.Key, GetStatementIndexes(attributes, EntityType.Statement));
+                        _variableIndexes!.Add(key, GetStatementIndexes(attributes, EntityType.Statement));
                         break;
                     case EntityType.Prog_line:
-                        variableIndexes.Add(variable.Key, GetProglineIndexes(attributes));
+                        _variableIndexes!.Add(key, GetProglineIndexes(attributes));
                         break;
                     case EntityType.Constant:
-                        variableIndexes.Add(variable.Key, GetConstantIndexes(attributes));
+                        _variableIndexes!.Add(key, GetConstantIndexes(attributes));
                         break;
                     default:
                         throw new System.ArgumentException("# Invalid entity type!");
@@ -114,17 +112,17 @@ namespace QueryProcessor.Utils
 
         private static List<int> GetProcedureIndexes(Dictionary<string, List<string>> attributes)
         {
-            List<int> indexes = new List<int>();
-            List<string> procNames = new List<string>();
+            var indexes = new List<int>();
+            var procNames = new List<string>();
 
-            if (attributes.ContainsKey(procedureNameKey))
-                procNames = attributes[procedureNameKey];
+            if (attributes.ContainsKey(ProcedureNameKey))
+                procNames = attributes[ProcedureNameKey];
             if (procNames.Count > 1)
                 return indexes;
 
             char[] charsToTrim = { '"', };
 
-            foreach (Procedure p in ProcedureTable.Instance.ProceduresList)
+            foreach (var p in Pkb.ProcTable!.GetProcedureList())
             {
                 if (procNames.Count == 1)
                 {
@@ -139,17 +137,17 @@ namespace QueryProcessor.Utils
 
         private static List<int> GetVariableIndexes(Dictionary<string, List<string>> attributes)
         {
-            List<int> indexes = new List<int>();
-            List<string> varNames = new List<string>();
+            var indexes = new List<int>();
+            var varNames = new List<string>();
 
-            if (attributes.ContainsKey(variableNameKey))
-                varNames = attributes[variableNameKey];
+            if (attributes.TryGetValue(VariableNameKey, out var attribute))
+                varNames = attribute;
             if (varNames.Count > 1)
                 return indexes;
 
             char[] charsToTrim = { '"', };
 
-            foreach (Variable v in ViariableTable.Instance.VariablesList)
+            foreach (var v in Pkb.VarTable!.GetVariablesList())
             {
                 if (varNames.Count == 1)
                 {
@@ -163,17 +161,17 @@ namespace QueryProcessor.Utils
             return indexes;
         }
 
-        private static List<int> GetProglineIndexes(Dictionary<string, List<string>> attributes)
+        private static List<int> GetProglineIndexes(IReadOnlyDictionary<string, List<string>> attributes)
         {
-            List<int> indexes = new List<int>();
-            List<string> procLines = new List<string>();
+            var indexes = new List<int>();
+            var procLines = new List<string>();
 
-            if (attributes.ContainsKey(valueKey))
-                procLines = attributes[valueKey];
+            if (attributes.ContainsKey(ValueKey))
+                procLines = attributes[ValueKey];
             if (procLines.Count > 1)
                 return indexes;
 
-            foreach (Statement stmt in StatementTable.Instance.StatementsList)
+            foreach (var stmt in Pkb.StmtTable!.GetStatementsList())
             {
                 if (procLines.Count == 1)
                 {
@@ -187,13 +185,13 @@ namespace QueryProcessor.Utils
             return indexes;
         }
 
-        private static List<int> GetConstantIndexes(Dictionary<string, List<string>> attributes)
+        private static List<int> GetConstantIndexes(IReadOnlyDictionary<string, List<string>> attributes)
         {
-            List<int> indexes = new List<int>();
-            List<string> constants = new List<string>();
+            var indexes = new List<int>();
+            var constants = new List<string>();
 
-            if (attributes.ContainsKey(valueKey))
-                constants = attributes[valueKey];
+            if (attributes.ContainsKey(ValueKey))
+                constants = attributes[ValueKey];
             if (constants.Count > 1)
                 return indexes;
 
@@ -201,14 +199,14 @@ namespace QueryProcessor.Utils
                 if (!int.TryParse(constants[0], out _))
                     return indexes;
 
-            foreach (Statement statement in StatementTable.Instance.StatementsList)
+            foreach (var statement in Pkb.StmtTable!.GetStatementsList())
             {
-                Node node = statement.AstRoot;
-                List<int> constValues = AST.Instance.GetConstants(node);
+                var node = statement.AstRoot;
+                var constValues = Ast.Instance!.GetConstants(node);
                 if (constants.Count == 1)
                 {
-                    if (constValues.Contains(Int32.Parse(constants[0])))
-                        indexes.Add(Int32.Parse(constants[0]));
+                    if (constValues.Contains(int.Parse(constants[0])))
+                        indexes.Add(int.Parse(constants[0]));
                 }
                 else
                     indexes.AddRange(constValues);
@@ -219,17 +217,17 @@ namespace QueryProcessor.Utils
 
         private static List<int> GetStatementIndexes(Dictionary<string, List<string>> attributes, EntityType type)
         {
-            List<int> indexes = new List<int>();
-            List<string> stmtNumbers = new List<string>();
+            var indexes = new List<int>();
+            var stmtNumbers = new List<string>();
 
-            if (attributes.ContainsKey(statementKey))
-                stmtNumbers = attributes[statementKey];
+            if (attributes.ContainsKey(StatementKey))
+                stmtNumbers = attributes[StatementKey];
 
             if (stmtNumbers.Count > 1)
                 return indexes;
 
             if (stmtNumbers.Count != 1)
-                foreach (Statement statement in StatementTable.Instance.StatementsList)
+                foreach (var statement in Pkb.StmtTable!.GetStatementsList())
                 {
                     if (statement.StmtType == type)
                         indexes.Add(statement.LineNumber);
@@ -240,13 +238,13 @@ namespace QueryProcessor.Utils
             {
                 try
                 {
-                    Statement statement = StatementTable.Instance.GetStatement(Int32.Parse(stmtNumbers[0]));
+                    var statement = Pkb.StmtTable!.GetStatement(int.Parse(stmtNumbers[0]));
                     if (statement != null)
                         indexes.Add(statement.LineNumber);
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException(string.Format("# Wrong stmt# = {0}", stmtNumbers[0]));
+                    throw new ArgumentException($"# Wrong stmt# = {stmtNumbers[0]}");
                 }
             }
 
@@ -256,18 +254,18 @@ namespace QueryProcessor.Utils
 
         private static List<string> SendDataToPrint(bool testing)
         {
-            List<string> varsToSelect = QueryProcessor.GetVariableToSelect();
-            Dictionary<string, List<int>> varIndexesToPrint = new Dictionary<string, List<int>>();
+            var varsToSelect = QueryProcessor.GetVariableToSelect();
+            var varIndexesToPrint = new Dictionary<string, List<int>>();
             foreach (string variable in varsToSelect)
             {
                 string trimedVar = variable.Trim();
                 try
                 {
-                    varIndexesToPrint.Add(trimedVar, variableIndexes[trimedVar]);
+                    varIndexesToPrint.Add(trimedVar, _variableIndexes![trimedVar]);
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException(string.Format("# Wrong argument: \"{0}\"", trimedVar));
+                    throw new ArgumentException($"# Wrong argument: \"{trimedVar}\"");
                 }
             }
 
@@ -276,16 +274,16 @@ namespace QueryProcessor.Utils
 
         private static void CheckSum()
         {
-            int tmpSum = 0;
-            foreach (KeyValuePair<string, List<int>> item in variableIndexes)
+            var tmpSum = 0;
+            foreach (var (_, value) in _variableIndexes!)
             {
-                tmpSum += item.Value.Count;
+                tmpSum += value.Count;
             }
 
-            if (tmpSum != currentSum)
-                currentSum = tmpSum;
+            if (tmpSum != _currentSum)
+                _currentSum = tmpSum;
             else
-                algorithmNotFinished = false;
+                _algorithmNotFinished = false;
         }
 
         private static void DecodeMethod(string method)
@@ -293,32 +291,32 @@ namespace QueryProcessor.Utils
             string[] typeAndArguments = method.Split(new string[] { " ", "(", ")", "," }, System.StringSplitOptions.RemoveEmptyEntries);
             switch (typeAndArguments[0].ToLower())
             {
-                case "modifies":
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Modifies.Instance.IsModified, Modifies.Instance.IsModified);
+                case StringDirectory.Modifies:
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Modifies!.IsModified, Pkb.Modifies.IsModified);
                     break;
-                case "uses":
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Uses.Instance.IsUsed, Uses.Instance.IsUsed);
+                case StringDirectory.Uses:
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.IsUsed, Pkb.Uses.IsUsed);
                     break;
-                case "parent":
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParent);
+                case StringDirectory.Parent:
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParent);
                     break;
-                case "parent*":
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsParentStar);
+                case StringDirectory.ParentAsterisk:
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParentStar);
                     break;
-                case "follows":
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowed);
+                case StringDirectory.Follows:
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowed);
                     break;
-                case "follows*":
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], AST.Instance.IsFollowedStar);
+                case StringDirectory.FollowsAsterisk:
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowedStar);
                     break;
-                case "calls":
-                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCalls);
+                case StringDirectory.Calls:
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCalls);
                     break;
-                case "calls*":
-                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Calls.Instance.IsCallsStar);
+                case StringDirectory.CallsAsterisk:
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCallsStar);
                     break;
                 default:
-                    throw new ArgumentException(string.Format("# Niepoprawna metoda: \"{0}\"", typeAndArguments[0]));
+                    throw new ArgumentException($"# Niepoprawna metoda: \"{typeAndArguments[0]}\"");
             }
         }
 
@@ -327,33 +325,33 @@ namespace QueryProcessor.Utils
             if (var == "_")
                 return GetAllArgIndexes(type);
 
-            if (var[0] == '\"' & var[var.Length - 1] == '\"')
+            if (var[0] == '\"' & var[^1] == '\"')
             {
                 string name = var.Substring(1, var.Length - 2);
                 if (type == EntityType.Procedure)
-                    return new List<int>(new int[] { ProcedureTable.Instance.GetProcIndex(name) });
+                    return new List<int>(new int[] { Pkb.ProcTable!.GetProcIndex(name) });
 
                 else if (type == EntityType.Variable)
-                    return new List<int>(new int[] { ViariableTable.Instance.GetVarIndex(name) });
+                    return new List<int>(new int[] { Pkb.VarTable!.GetVarIndex(name) });
             }
 
             if (int.TryParse(var, out _))
                 return new List<int>(new int[] { Int32.Parse(var) });
-            return variableIndexes[var];
+            return _variableIndexes![var];
         }
 
         public static List<int> GetAllArgIndexes(EntityType type)
         {
-            List<int> result = new List<int>();
+            var result = new List<int>();
             if (type == EntityType.Variable)
-                foreach (Variable v in ViariableTable.Instance.VariablesList)
+                foreach (var v in Pkb.VarTable!.GetVariablesList())
                     result.Add(v.Id);
 
             else if (type == EntityType.Procedure)
-                foreach (Procedure p in ProcedureTable.Instance.ProceduresList)
+                foreach (var p in Pkb.ProcTable!.GetProcedureList())
                     result.Add(p.Id);
             else
-                foreach (Statement s in StatementTable.Instance.StatementsList)
+                foreach (var s in Pkb.StmtTable!.GetStatementsList())
                     result.Add(s.LineNumber);
 
             return result;
@@ -363,13 +361,13 @@ namespace QueryProcessor.Utils
         {
 
             if (firstArgument != "_")
-                if (!(firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"'))
+                if (!(firstArgument[0] == '\"' & firstArgument[^1] == '\"'))
                     if (!(int.TryParse(firstArgument, out _)))
-                        variableIndexes[firstArgument] = variableIndexes[firstArgument].Where(i => firstList.Any(j => j == i)).Distinct().ToList();
+                        _variableIndexes![firstArgument] = _variableIndexes[firstArgument].Where(i => firstList.Any(j => j == i)).Distinct().ToList();
             if (secondArgument != "_")
-                if (!(secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
+                if (!(secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
                     if (!(int.TryParse(secondArgument, out _)))
-                        variableIndexes[secondArgument] = variableIndexes[secondArgument].Where(i => secondList.Any(j => j == i)).Distinct().ToList();
+                        _variableIndexes![secondArgument] = _variableIndexes[secondArgument].Where(i => secondList.Any(j => j == i)).Distinct().ToList();
         }
 
         private static List<string> SortSuchThatPart(List<string> stp)

@@ -1,13 +1,14 @@
 using Parser.Interfaces;
 using Parser.Tables;
+using Parser.Tables.Models;
 
 namespace Parser.Modifies;
 
 public class Modifies : IModifies
 {
-     private static Modifies _singletonInstance = null;
+     private static Modifies? _singletonInstance;
 
-        public static Modifies Instance
+        public static Modifies? Instance
         {
             get
             {
@@ -24,56 +25,41 @@ public class Modifies : IModifies
         }
         public List<Variable> GetModified(Statement stmt)
         {
-            List<int> varIndexes = stmt.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
+            var varIndexes = stmt.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Variable> GetModified(Procedure proc)
         {
-            List<int> varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
+            var varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Procedure> GetModifiesForProcs(Variable var)
         {
-            List<Procedure> procedures = new List<Procedure>();
-
-            foreach(Procedure procedure in ProcedureTable.Instance.ProceduresList)
-            {
-                if (IsModified(var, procedure))
-                {
-                    procedures.Add(procedure);
-                }
-            }
-
-            return procedures;
+            return ProcedureTable.Instance!.ProceduresList.Where(procedure => IsModified(var, procedure)).ToList();
         }
 
         public List<Statement> GetModifiesForStmts(Variable var)
         {
-            List<Statement> statements = new List<Statement>();
-
-            foreach (Statement statement in StatementTable.Instance.StatementsList)
-            {
-                if (IsModified(var,statement))
-                {
-                    statements.Add(statement);
-                }
-            }
-
-            return statements;
+            return StatementTable.Instance.StatementsList.Where(statement => IsModified(var, statement)).ToList();
         }
 
         public bool IsModified(Variable var, Statement stat)
         {
-            bool flag = false;
+            var flag = false;
             try
             {
                 if(stat!=null)
-                    flag = stat.ModifiesList.TryGetValue(var.Id, out bool value) && value;
-            } catch (Exception e) {}
+                    flag = stat.ModifiesList.TryGetValue(var.Id, out var value) && value;
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+
             return flag;
         }
 
@@ -83,14 +69,19 @@ public class Modifies : IModifies
             try
             {
                 if(proc!=null)
-                    flag = proc.ModifiesList.TryGetValue(var.Id, out bool value) && value;
-            } catch (Exception e) {}
+                    flag = proc.ModifiesList.TryGetValue(var.Id, out var value) && value;
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+
             return flag;
         }
 
         public void SetModifies(Statement stmt, Variable var)
         {
-            if (stmt.ModifiesList.TryGetValue(var.Id, out bool value))
+            if (stmt.ModifiesList.TryGetValue(var.Id, out var value))
             {
                 stmt.ModifiesList[var.Id] = true;
             }
@@ -102,7 +93,7 @@ public class Modifies : IModifies
 
         public void SetModifies(Procedure proc, Variable var)
         {
-            if (proc.ModifiesList.TryGetValue(var.Id, out bool value))
+            if (proc.ModifiesList.TryGetValue(var.Id, out var value))
             {
                 proc.ModifiesList[var.Id] = true;
             }

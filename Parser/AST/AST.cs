@@ -1,26 +1,26 @@
-using Parser.AST.Enums;
 using Parser.AST.Utils;
 using Parser.Interfaces;
+using Utils.Enums;
 
 namespace Parser.AST;
 
-public class AST:IAST
+public class Ast:IAst
 {
-     private static AST _instance = null;
+     private static Ast? _instance;
 
-        public static AST Instance
+        public static Ast? Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new AST();
+                    _instance = new Ast();
                 }
                 return _instance;
             }
         }
 
-        private AST()
+        private Ast()
         {
 
         }
@@ -44,7 +44,7 @@ public class AST:IAST
         public Node GetFirstChild(Node parent)
         {
             List<Node> childNodes = GetLinkedNodes(parent, LinkType.Child);
-            return childNodes.FirstOrDefault();
+            return childNodes.FirstOrDefault()!;
         }
 
         public List<Node> GetFollowedBy(Node node)
@@ -60,7 +60,7 @@ public class AST:IAST
 
         private List<Node> GetFollowedStarBy(Node node, List<Node> tempList)
         {
-            foreach (Node tnode in GetFollowedBy(node))
+            foreach (var tnode in GetFollowedBy(node))
             {
                 tempList.Add(tnode);
                 GetFollowedStarBy(tnode, tempList);
@@ -92,28 +92,26 @@ public class AST:IAST
 
         public List<Node> GetLinkedNodes(Node node, LinkType linkType)
         {
-            List<Node> nodes = new List<Node>();
-            nodes = node.Links.Where(i => i.LinkType == linkType).Select(i => i.LinkNode).ToList();
+            var nodes = node.Links.Where(i => i.Type == linkType).Select(i => i.LinkNode).ToList();
             return nodes;
 
         }
 
         public List<Node> GetPrevLinkedNodes(Node node, LinkType linkType)
         {
-            List<Node> nodes = new List<Node>();
-            nodes = node.PrevLinks.Where(i => i.LinkType == linkType).Select(i => i.LinkNode).ToList();
+            var nodes = node.PrevLinks.Where(i => i.Type == linkType).Select(i => i.LinkNode).ToList();
             return nodes;
 
         }
 
         public Node GetNthChild(int nth, Node parent)
         {
-            return GetLinkedNodes(parent, LinkType.Child).ElementAtOrDefault(nth);
+            return GetLinkedNodes(parent, LinkType.Child).ElementAtOrDefault(nth)!;
         }
 
         public Node GetParent(Node node)
         {
-            return GetLinkedNodes(node, LinkType.Parent).FirstOrDefault();
+            return GetLinkedNodes(node, LinkType.Parent).FirstOrDefault()!;
         }
 
         public List<Node> GetParentedBy(Node node)
@@ -163,8 +161,7 @@ public class AST:IAST
         {
             return node.EntityType;
         }
-
-        //Does node2 follow node1
+        
         public bool IsFollowed(Node node1, Node node2)
         {
             return GetFollows(node2).Contains(node1);
@@ -231,26 +228,26 @@ public class AST:IAST
 
         public void SetLink(LinkType linkType, Node node1, Node node2)
         {
-            node1.Links.Add(new LINK(linkType, node2));
+            node1.Links.Add(new Link(linkType, node2));
         }
 
         public void SetPrevLink(LinkType linkType, Node node1, Node node2)
         {
-            node1.PrevLinks.Add(new LINK(linkType, node2));
+            node1.PrevLinks.Add(new Link(linkType, node2));
         }
 
         public void SetNthChild(int nth, Node parent, Node child)
         {
             if (parent.Links.Count() > nth)
             {
-                if (parent.Links[nth - 1].LinkType == LinkType.Child)
+                if (parent.Links[nth - 1].Type == LinkType.Child)
                 {
                     parent.Links[nth - 1].LinkNode = child;
                 }
             }
             else if (parent.Links.Count() - 1 == nth)
             {
-                parent.Links.Add(new LINK(LinkType.Child, child));
+                parent.Links.Add(new Link(LinkType.Child, child));
             }
         }
 
@@ -273,16 +270,15 @@ public class AST:IAST
 
         public List<int> GetConstants(Node node)
         {
-            List<int> constans = new List<int>();
-            List<Node> childs = GetLinkedNodes(node, LinkType.Child);
+            var constans = new List<int>();
+            var childs = GetLinkedNodes(node, LinkType.Child);
             if(childs != null)
                 if(childs.Count > 1)
                     foreach(Node child in childs)
                     {
                         if(child.EntityType == EntityType.Constant)
                         {
-                            //int value = Int32.Parse(child.NodeAttribute.Name);
-                            int value = Int32.Parse("0");
+                            var value = int.Parse("0");
                             constans.Add(value);
                         }
                         else

@@ -1,18 +1,14 @@
 ﻿using Parser.Interfaces;
 using Parser.Tables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Parser.Tables.Models;
 
 namespace Parser.Uses
 {
     public sealed class Uses : IUses
     {
-        private static Uses _singletonInstance = null;
+        private static Uses? _singletonInstance;
 
-        public static Uses Instance
+        public static Uses? Instance
         {
             get
             {
@@ -29,46 +25,26 @@ namespace Parser.Uses
         }
         public List<Variable> GetUsed(Statement statement)
         {
-            List<int> varIndexes = statement.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
+            var varIndexes = statement.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Variable> GetUsed(Procedure procedure)
         {
             List<int> varIndexes = procedure.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Procedure> GetUsesForProcs(Variable variable)
         {
-            List<Procedure> procedures = new List<Procedure>();
-
-            foreach (Procedure procedure in ProcedureTable.Instance.ProceduresList)
-            {
-                if (IsUsed(variable, procedure))
-                {
-                    procedures.Add(procedure);
-                }
-            }
-
-            return procedures;
+            return ProcedureTable.Instance!.ProceduresList.Where(procedure => IsUsed(variable, procedure)).ToList();
         }
 
         public List<Statement> GetUsesForStmts(Variable variable)
         {
-            List<Statement> statements = new List<Statement>();
-
-            foreach (Statement statement in StatementTable.Instance.StatementsList)
-            {
-                if (IsUsed(variable, statement))
-                {
-                    statements.Add(statement);
-                }
-            }
-
-            return statements;
+            return StatementTable.Instance!.StatementsList.Where(statement => IsUsed(variable, statement)).ToList();
         }
 
         public bool IsUsed(Variable variable, Statement statement)
@@ -81,7 +57,7 @@ namespace Parser.Uses
         public bool IsUsed(Variable variable, Procedure procedure)
         {
             if (variable != null & procedure != null)
-                return procedure.UsesList.TryGetValue(variable.Id, out bool value) && value;
+                return procedure!.UsesList.TryGetValue(variable!.Id, out var value) && value;
             return false;
         }
 

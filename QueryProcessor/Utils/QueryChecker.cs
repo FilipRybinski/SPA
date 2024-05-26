@@ -1,6 +1,7 @@
-﻿using Parser.AST.Enums;
-using Parser.AST.Utils;
+﻿using Parser.AST.Utils;
 using Parser.Tables;
+using Parser.Tables.Models;
+using Utils.Enums;
 
 namespace QueryProcessor.Utils
 {
@@ -11,7 +12,7 @@ namespace QueryProcessor.Utils
                                         Func<Variable, Procedure, bool> methodForProc,
                                         Func<Variable, Statement, bool> methodForStmt)
         {
-            EntityType firstArgType = DetermineEntityType(firstArgument);
+            var firstArgType = DetermineEntityType(firstArgument);
 
             if (firstArgType == EntityType.Procedure)
                 CheckProcedureModifiesOrUses(firstArgument, secondArgument, methodForProc);
@@ -20,7 +21,7 @@ namespace QueryProcessor.Utils
         }
         private static EntityType DetermineEntityType(string argument)
         {
-            if (argument[0] == '\"' && argument[argument.Length - 1] == '\"')
+            if (argument[0] == '\"' && argument[^1] == '\"')
                 return EntityType.Procedure;
             else if (int.TryParse(argument, out _))
                 return EntityType.Statement;
@@ -35,32 +36,29 @@ namespace QueryProcessor.Utils
             EntityType secondArgType;
             EntityType firstArgType;
 
-            if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
+            if (firstArgument[0] == '\"' & firstArgument[^1] == '\"')
                 firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
+            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
             else
                 secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
+            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
-            List<int> procStayinIndexes = new List<int>();
-            List<int> varStayinIndexes = new List<int>();
+            var procStayinIndexes = new List<int>();
+            var varStayinIndexes = new List<int>();
 
-            Procedure proc;
-            Variable var;
-            foreach (int firstIndex in firstArgIndexes)
-                foreach (int secondIndex in secondArgIndexes)
+            foreach (var firstIndex in firstArgIndexes)
+                foreach (var secondIndex in secondArgIndexes)
                 {
-                    proc = ProcedureTable.Instance.GetProcedure(firstIndex);
-                    var = ViariableTable.Instance.GetVar(secondIndex);
-                    //Modifies.Modifies.Instance.IsModified
+                    var proc = ProcedureTable.Instance!.GetProcedure(firstIndex);
+                    var var = ViariableTable.Instance!.GetVar(secondIndex);
                     if (IsModifiedOrUsedByProc(var, proc))
                     {
                         procStayinIndexes.Add(firstIndex);
@@ -85,25 +83,24 @@ namespace QueryProcessor.Utils
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
+            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
             else
                 secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
+            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
-            List<int> stmtStayinIndexes = new List<int>();
-            List<int> varStayinIndexes = new List<int>();
+            var stmtStayinIndexes = new List<int>();
+            var varStayinIndexes = new List<int>();
 
-            foreach (int firstIndex in firstArgIndexes)
-                foreach (int secondIndex in secondArgIndexes)
+            foreach (var firstIndex in firstArgIndexes)
+                foreach (var secondIndex in secondArgIndexes)
                 {
-                    Statement statement = StatementTable.Instance.GetStatement(firstIndex);
-                    Variable variable = ViariableTable.Instance.GetVar(secondIndex);
-                    //Modifies.Modifies.Instance.IsModified
+                    var statement = StatementTable.Instance!.GetStatement(firstIndex);
+                    var variable = ViariableTable.Instance!.GetVar(secondIndex);
                     if (IsModifiedOrUsedByStmt(variable, statement))
                     {
                         stmtStayinIndexes.Add(firstIndex);
@@ -133,19 +130,17 @@ namespace QueryProcessor.Utils
             else
                 secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
+            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
-            List<int> firstStayinIndexes = new List<int>();
-            List<int> secondStayinIndexes = new List<int>();
+            var firstStayinIndexes = new List<int>();
+            var secondStayinIndexes = new List<int>();
 
-            Node first;
-            Node second;
             foreach (int firstIndex in firstArgIndexes)
                 foreach (int secondIndex in secondArgIndexes)
                 {
-                    first = GetNodeByType(firstArgType, firstIndex);
-                    second = GetNodeByType(secondArgType, secondIndex);
+                    var first = GetNodeByType(firstArgType, firstIndex);
+                    var second = GetNodeByType(secondArgType, secondIndex);
                     if (method(first, second))
                     {
                         firstStayinIndexes.Add(firstIndex);
@@ -164,41 +159,39 @@ namespace QueryProcessor.Utils
             EntityType secondArgType;
             EntityType firstArgType;
 
-            if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
+            if (firstArgument[0] == '\"' & firstArgument[^1] == '\"')
                 firstArgType = EntityType.Procedure;
             else if (firstArgument == "_")
                 firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
+            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
                 secondArgType = EntityType.Procedure;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Procedure;
             else
                 secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
+            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
-            List<int> firstStayinIndexes = new List<int>();
-            List<int> secondStayinIndexes = new List<int>();
+            var firstStayinIndexes = new List<int>();
+            var secondStayinIndexes = new List<int>();
 
             if (firstArgType != EntityType.Procedure)
                 throw new ArgumentException("Not a procedure: {0}", firstArgument);
             else if (secondArgType != EntityType.Procedure)
                 throw new ArgumentException("Not a procedure: {0}", secondArgument);
 
-            string first, second;
-            Procedure p1, p2;
-            foreach (int firstIndex in firstArgIndexes)
-                foreach (int secondIndex in secondArgIndexes)
+            foreach (var firstIndex in firstArgIndexes)
+                foreach (var secondIndex in secondArgIndexes)
                 {
-                    p1 = ProcedureTable.Instance.GetProcedure(firstIndex);
-                    p2 = ProcedureTable.Instance.GetProcedure(secondIndex);
+                    var p1 = ProcedureTable.Instance!.GetProcedure(firstIndex);
+                    var p2 = ProcedureTable.Instance.GetProcedure(secondIndex);
 
-                    first = p1 == null ? "" : p1.Identifier;
-                    second = p2 == null ? "" : p2.Identifier;
+                    var first = p1 == null ? "" : p1.Identifier;
+                    var second = p2 == null ? "" : p2.Identifier;
 
                     if (method(first, second))
                     {
@@ -230,14 +223,14 @@ namespace QueryProcessor.Utils
             else
                 secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
-            List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
+            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
+            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
 
-            List<int> firstStayinIndexes = new List<int>();
-            List<int> secondStayinIndexes = new List<int>();
+            var firstStayinIndexes = new List<int>();
+            var secondStayinIndexes = new List<int>();
 
-            foreach (int firstIndex in firstArgIndexes)
-                foreach (int secondIndex in secondArgIndexes)
+            foreach (var firstIndex in firstArgIndexes)
+                foreach (var secondIndex in secondArgIndexes)
                 {
                     if (method(firstIndex, secondIndex))
                     {
@@ -256,11 +249,11 @@ namespace QueryProcessor.Utils
         {
             if (entityType == EntityType.Procedure)
             {
-                return ProcedureTable.Instance.GetAstRoot(index);
+                return ProcedureTable.Instance!.GetAstRoot(index);
             }
             else
             {
-                return StatementTable.Instance.GetAstRoot(index);
+                return StatementTable.Instance!.GetAstRoot(index);
             }
 
         }

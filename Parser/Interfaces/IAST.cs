@@ -1,9 +1,9 @@
-using Parser.AST.Enums;
 using Parser.AST.Utils;
+using Utils.Enums;
 
 namespace Parser.Interfaces;
 
-public interface IAST
+public interface IAst
 {
         Node CreateTNode(EntityType et);
         Node GetTNodeDeepCopy(Node node);

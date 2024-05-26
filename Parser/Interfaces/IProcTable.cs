@@ -1,5 +1,5 @@
 using Parser.AST.Utils;
-using Parser.Tables;
+using Parser.Tables.Models;
 
 namespace Parser.Interfaces;
 
@@ -13,4 +13,5 @@ public interface IProcTable
         int SetAstRootNode(string procName, Node node);
         Node GetAstRoot(string procName);
         Node GetAstRoot(int index);
+        List<Procedure> GetProcedureList();
 }

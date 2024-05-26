@@ -1,4 +1,4 @@
-using Parser.Tables;
+using Parser.Tables.Models;
 
 namespace Parser.Interfaces;
 
@@ -9,4 +9,6 @@ public interface IVarTable
     Variable GetVar(string varName);
     int GetVarIndex(string varName);
     int GetSize();
+    List<Variable> GetVariablesList();
+
 }

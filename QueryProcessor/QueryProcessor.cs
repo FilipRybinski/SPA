@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using Parser.AST.Enums;
 using QueryProcessor.Utils;
+using Utils.Enums;
 
 namespace QueryProcessor
 {

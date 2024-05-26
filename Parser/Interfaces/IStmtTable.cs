@@ -1,6 +1,6 @@
-using Parser.AST.Enums;
 using Parser.AST.Utils;
-using Parser.Tables;
+using Parser.Tables.Models;
+using Utils.Enums;
 
 namespace Parser.Interfaces;
 
@@ -11,4 +11,5 @@ public interface IStmtTable
     int GetSize();
     int SetAstRoot(int codeLine, Node node);
     Node GetAstRoot(int codeLine);
+    List<Statement> GetStatementsList();
 }

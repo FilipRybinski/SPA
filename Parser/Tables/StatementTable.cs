@@ -1,14 +1,15 @@
-﻿using Parser.AST.Enums;
-using Parser.AST.Utils;
+﻿using Parser.AST.Utils;
 using Parser.Interfaces;
+using Parser.Tables.Models;
+using Utils.Enums;
 
 namespace Parser.Tables
 {
     public sealed class StatementTable : IStmtTable
     {
-        private static StatementTable _singletonInstance = null;
+        private static StatementTable? _singletonInstance;
 
-        public static StatementTable Instance
+        public static StatementTable? Instance
         {
             get
             {
@@ -30,6 +31,11 @@ namespace Parser.Tables
             return stmt == null ? null : stmt.AstRoot;
         }
 
+        public List<Statement> GetStatementsList()
+        {
+            return StatementsList;
+        }
+
         public int GetSize()
         {
             return StatementsList.Count();
@@ -37,12 +43,12 @@ namespace Parser.Tables
 
         public Statement GetStatement(int lineNumber)
         {
-            return StatementsList.Where(i => i.LineNumber == lineNumber).FirstOrDefault();
+            return StatementsList.FirstOrDefault(i => i.LineNumber == lineNumber)!;
         }
 
         public int AddStatement(EntityType entityType, int lineNumber)
         {
-            if (StatementsList.Where(i => i.LineNumber == lineNumber).Any())
+            if (StatementsList.Any(i => i.LineNumber == lineNumber))
             {
                 return -1;
             }

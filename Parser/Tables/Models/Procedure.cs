@@ -1,6 +1,6 @@
 ﻿using Parser.AST.Utils;
 
-namespace Parser.Tables
+namespace Parser.Tables.Models
 {
     public class Procedure
     {
@@ -9,9 +9,9 @@ namespace Parser.Tables
         public Node AstNodeRoot { get; set; }
         public Dictionary<int, bool> ModifiesList { get; set; }
         public Dictionary<int, bool> UsesList { get; set; }
-        public Procedure(string identifer)
+        public Procedure(string identifier)
         {
-            Identifier = identifer;
+            Identifier = identifier;
             ModifiesList = new Dictionary<int, bool>();
             UsesList = new Dictionary<int, bool>();
         }

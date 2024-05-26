@@ -1,4 +1,4 @@
-﻿namespace Parser.Tables
+﻿namespace Parser.Tables.Models
 {
     public class Variable
     {

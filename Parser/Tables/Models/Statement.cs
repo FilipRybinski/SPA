@@ -1,7 +1,7 @@
-﻿using Parser.AST.Enums;
-using Parser.AST.Utils;
+﻿using Parser.AST.Utils;
+using Utils.Enums;
 
-namespace Parser.Tables
+namespace Parser.Tables.Models
 {
     public class Statement
     {
@@ -12,7 +12,7 @@ namespace Parser.Tables
         public Dictionary<int, bool> UsesList { get; set; }
         public Statement(EntityType stmtType, int lineNumber)
         {
-            if (!(stmtType == EntityType.Assign || stmtType == EntityType.If || stmtType == EntityType.While || stmtType == EntityType.Call))
+            if (stmtType is not (EntityType.Assign or EntityType.If or EntityType.While or EntityType.Call))
             {
                 throw new InvalidOperationException();
             }

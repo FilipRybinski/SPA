@@ -1,4 +1,4 @@
-namespace Parser.AST.Enums;
+namespace Utils.Enums;
 
 public enum EntityType
 {

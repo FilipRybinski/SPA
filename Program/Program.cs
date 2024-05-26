@@ -9,36 +9,39 @@ namespace  Program
         public static void Main(string[] args)
         {
             try
-            {           
-                string SimpleCode = File.ReadAllText(args[0]); //pobieranie nazwy pliku z kodem simple
-                SimpleCode = Regex.Replace(SimpleCode, @"\r", ""); // usunięcie nowej lini
-                Parser.Parser Parser = new Parser.Parser();
-                Parser.CleanData();
-                Parser.StartParse(SimpleCode);
-                Console.WriteLine(QueryProcessorReady); //informacja dla PipeTestera, że może wprowadzać zapytania PQL
+            {
+                var code = PrepareSimpleCode(args[0]);
+                ParseCode(code);
+                while(true) RunReadQuery();
 
-                string variables;
-                string query;
-                string PQL;
-                List<string> results;
-
-                while(true){
-                    variables = Console.ReadLine();
-                    query = Console.ReadLine();
-                    PQL = variables + query;
-                    results = QueryProcessor.QueryProcessor.ProcessQuery(PQL, testing: true);
-                    if(results.Count == 0)
-                        Console.WriteLine(Failed);
-                    else
-                    {
-                        Console.WriteLine(string.Join(", ", results));
-                    }
-                }
             }
             catch (Exception e)
             {
-                //Console.WriteLine("Error");
+                Console.WriteLine(e);
             } 
+        }
+
+        private static string PrepareSimpleCode(string arg)
+        {
+            var code = File.ReadAllText(arg);
+            code =Regex.Replace(code, @"\r", "");
+            return code;
+        }
+        
+        private static void ParseCode(string code)
+        {
+            var parser = new Parser.Parser();
+            parser.CleanData();
+            parser.StartParse(code);
+            Console.WriteLine(QueryProcessorReady);
+        }
+
+        private static void RunReadQuery()
+        {
+            var variables = Console.ReadLine();
+            var query = Console.ReadLine();
+            var results = QueryProcessor.QueryProcessor.ProcessQuery(variables + query, testing: true);
+            Console.WriteLine(results.Count == 0 ? Failed : string.Join(", ", results));
         }
     }
 }

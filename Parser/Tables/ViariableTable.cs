@@ -1,12 +1,13 @@
 ﻿using Parser.Interfaces;
+using Parser.Tables.Models;
 
 namespace Parser.Tables
 {
     public sealed class ViariableTable : IVarTable
     {
-        private static ViariableTable _singletonInstance = null;
+        private static ViariableTable? _singletonInstance;
 
-        public static ViariableTable Instance
+        public static ViariableTable? Instance
         {
             get
             {
@@ -29,14 +30,19 @@ namespace Parser.Tables
             return VariablesList.Count();
         }
 
+        public List<Variable> GetVariablesList()
+        {
+            return VariablesList;
+        }
+
         public Variable GetVar(int index)
         {
-            return VariablesList.Where(i => i.Id == index).FirstOrDefault();
+            return VariablesList.FirstOrDefault(i => i.Id == index)!;
         }
 
         public Variable GetVar(string varName)
         {
-            return VariablesList.Where(i => i.Identifier == varName).FirstOrDefault();
+            return VariablesList.FirstOrDefault(i => i.Identifier == varName)!;
         }
 
         public int GetVarIndex(string varName)
@@ -47,7 +53,7 @@ namespace Parser.Tables
 
         public int AddVariable(string varName)
         {
-            if (VariablesList.Where(i => i.Identifier == varName).Any())
+            if (VariablesList.Any(i => i.Identifier == varName))
             {
                 return -1;
             }

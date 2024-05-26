@@ -1,13 +1,14 @@
 ﻿using Parser.AST.Utils;
 using Parser.Interfaces;
+using Parser.Tables.Models;
 
 namespace Parser.Tables
 {
     public sealed class ProcedureTable : IProcTable
     {
-        private static ProcedureTable _singletonInstance = null;
+        private static ProcedureTable? _singletonInstance;
 
-        public static ProcedureTable Instance
+        public static ProcedureTable? Instance
         {
             get
             {
@@ -24,6 +25,7 @@ namespace Parser.Tables
         {
             ProceduresList = new List<Procedure>();
         }
+        
 
         public Node GetAstRoot(string procName)
         {
@@ -37,14 +39,19 @@ namespace Parser.Tables
             return proc == null ? null : proc.AstNodeRoot;
         }
 
+        public List<Procedure> GetProcedureList()
+        {
+            return ProceduresList;
+        }
+
         public Procedure GetProcedure(int id)
         {
-            return ProceduresList.Where(i => i.Id == id).FirstOrDefault();
+            return ProceduresList.FirstOrDefault(i => i.Id == id)!;
         }
 
         public Procedure GetProcedure(string procName)
         {
-            return ProceduresList.Where(i => i.Identifier == procName).FirstOrDefault();
+            return ProceduresList.FirstOrDefault(i => i.Identifier == procName)!;
         }
 
         public int GetProcIndex(string procName)
@@ -60,7 +67,7 @@ namespace Parser.Tables
 
         public int AddProcedure(string procName)
         {
-            if (ProceduresList.Where(i => i.Identifier == procName).Any())
+            if (ProceduresList.Any(i => i.Identifier == procName))
             {
                 return -1;
             }

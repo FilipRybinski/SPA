@@ -1,4 +1,4 @@
-using Parser.Tables;
+using Parser.Tables.Models;
 
 namespace Parser.Interfaces;
 
@@ -9,7 +9,6 @@ public interface IUses
         List<Variable> GetUsed(Statement stmt);
         List<Variable> GetUsed(Procedure proc);
         List<Statement> GetUsesForStmts(Variable var);
-        List<Procedure> GetUsesForProcs(Variable var);
         bool IsUsed(Variable var, Statement stat);
         bool IsUsed(Variable var, Procedure proc);
 }
