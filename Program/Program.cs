@@ -27,7 +27,7 @@ namespace  Program
             code =Regex.Replace(code, @"\r", "");
             return code;
         }
-        
+
         private static void ParseCode(string code)
         {
             var parser = new Parser.Parser();

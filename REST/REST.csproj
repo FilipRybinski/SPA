@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.csproj" />
+    <ProjectReference Include="..\QueryProcessor\QueryProcessor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Parser">
+      <HintPath>..\Parser\bin\Release\net7.0\Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="QueryProcessor">
+      <HintPath>..\QueryProcessor\bin\Release\net7.0\QueryProcessor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
