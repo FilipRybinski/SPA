@@ -9,9 +9,9 @@ namespace Parser.Tables
         public Node AstNodeRoot { get; set; }
         public Dictionary<int, bool> ModifiesList { get; set; }
         public Dictionary<int, bool> UsesList { get; set; }
-        public Procedure(string name)
+        public Procedure(string identifer)
         {
-            Identifier = name;
+            Identifier = identifer;
             ModifiesList = new Dictionary<int, bool>();
             UsesList = new Dictionary<int, bool>();
         }

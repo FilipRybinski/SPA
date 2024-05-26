@@ -7,17 +7,17 @@ namespace Parser.Calls;
 
 public class Calls : ICalls
 {
-      private static Calls _instance = null;
+      private static Calls _singletonInstance = null;
 
         public static Calls Instance
         {
             get
             {
-                if (_instance == null)
+                if (_singletonInstance == null)
                 {
-                    _instance = new Calls();
+                    _singletonInstance = new Calls();
                 }
-                return _instance;
+                return _singletonInstance;
             }
         }
 

@@ -10,44 +10,44 @@ namespace Parser.Uses
 {
     public sealed class Uses : IUses
     {
-        private static Uses _instance = null;
+        private static Uses _singletonInstance = null;
 
         public static Uses Instance
         {
             get
             {
-                if (_instance == null)
+                if (_singletonInstance == null)
                 {
-                    _instance = new Uses();
+                    _singletonInstance = new Uses();
                 }
-                return _instance;
+                return _singletonInstance;
             }
         }
         private Uses()
         {
 
         }
-        public List<Variable> GetUsed(Statement stmt)
+        public List<Variable> GetUsed(Statement statement)
         {
-            List<int> varIndexes = stmt.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
+            List<int> varIndexes = statement.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
             return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
-        public List<Variable> GetUsed(Procedure proc)
+        public List<Variable> GetUsed(Procedure procedure)
         {
-            List<int> varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
+            List<int> varIndexes = procedure.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
             return ViariableTable.Instance.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
-        public List<Procedure> GetUsesForProcs(Variable var)
+        public List<Procedure> GetUsesForProcs(Variable variable)
         {
             List<Procedure> procedures = new List<Procedure>();
 
             foreach (Procedure procedure in ProcedureTable.Instance.ProceduresList)
             {
-                if (IsUsed(var, procedure))
+                if (IsUsed(variable, procedure))
                 {
                     procedures.Add(procedure);
                 }
@@ -56,13 +56,13 @@ namespace Parser.Uses
             return procedures;
         }
 
-        public List<Statement> GetUsesForStmts(Variable var)
+        public List<Statement> GetUsesForStmts(Variable variable)
         {
             List<Statement> statements = new List<Statement>();
 
             foreach (Statement statement in StatementTable.Instance.StatementsList)
             {
-                if (IsUsed(var, statement))
+                if (IsUsed(variable, statement))
                 {
                     statements.Add(statement);
                 }
@@ -71,41 +71,41 @@ namespace Parser.Uses
             return statements;
         }
 
-        public bool IsUsed(Variable var, Statement stat)
+        public bool IsUsed(Variable variable, Statement statement)
         {
-            if (var != null & stat != null)
-                return stat.UsesList.TryGetValue(var.Id, out bool value) && value;
+            if (variable != null & statement != null)
+                return statement.UsesList.TryGetValue(variable.Id, out bool value) && value;
             return false;
         }
 
-        public bool IsUsed(Variable var, Procedure proc)
+        public bool IsUsed(Variable variable, Procedure procedure)
         {
-            if (var != null & proc != null)
-                return proc.UsesList.TryGetValue(var.Id, out bool value) && value;
+            if (variable != null & procedure != null)
+                return procedure.UsesList.TryGetValue(variable.Id, out bool value) && value;
             return false;
         }
 
-        public void SetUses(Statement stmt, Variable var)
+        public void SetUses(Statement statement, Variable variable)
         {
-            if (stmt.UsesList.ContainsKey(var.Id))
+            if (statement.UsesList.ContainsKey(variable.Id))
             {
-                stmt.UsesList[var.Id] = true;
+                statement.UsesList[variable.Id] = true;
             }
             else
             {
-                stmt.UsesList.Add(var.Id, true);
+                statement.UsesList.Add(variable.Id, true);
             }
         }
 
-        public void SetUses(Procedure proc, Variable var)
+        public void SetUses(Procedure procedure, Variable variable)
         {
-            if (proc.UsesList.ContainsKey(var.Id))
+            if (procedure.UsesList.ContainsKey(variable.Id))
             {
-                proc.UsesList[var.Id] = true;
+                procedure.UsesList[variable.Id] = true;
             }
             else
             {
-                proc.UsesList.Add(var.Id, true);
+                procedure.UsesList.Add(variable.Id, true);
             }
         }
     }

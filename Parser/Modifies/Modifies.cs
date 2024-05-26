@@ -5,17 +5,17 @@ namespace Parser.Modifies;
 
 public class Modifies : IModifies
 {
-     private static Modifies _instance = null;
+     private static Modifies _singletonInstance = null;
 
         public static Modifies Instance
         {
             get
             {
-                if (_instance == null)
+                if (_singletonInstance == null)
                 {
-                    _instance = new Modifies();
+                    _singletonInstance = new Modifies();
                 }
-                return _instance;
+                return _singletonInstance;
             }
         }
         private Modifies()
