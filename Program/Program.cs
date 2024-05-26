@@ -4,6 +4,8 @@ namespace  Program
 {
     class Program
     {
+        private const string QueryProcessorReady = "Ready";
+        private const string Failed = "none";
         public static void Main(string[] args)
         {
             
@@ -14,7 +16,7 @@ namespace  Program
                 Parser.Parser Parser = new Parser.Parser();
                 Parser.CleanData();
                 Parser.StartParse(SimpleCode);
-                Console.WriteLine("Ready"); //informacja dla PipeTestera, że może wprowadzać zapytania PQL
+                Console.WriteLine(QueryProcessorReady); //informacja dla PipeTestera, że może wprowadzać zapytania PQL
 
                 string variables;
                 string query;
@@ -27,7 +29,7 @@ namespace  Program
                     PQL = variables + query;
                     results = QueryProcessor.QueryProcessor.ProcessQuery(PQL, testing: true);
                     if(results.Count == 0)
-                        Console.WriteLine("none");
+                        Console.WriteLine(Failed);
                     else
                     {
                         Console.WriteLine(string.Join(", ", results));
