@@ -19,7 +19,7 @@ namespace QueryProcessor.Utils
             else if (firstArgument == "_")
                 firstArgType = EntityType.Statement;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if (firstArgType == EntityType.Procedure)
                 CheckProcedureModifiesOrUses(firstArgument, secondArgument, methodForProc);
@@ -35,14 +35,14 @@ namespace QueryProcessor.Utils
             if (firstArgument[0] == '\"' & firstArgument[firstArgument.Length - 1] == '\"')
                 firstArgType = EntityType.Procedure;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
             else
-                secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
+                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
             List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
             List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
@@ -80,14 +80,14 @@ namespace QueryProcessor.Utils
             else if (firstArgument == "_")
                 firstArgType = EntityType.Statement;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
             else
-                secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
+                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
             List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
             List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
@@ -123,14 +123,14 @@ namespace QueryProcessor.Utils
             else if (firstArgument == "_")
                 firstArgType = EntityType.Statement;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if (int.TryParse(secondArgument, out _))
                 secondArgType = EntityType.Statement;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Statement;
             else
-                secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
+                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
             List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
             List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
@@ -168,14 +168,14 @@ namespace QueryProcessor.Utils
             else if (firstArgument == "_")
                 firstArgType = EntityType.Procedure;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if ((secondArgument[0] == '\"' & secondArgument[secondArgument.Length - 1] == '\"'))
                 secondArgType = EntityType.Procedure;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Procedure;
             else
-                secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
+                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
             List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
             List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
@@ -220,14 +220,14 @@ namespace QueryProcessor.Utils
             else if (firstArgument == "_")
                 firstArgType = EntityType.Prog_line;
             else
-                firstArgType = QueryProcessor.GetVarEnumType(firstArgument);
+                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
             if (int.TryParse(secondArgument, out _))
                 secondArgType = EntityType.Prog_line;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Prog_line;
             else
-                secondArgType = QueryProcessor.GetVarEnumType(secondArgument);
+                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
 
             List<int> firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
             List<int> secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);

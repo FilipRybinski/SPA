@@ -61,9 +61,9 @@ namespace QueryProcessor.Utils
 
         private static void InsertIndexesIntoVarTables()
         {
-            Dictionary<string, List<string>> varAttributes = QueryProcessor.GetVarAttributes();
+            Dictionary<string, List<string>> varAttributes = QueryProcessor.GetVariableAttributes();
 
-            foreach (KeyValuePair<string, EntityType> oneVar in QueryProcessor.GetQueryVars())
+            foreach (KeyValuePair<string, EntityType> oneVar in QueryProcessor.GetQueryVariables())
             {
                 Dictionary<string, List<string>> attributes = new Dictionary<string, List<string>>();
                 foreach (KeyValuePair<string, List<string>> entry in varAttributes)
@@ -256,7 +256,7 @@ namespace QueryProcessor.Utils
 
         private static List<string> SendDataToPrint(bool testing)
         {
-            List<string> varsToSelect = QueryProcessor.GetVarToSelect();
+            List<string> varsToSelect = QueryProcessor.GetVariableToSelect();
             Dictionary<string, List<int>> varIndexesToPrint = new Dictionary<string, List<int>>();
             foreach (string var in varsToSelect)
             {

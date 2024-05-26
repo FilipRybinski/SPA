@@ -12,7 +12,7 @@ namespace QueryProcessor.Utils
 
             foreach (KeyValuePair<string, List<int>> oneVar in resultToPrint)
             {
-                EntityType type = QueryProcessor.GetVarEnumType(oneVar.Key);
+                EntityType type = QueryProcessor.GetVariableEnumType(oneVar.Key);
 
 
                 switch (type)

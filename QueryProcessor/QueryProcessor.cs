@@ -6,18 +6,18 @@ namespace QueryProcessor
 {
     public class QueryProcessor
     {
-        private static Dictionary<string, EntityType> vars = null;
-        private static Dictionary<string, List<string>> queryDetails = null;
+        private static Dictionary<string, EntityType> variables = null;
+        private static Dictionary<string, List<string>> queryComponents = null;
 
-        private static void Init()
+        private static void Initialize()
         {
-            vars = new Dictionary<string, EntityType>();
-            queryDetails = new Dictionary<string, List<string>>();
+            variables = new Dictionary<string, EntityType>();
+            queryComponents = new Dictionary<string, List<string>>();
 
         }
         public static List<string> ProcessQuery(String query, bool testing = false)
         {
-            Init();
+            Initialize();
             query = Regex.Replace(query, @"\t|\n|\r", ""); //usunięcie znaków przejścia do nowej linii i tabulatorów
 
 
@@ -29,8 +29,7 @@ namespace QueryProcessor
             }
 
             String selectPart = queryParts[queryParts.Length - 1];
-            List<string> errors;
-            errors = CheckQuery(selectPart.ToLower());
+            List<string> errors = CheckQuery(selectPart.ToLower());
             if (errors.Count > 0)
                 return errors;
             ProcessSelectPart(selectPart.Trim()); //dekoduje część "Select ... "
@@ -40,8 +39,7 @@ namespace QueryProcessor
             }
             catch (ArgumentException e)
             {
-                errors = new List<string>();
-                errors.Add(e.Message);
+                errors = new List<string> { e.Message };
                 return errors;
             }
 
@@ -61,110 +59,110 @@ namespace QueryProcessor
                 return errors;
 
             String[] spearator = { "such that", "with" };
-            String[] strlist = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
-            if (strlist[0].Contains(","))
+            String[] partsList = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
+            if (partsList[0].Contains(","))
                 errors.Add("Tuple not supported");
 
             return errors;
         }
 
-        private static void DecodeVarDefinitionAndInsertToDict(String varsDefinition)
+        private static void DecodeVarDefinitionAndInsertToDict(String variableDefinition)
         {
-            string[] varsParts = varsDefinition.Replace(" ", ",").Split(',');
-            string varTypeAsString = varsParts[0]; //Typ jako string (statement, assign, wgile albo procedure)
-            EntityType type;
+            string[] variableParts = variableDefinition.Replace(" ", ",").Split(',');
+            string varTypeAsString = variableParts[0]; //Typ jako string (statement, assign, wgile albo procedure)
+            EntityType entityType;
 
             switch (varTypeAsString.ToLower())
             {
                 case "stmt":
-                    type = EntityType.Statement;
+                    entityType = EntityType.Statement;
                     break;
                 case "assign":
-                    type = EntityType.Assign;
+                    entityType = EntityType.Assign;
                     break;
                 case "while":
-                    type = EntityType.While;
+                    entityType = EntityType.While;
                     break;
                 case "procedure":
-                    type = EntityType.Procedure;
+                    entityType = EntityType.Procedure;
                     break;
                 case "variable":
-                    type = EntityType.Variable;
+                    entityType = EntityType.Variable;
                     break;
                 case "constant":
-                    type = EntityType.Constant;
+                    entityType = EntityType.Constant;
                     break;
                 case "prog_line":
-                    type = EntityType.Prog_line;
+                    entityType = EntityType.Prog_line;
                     break;
                 case "if":
-                    type = EntityType.If;
+                    entityType = EntityType.If;
                     break;
                 case "call":
-                    type = EntityType.Call;
+                    entityType = EntityType.Call;
                     break;
                 default:
                     throw new System.ArgumentException(string.Format("# Wrong argument: \"{0}\"", varTypeAsString));
             }
 
-            for (int i = 1; i < varsParts.Length; i++)
+            for (int i = 1; i < variableParts.Length; i++)
             {
-                if (varsParts[i] != "") //tak nawet takie coś jak "" dodawało...
-                    vars.Add(varsParts[i], type);
+                if (variableParts[i] != "") //tak nawet takie coś jak "" dodawało...
+                    variables.Add(variableParts[i], entityType);
             }
         }
 
         private static void ProcessSelectPart(string selectPart)
         {
-            string[] splittedselectPart = Regex.Split(selectPart.ToLower(), "(such that)");
-            List<string[]> splittedselectPart2 = new List<string[]>();
-            List<string> splittedselectPart3 = new List<string>();
-            List<string> splittedselectPart4 = new List<string>();
-            queryDetails.Add("SELECT", new List<string>());
-            queryDetails.Add("SUCH THAT", new List<string>());
-            queryDetails.Add("WITH", new List<string>());
+            string[] splitSelectParts = Regex.Split(selectPart.ToLower(), "(such that)");
+            List<string[]> splitSelectPartsArrays = new List<string[]>();
+            List<string> mergedSelectParts = new List<string>();
+            List<string> finalSelectParts = new List<string>();
+            queryComponents.Add("SELECT", new List<string>());
+            queryComponents.Add("SUCH THAT", new List<string>());
+            queryComponents.Add("WITH", new List<string>());
 
 
-            foreach (string s in splittedselectPart)
-                splittedselectPart2.Add(Regex.Split(s, "(with)"));
+            foreach (string part in splitSelectParts)
+                splitSelectPartsArrays.Add(Regex.Split(part, "(with)"));
 
-            foreach (string[] ss in splittedselectPart2)
-                foreach (string s in ss)
-                    splittedselectPart3.Add(s);
+            foreach (string[] parts in splitSelectPartsArrays)
+                foreach (string part in parts)
+                    mergedSelectParts.Add(part);
 
-            splittedselectPart4.Add(splittedselectPart3[0]);
-            for (int i = 1; i < splittedselectPart3.Count; i += 2)
-                splittedselectPart4.Add(splittedselectPart3[i] + splittedselectPart3[i + 1]);
+            finalSelectParts.Add(mergedSelectParts[0]);
+            for (int i = 1; i < mergedSelectParts.Count; i += 2)
+                finalSelectParts.Add(mergedSelectParts[i] + mergedSelectParts[i + 1]);
 
 
-            foreach (string s in splittedselectPart4)
+            foreach (string part in finalSelectParts)
             {
                
-                int index = selectPart.ToLower().IndexOf(s);
+                int index = selectPart.ToLower().IndexOf(part);
 
                 string substring;
                 string[] substrings;
                 string[] separator = { " and ", " And ", " ANd ", " AND ", " anD ", " aND ", " aNd ", " AnD " };
-                if (s.StartsWith("such that"))
+                if (part.StartsWith("such that"))
                 {
-                    substring = selectPart.Substring(index, s.Length).Substring(9).Trim();
+                    substring = selectPart.Substring(index, part.Length).Substring(9).Trim();
                     substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string sbs in substrings)
-                        queryDetails["SUCH THAT"].Add(sbs.Trim());
+                        queryComponents["SUCH THAT"].Add(sbs.Trim());
                 }
-                else if (s.StartsWith("with"))
+                else if (part.StartsWith("with"))
                 {
-                    substring = selectPart.Substring(index, s.Length).Substring(4).Trim();
+                    substring = selectPart.Substring(index, part.Length).Substring(4).Trim();
                     substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string sbs in substrings)
-                        queryDetails["WITH"].Add(sbs.Trim());
+                        queryComponents["WITH"].Add(sbs.Trim());
                 }
-                else if (s.StartsWith("select"))
+                else if (part.StartsWith("select"))
                 {
-                    substring = selectPart.Substring(index, s.Length).Substring(6).Trim();
+                    substring = selectPart.Substring(index, part.Length).Substring(6).Trim();
                     substrings = substring.Split(',');
                     foreach (string sbs in substrings)
-                        queryDetails["SELECT"].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
+                        queryComponents["SELECT"].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
                 }
             }
 
@@ -175,12 +173,12 @@ namespace QueryProcessor
         private static void PrintParsingResults()
         {
             Console.WriteLine("QUERY VARIABLES:");
-            foreach (KeyValuePair<string, EntityType> oneVar in vars)
+            foreach (KeyValuePair<string, EntityType> oneVar in variables)
             {
                 Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
             }
 
-            foreach (KeyValuePair<string, List<string>> oneDetail in queryDetails)
+            foreach (KeyValuePair<string, List<string>> oneDetail in queryComponents)
             {
                 Console.WriteLine("{0}:", oneDetail.Key);
                 foreach (string word in oneDetail.Value)
@@ -191,44 +189,44 @@ namespace QueryProcessor
             }
         }
 
-        public static Dictionary<string, EntityType> GetQueryVars()
+        public static Dictionary<string, EntityType> GetQueryVariables()
         {
-            return vars;
+            return variables;
         }
 
         public static Dictionary<string, List<string>> GetQueryDetails()
         {
-            return queryDetails;
+            return queryComponents;
         }
 
-        public static Dictionary<string, List<string>> GetVarAttributes()
+        public static Dictionary<string, List<string>> GetVariableAttributes()
         {
-            Dictionary<string, List<string>> varAttributes = new Dictionary<string, List<string>>();
-            if (queryDetails.ContainsKey("WITH"))
+            Dictionary<string, List<string>> variableAttributes = new Dictionary<string, List<string>>();
+            if (queryComponents.ContainsKey("WITH"))
             {
-                foreach (string attribute in queryDetails["WITH"])
+                foreach (string attribute in queryComponents["WITH"])
                 {
                     string[] attribtueWithValue = attribute.Split('=');
-                    if (!varAttributes.ContainsKey(attribtueWithValue[0].Trim()))
+                    if (!variableAttributes.ContainsKey(attribtueWithValue[0].Trim()))
                     {
-                        varAttributes[attribtueWithValue[0].Trim()] = new List<string>();
+                        variableAttributes[attribtueWithValue[0].Trim()] = new List<string>();
                     }
-                    varAttributes[attribtueWithValue[0].Trim()].Add(attribtueWithValue[1].Trim());
+                    variableAttributes[attribtueWithValue[0].Trim()].Add(attribtueWithValue[1].Trim());
                 }
             }
-            return varAttributes;
+            return variableAttributes;
         }
 
-        public static List<string> GetVarToSelect()
+        public static List<string> GetVariableToSelect()
         {
-            return queryDetails["SELECT"];
+            return queryComponents["SELECT"];
         }
 
-        public static EntityType GetVarEnumType(string var)
+        public static EntityType GetVariableEnumType(string var)
         {
             try
             {
-                return vars[var];
+                return variables[var];
             }
             catch (Exception e)
             {
