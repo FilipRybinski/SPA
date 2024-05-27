@@ -704,7 +704,7 @@ public class Parser
                 if (token != "") countToken++;
                 if (token == "")
                 {
-                    if (countToken > 0) break; // nastapil koniec pliku
+                    if (countToken > 0) break; 
                     else throw new Exception("StartParse: Pusty kod");
                 }
                 Node newRoot = AST.Ast.Instance.CreateTNode(EntityType.Program);

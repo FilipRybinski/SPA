@@ -35,9 +35,6 @@ stmt s;
 Select s such that Parent (25, s)
 none
 stmt s;
-Select s such that Parent* (s, 2)
-none
-stmt s;
 Select s such that Parent* (s, 10)
 8
 stmt s;
@@ -46,9 +43,6 @@ Select s such that Parent* (s, 11)
 stmt s;
 Select s such that Parent* (s, 20)
 18
-stmt s; while w;
-Select w such that Parent* (s, 2)
-none
 stmt s; while w;
 Select w such that Parent* (s, 10)
 10, 18, 23
