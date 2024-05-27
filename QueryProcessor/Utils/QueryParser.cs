@@ -1,5 +1,5 @@
 ﻿using Parser.AST;
-using PKB.Interfaces;
+using Parser.Interfaces;
 using QueryProcessor.Helper;
 using Utils.Enums;
 
@@ -14,7 +14,7 @@ namespace QueryProcessor.Utils
         private const string VariableNameKey = "varname";
         private const string ValueKey = "value";
         private const string StatementKey = "stmt#";
-        private static readonly IPkb Pkb= PKB.Pkb.Instance!;
+        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
 
         private static void Initialize()
         {

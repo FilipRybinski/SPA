@@ -3,13 +3,12 @@ using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
-using IPkb = PKB.Interfaces.IPkb;
 
 namespace QueryProcessor.Utils
 {
     internal static class QueryChecker
     {
-        private static readonly IPkb Pkb= PKB.Pkb.Instance!;
+        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
         public static void CheckModifiesOrUses(string firstArgument, string secondArgument,
                                         Func<Variable, Procedure, bool> methodForProc,
                                         Func<Variable, Statement, bool> methodForStmt)

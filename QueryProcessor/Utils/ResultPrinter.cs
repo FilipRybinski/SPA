@@ -1,11 +1,11 @@
-﻿using Utils.Enums;
-using IPkb = PKB.Interfaces.IPkb;
+﻿using Parser.Interfaces;
+using Utils.Enums;
 
 namespace QueryProcessor.Utils
 {
     internal static class ResultPrinter
     {
-        private static readonly IPkb Pkb= PKB.Pkb.Instance!;
+        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
         public static List<string> Print(Dictionary<string, List<int>> resultToPrint, bool testing)
         {
             List<string> results = new List<string>();
