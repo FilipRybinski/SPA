@@ -1,6 +1,4 @@
-using Parser.Interfaces;
-
-namespace PKB.Interfaces;
+namespace Parser.Interfaces;
 
 public interface IPkb
 {

@@ -1,10 +1,11 @@
-﻿using Parser.Tables;
-using Utils.Enums;
+﻿using Utils.Enums;
+using IPkb = PKB.Interfaces.IPkb;
 
 namespace QueryProcessor.Utils
 {
-    public static class ResultPrinter
+    internal static class ResultPrinter
     {
+        private static readonly IPkb Pkb= PKB.Pkb.Instance!;
         public static List<string> Print(Dictionary<string, List<int>> resultToPrint, bool testing)
         {
             List<string> results = new List<string>();
@@ -51,16 +52,8 @@ namespace QueryProcessor.Utils
             List<string> results = new List<string>();
             foreach (int index in indexes)
             {
-                results.Add(ViariableTable.Instance.GetVar(index).Identifier);
+                results.Add(Pkb.VarTable!.GetVar(index).Identifier);
             }
-
-            /*if (indexes.Count != 0)
-            {
-                for (int i = 0; i < indexes.Count; i++)
-                {
-                    results.Add(ViariableTable.Instance.GetVar(indexes[i]).Identifier);
-                }
-            }*/
 
             return results;
         }
@@ -70,18 +63,10 @@ namespace QueryProcessor.Utils
             List<string> results = new List<string>();
             foreach (int index in indexes)
             {
-                results.Add(ProcedureTable.Instance.GetProcedure(index).Identifier);
+                results.Add(Pkb.ProcTable!.GetProcedure(index).Identifier);
 
             }
-
-            /*
-                if (indexes.Count != 0)
-            {
-                for (int i = 0; i < indexes.Count; i++)
-                {
-                    results.Add(ProcedureTable.Instance.GetProcedure(indexes[i]).Identifier);
-                }
-            }*/
+            
 
             return results;
         }
@@ -93,16 +78,7 @@ namespace QueryProcessor.Utils
             {
                 results.Add(index.ToString());
             }
-
-            /*
-                if (indexes.Count != 0)
-            {
-                for (int i = 0; i < indexes.Count; i++)
-                {
-                    results.Add(indexes[i].ToString());
-
-                }
-            }*/
+            
             return results;
         }
     }

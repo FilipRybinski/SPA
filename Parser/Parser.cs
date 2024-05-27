@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Parser.AST.Utils;
+using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
@@ -11,6 +12,7 @@ public class Parser
         int _lineNumberQuery = 1;
         int _lineNumberOld = 0;
         readonly List<String> _reservedWords;
+        private static readonly IPkb Pkb = global::Parser.Pkb.Instance;
         public Parser()
         {
             _reservedWords = new List<string>();
@@ -21,14 +23,7 @@ public class Parser
             _reservedWords.Add("else");
             _reservedWords.Add("call");
         }
-
-
-        /// <summary>
-        /// wczytanie znaku z linii
-        /// </summary>
-        /// <param name="line">odczytywana linia</param>
-        /// <param name="index">indeks, ktory ma byc wczytany</param>
-        /// <returns></returns>
+        
         public char GetChar(string line, int index)
         {
             char character = line[index];

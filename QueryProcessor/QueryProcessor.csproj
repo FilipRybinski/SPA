@@ -12,8 +12,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Parser\Parser.csproj" />
-      <ProjectReference Include="..\PKB\PKB.csproj" />
       <ProjectReference Include="..\Utils\Utils.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="PKB">
+        <HintPath>bin\Release\net7.0\PKB.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

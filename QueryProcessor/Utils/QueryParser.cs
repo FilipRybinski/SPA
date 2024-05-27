@@ -1,7 +1,4 @@
 ﻿using Parser.AST;
-using Parser.AST.Utils;
-using Parser.Tables.Models;
-using PKB;
 using PKB.Interfaces;
 using QueryProcessor.Helper;
 using Utils.Enums;

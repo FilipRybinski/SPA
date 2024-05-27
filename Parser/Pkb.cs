@@ -1,17 +1,17 @@
 ﻿using Parser.Interfaces;
 using Parser.Tables;
-using PKB.Interfaces;
+using UsesParser = global::Parser.Uses.Uses;
+using CallsParser = global::Parser.Calls.Calls;
+using ModifiesParser = global::Parser.Modifies.Modifies;
 
-namespace PKB;
+namespace Parser;
 
 public sealed class Pkb : IPkb
 {
     private static Pkb? _singletonInstance;
-    public IUses? Uses => Parser.Uses.Uses.Instance;
-
-    public ICalls? Calls => Parser.Calls.Calls.Instance;
-
-    public IModifies? Modifies => Parser.Modifies.Modifies.Instance;
+    public IUses? Uses => UsesParser.Instance;
+    public ICalls? Calls => CallsParser.Instance;
+    public IModifies? Modifies => ModifiesParser.Instance;
 
     public IProcTable? ProcTable => ProcedureTable.Instance;
 
