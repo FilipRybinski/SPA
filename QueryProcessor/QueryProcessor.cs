@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
+using QueryProcessor.Helper;
 using QueryProcessor.Utils;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor
 {
@@ -18,21 +20,21 @@ namespace QueryProcessor
         public static List<string> ProcessQuery(String query, bool testing = false)
         {
             Initialize();
-            query = Regex.Replace(query, @"\t|\n|\r", ""); //usunięcie znaków przejścia do nowej linii i tabulatorów
+            query = Regex.Replace(query, @"\t|\n|\r", "");
 
 
             var queryParts = query.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             for (var i = 0; i < queryParts.Length - 1; i++)
             {
-                DecodeVarDefinitionAndInsertToDict(queryParts[i].Trim()); //dekoduje np. assign a, a1;
+                DecodeVarDefinitionAndInsertToDict(queryParts[i].Trim()); 
             }
 
             var selectPart = queryParts[queryParts.Length - 1];
             var errors = CheckQuery(selectPart.ToLower());
             if (errors.Count > 0)
                 return errors;
-            ProcessSelectPart(selectPart.Trim()); //dekoduje część "Select ... "
+            ProcessSelectPart(selectPart.Trim()); 
             try
             {
                 return QueryParser.GetData(testing);
@@ -48,20 +50,20 @@ namespace QueryProcessor
         public static List<string> CheckQuery(string query)
         {
             var errors = new List<string>();
-            if (query.Contains("boolean"))
-                errors.Add("BOOLEAN not supported");
-            else if (query.Contains("affects"))
-                errors.Add("Affects not supported");
-            else if (query.Contains("pattern"))
-                errors.Add("Pattern not supported");
+            if (query.Contains(SyntaxDirectory.boolean))
+                errors.Add(ErrorDirectory.BooleanError);
+            else if (query.Contains(SyntaxDirectory.affects))
+                errors.Add(ErrorDirectory.AffectsError);
+            else if (query.Contains(SyntaxDirectory.pattern))
+                errors.Add(ErrorDirectory.PatternError);
 
             if (errors.Count > 0)
                 return errors;
 
-            String[] spearator = { "such that", "with" };
+            String[] spearator = { SyntaxDirectory.SuchThat, SyntaxDirectory.With };
             var partsList = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
             if (partsList[0].Contains(","))
-                errors.Add("Tuple not supported");
+                errors.Add(SyntaxDirectory.ERROR);
 
             return errors;
         }
@@ -74,57 +76,57 @@ namespace QueryProcessor
 
             switch (varTypeAsString.ToLower())
             {
-                case "stmt":
+                case SyntaxDirectory.Stmt:
                     entityType = EntityType.Statement;
                     break;
-                case "assign":
+                case SyntaxDirectory.Assign:
                     entityType = EntityType.Assign;
                     break;
-                case "while":
+                case SyntaxDirectory.While:
                     entityType = EntityType.While;
                     break;
-                case "procedure":
+                case SyntaxDirectory.Procedure:
                     entityType = EntityType.Procedure;
                     break;
-                case "variable":
+                case SyntaxDirectory.Variable:
                     entityType = EntityType.Variable;
                     break;
-                case "constant":
+                case SyntaxDirectory.Constant:
                     entityType = EntityType.Constant;
                     break;
-                case "prog_line":
+                case SyntaxDirectory.ProgLine:
                     entityType = EntityType.Prog_line;
                     break;
-                case "if":
+                case SyntaxDirectory.If:
                     entityType = EntityType.If;
                     break;
-                case "call":
+                case SyntaxDirectory.Call:
                     entityType = EntityType.Call;
                     break;
                 default:
-                    throw new System.ArgumentException(string.Format("# Wrong argument: \"{0}\"", varTypeAsString));
+                    throw new Exception(SyntaxDirectory.ERROR);
             }
 
             for (var i = 1; i < variableParts.Length; i++)
             {
-                if (variableParts[i] != "") //tak nawet takie coś jak "" dodawało...
+                if (variableParts[i] != "")
                     variables.Add(variableParts[i], entityType);
             }
         }
 
         private static void ProcessSelectPart(string selectPart)
         {
-            var splitSelectParts = Regex.Split(selectPart.ToLower(), "(such that)");
+            var splitSelectParts = Regex.Split(selectPart.ToLower(), $"({SyntaxDirectory.SuchThat})");
             var splitSelectPartsArrays = new List<string[]>();
             var mergedSelectParts = new List<string>();
             var finalSelectParts = new List<string>();
-            queryComponents.Add("SELECT", new List<string>());
-            queryComponents.Add("SUCH THAT", new List<string>());
-            queryComponents.Add("WITH", new List<string>());
+            queryComponents.Add(SyntaxDirectory.SELECT, new List<string>());
+            queryComponents.Add(SyntaxDirectory.SUCHTHAT, new List<string>());
+            queryComponents.Add(SyntaxDirectory.WITH, new List<string>());
 
 
             foreach (var part in splitSelectParts)
-                splitSelectPartsArrays.Add(Regex.Split(part, "(with)"));
+                splitSelectPartsArrays.Add(Regex.Split(part, $"({SyntaxDirectory.With})"));
 
             foreach (var parts in splitSelectPartsArrays)
                 foreach (var part in parts)
@@ -141,28 +143,28 @@ namespace QueryProcessor
 
                 var substring = "";
                 var substrings = Array.Empty<string>();
-                var separator = " and ";
-                if (part.StartsWith("such that"))
+                var separator = $" {SyntaxDirectory.And} ";
+                if (part.StartsWith(SyntaxDirectory.SuchThat))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(9).Trim();
                     string pattern = @"(?<!\w)and(?!\w)";
                     substrings = Regex.Split(substring.ToLower(), pattern, RegexOptions.IgnoreCase);
                     foreach (var sbs in substrings)
-                        queryComponents["SUCH THAT"].Add(sbs.Trim());
+                        queryComponents[SyntaxDirectory.SUCHTHAT].Add(sbs.Trim());
                 }
-                else if (part.StartsWith("with"))
+                else if (part.StartsWith(SyntaxDirectory.With))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(4).Trim();
                     substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var sbs in substrings)
-                        queryComponents["WITH"].Add(sbs.Trim());
+                        queryComponents[SyntaxDirectory.WITH].Add(sbs.Trim());
                 }
-                else if (part.StartsWith("select"))
+                else if (part.StartsWith(SyntaxDirectory.SELECT.ToLower()))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(6).Trim();
                     substrings = substring.Split(',');
                     foreach (var sbs in substrings)
-                        queryComponents["SELECT"].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
+                        queryComponents[SyntaxDirectory.SELECT].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
                 }
             }
 
@@ -172,7 +174,6 @@ namespace QueryProcessor
 
         private static void PrintParsingResults()
         {
-            Console.WriteLine("QUERY VARIABLES:");
             foreach (var oneVar in variables)
             {
                 Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
@@ -202,9 +203,9 @@ namespace QueryProcessor
         public static Dictionary<string, List<string>> GetVariableAttributes()
         {
             var variableAttributes = new Dictionary<string, List<string>>();
-            if (queryComponents.ContainsKey("WITH"))
+            if (queryComponents.ContainsKey(SyntaxDirectory.WITH))
             {
-                foreach (var attribute in queryComponents["WITH"])
+                foreach (var attribute in queryComponents[SyntaxDirectory.WITH])
                 {
                     var attribtueWithValue = attribute.Split('=');
                     if (!variableAttributes.ContainsKey(attribtueWithValue[0].Trim()))
@@ -219,7 +220,7 @@ namespace QueryProcessor
 
         public static List<string> GetVariableToSelect()
         {
-            return queryComponents["SELECT"];
+            return queryComponents[SyntaxDirectory.SELECT];
         }
 
         public static EntityType GetVariableEnumType(string var)
@@ -230,7 +231,7 @@ namespace QueryProcessor
             }
             catch (Exception e)
             {
-                throw new ArgumentException(string.Format("# Wrong argument: \"{0}\"", var));
+                throw new Exception(SyntaxDirectory.ERROR);
             }
         }
     }

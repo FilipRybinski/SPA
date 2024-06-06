@@ -4,6 +4,7 @@ using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace Parser;
 
@@ -18,12 +19,12 @@ public class Parser
     {
         _reservedWords = new List<string>
         {
-            "procedure",
-            "while",
-            "if",
-            "then",
-            "else",
-            "call"
+            SyntaxDirectory.Procedure,
+            SyntaxDirectory.While,
+            SyntaxDirectory.If,
+            SyntaxDirectory.Then,
+            SyntaxDirectory.Else,
+            SyntaxDirectory.Call
         };
     }
 
@@ -47,7 +48,7 @@ public class Parser
         }
 
         if (lineNumber >= lines.Count)
-            throw new Exception("ParseProcedure: Nieoczekiwany koniec pliku, linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
 
         var token = "";
         char character;
@@ -144,7 +145,7 @@ public class Parser
     public void ParseProcedure(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, Node parent)
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "procedure") throw new Exception("ParseProcedure: Brak słowa procedure, linia: " + lineNumber);
+        if (token != SyntaxDirectory.Procedure) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
@@ -155,14 +156,14 @@ public class Parser
             ProcedureTable.Instance.SetAstRootNode(token, newNode);
             AST.Ast.Instance.SetChildOfLink(newNode, parent);
         }
-        else throw new Exception("ParseProcedure: Błędna nazwa procedury, " + token + ", linia: " + lineNumber);
+        else throw new Exception(SyntaxDirectory.ERROR);
 
         var procedureName = token;
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
         if (token != "{")
-            throw new Exception("ParseProcedure: Brak nawiasu { po nazwie procedury, linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
 
         Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, newNode);
     }
@@ -171,7 +172,7 @@ public class Parser
         string procedureName, Node parent)
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "{") throw new Exception("ParseStmtLst: Brak znaku {, linia: " + lineNumber);
+        if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
         var newNode = AST.Ast.Instance!.CreateTNode(EntityType.Stmtlist);
         AST.Ast.Instance.SetChildOfLink(newNode, parent);
         startIndex = endIndex;
@@ -190,31 +191,29 @@ public class Parser
         }
 
         if (lineNumber == lines.Count && token != "}")
-            throw new Exception("ParseStmtLst: Brak znaku }, linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
     }
 
     public void ParseWhile(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node parent, Node stmtListNode)
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "while") throw new Exception("ParseWhile: Brak słowa kluczowego while, linia: " + lineNumber);
+        if (token != SyntaxDirectory.While) throw new Exception(SyntaxDirectory.ERROR);
         StatementTable.Instance.AddStatement(EntityType.While, _lineNumberQuery);
         startIndex = endIndex;
 
-        var whileNode = AST.Ast.Instance!.CreateTNode(EntityType.While); // tworzenie node dla while
+        var whileNode = AST.Ast.Instance!.CreateTNode(EntityType.While); 
         StatementTable.Instance.SetAstRoot(_lineNumberQuery, whileNode);
-        AST.Ast.Instance.SetParent(whileNode, parent); //ustawianie parenta dla while
-
-        //Node stmtListNode = AST.AST.Instance.GetNthChild(0, parent);
+        AST.Ast.Instance.SetParent(whileNode, parent); 
         SettingFollows(whileNode, stmtListNode, parent);
-        AST.Ast.Instance.SetChildOfLink(whileNode, stmtListNode); //łączenie stmlList z while
+        AST.Ast.Instance.SetChildOfLink(whileNode, stmtListNode); 
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
         if (IsVarName(token))
         {
             var variableNode =
                 AST.Ast.Instance.CreateTNode(EntityType
-                    .Variable); // tworzenie node dla zmiennej po lewej stronie while node
+                    .Variable); 
             AST.Ast.Instance.SetChildOfLink(variableNode, whileNode);
 
             var var = new Variable(token);
@@ -225,12 +224,12 @@ public class Parser
 
             SetUsesForFamily(whileNode, var);
         }
-        else throw new Exception("ParseWhile: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
+        else throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
-        if (token != "{") throw new Exception("ParseWhile: Brak znaku {, linia: " + lineNumber);
+        if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
         Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, whileNode);
     }
@@ -286,7 +285,7 @@ public class Parser
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
         if (!IsVarName(token))
-            throw new Exception("ParseAssign: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
         StatementTable.Instance.AddStatement(EntityType.Assign, _lineNumberQuery);
         startIndex = endIndex;
 
@@ -301,7 +300,7 @@ public class Parser
         AST.Ast.Instance.SetChildOfLink(variableNode, assignNode);
         SetModifiesForFamily(assignNode, var);
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "=") throw new Exception("ParseAssign: Brak znaku =, linia: " + lineNumber);
+        if (token != "=") throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         Node expressionRoot;
@@ -316,7 +315,7 @@ public class Parser
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
         if (!IsVarName(token))
-            throw new Exception("ParseAssign: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
         StatementTable.Instance.AddStatement(EntityType.Assign, _lineNumberQuery);
         startIndex = endIndex;
 
@@ -334,7 +333,7 @@ public class Parser
         SetModifiesForFamily(assignNode, var);
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "=") throw new Exception("ParseAssign: Brak znaku =, linia: " + lineNumber);
+        if (token != "=") throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         token = "";
@@ -362,8 +361,7 @@ public class Parser
                     case "*":
                         break;
                     default:
-                        throw new Exception(
-                            "ParseAssign: Nieobsługiwane działanie, " + token + ", linia: " + lineNumber);
+                        throw new Exception(SyntaxDirectory.ERROR);
                 }
 
                 expectedOperation = false;
@@ -398,8 +396,7 @@ public class Parser
                     }
                 }
                 else
-                    throw new Exception("ParseAssign: Spodziewana zmienna lub stała, " + token + ", linia: " +
-                                        lineNumber);
+                    throw new Exception(SyntaxDirectory.ERROR);
 
                 expectedOperation = true;
             }
@@ -413,9 +410,8 @@ public class Parser
         }
 
         if (lineNumber == lines.Count && token != ";")
-            throw new Exception("ParseAssign: Spodziewano się znaku ; linia: " + lineNumber);
-
-        //łączenie tyci drzewka expresion z assign
+            throw new Exception(SyntaxDirectory.ERROR);
+        
         AST.Ast.Instance.SetChildOfLink(expressionRoot, assignNode);
     }
 
@@ -468,7 +464,7 @@ public class Parser
                         break;
                     case ")":
                         if (!possibleBracketClose)
-                            throw new Exception("ParseExpr: niespodziewany znak ), linia: " + lineNumber);
+                            throw new Exception(SyntaxDirectory.ERROR);
                         bracketsPaired = true;
                         expectedOperation = true;
 
@@ -479,18 +475,16 @@ public class Parser
                             if (parent.EntityType == EntityType.Multiply || parent.EntityType == EntityType.Divide)
                             {
                                 AST.Ast.Instance.SetChildOfLink(parent, expressionRoot);
-                                //return expressionRoot;
                             }
                         }
                         else
                         {
                             AST.Ast.Instance.SetChildOfLink(parent, expressionRoot);
-                            //return expressionRoot;
                         }
 
                         break;
                     default:
-                        throw new Exception("ParseExpr: Nieobsługiwane działanie, " + token + ", linia: " + lineNumber);
+                        throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
             else
@@ -592,16 +586,14 @@ public class Parser
                     }
                 }
                 else
-                    throw new Exception("ParseExpr: Spodziewana zmienna lub stała, " + token + ", linia: " +
-                                        lineNumber);
+                    throw new Exception(SyntaxDirectory.ERROR);
             }
 
             token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
             if (token == ";")
             {
                 if (inBracket && !bracketsPaired)
-                    throw new Exception("ParseExpr: Brak nawiasu zamykajacego, wystapil " + token + ", linia: " +
-                                        lineNumber);
+                    throw new Exception(SyntaxDirectory.ERROR);
                 token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
                 endAssign = true;
                 break;
@@ -609,7 +601,7 @@ public class Parser
         }
 
         if (lineNumber == lines.Count && token != ";")
-            throw new Exception("ParseExpr: Spodziewano się znaku ; linia: " + lineNumber);
+            throw new Exception(SyntaxDirectory.ERROR);
         return endAssign;
     }
 
@@ -617,7 +609,7 @@ public class Parser
         string procedureName, Node parent, Node stmtListNode)
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "call") throw new Exception("ParseCall: Brak słowa kluczowego call, linia: " + lineNumber);
+        if (token != SyntaxDirectory.Call) throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
@@ -632,19 +624,19 @@ public class Parser
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
         if (IsVarName(token)) callNode.NodeAttribute.Name = token;
-        else throw new Exception("ParseCall: Wymagana nazwa procedury, " + token + ", linia: " + lineNumber);
+        else throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
         startIndex = endIndex;
-        if (token != ";") throw new Exception("ParseCall: Brak znaku ; linia: " + lineNumber);
+        if (token != ";") throw new Exception(SyntaxDirectory.ERROR);
     }
 
     public void ParseIf(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, string procedureName,
         Node parent, Node stmtListNode)
     {
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "if") throw new Exception("ParseIf: Brak słowa kluczowego if, linia: " + lineNumber);
+        if (token != SyntaxDirectory.If) throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
@@ -667,26 +659,26 @@ public class Parser
 
             SetUsesForFamily(ifNode, var);
         }
-        else throw new Exception("ParseIf: Wymagana nazwa zmiennej, " + token + ", linia: " + lineNumber);
+        else throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "then") throw new Exception("ParseIf: Brak słowa kluczowego then, linia: " + lineNumber);
+        if (token != SyntaxDirectory.Then) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
-        if (token != "{") throw new Exception("ParseIf: Brak znaku {, linia: " + lineNumber);
+        if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
         Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "else") throw new Exception("ParseIf: Brak słowa kluczowego else, linia: " + lineNumber);
+        if (token != SyntaxDirectory.Else) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
-        if (token != "{") throw new Exception("ParseIf: Brak znaku {, linia: " + lineNumber);
+        if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
         Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
         startIndex = endIndex;
@@ -698,19 +690,19 @@ public class Parser
         var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
         switch (token)
         {
-            case "procedure":
+            case SyntaxDirectory.Procedure:
                 ParseProcedure(lines, startIndex, ref lineNumber, out endIndex, parent);
                 break;
             case "{":
                 ParseStmtLst(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent);
                 break;
-            case "while":
+            case SyntaxDirectory.While:
                 ParseWhile(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
-            case "call":
+            case SyntaxDirectory.Call:
                 ParseCall(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
-            case "if":
+            case SyntaxDirectory.If:
                 ParseIf(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
             default:
@@ -719,7 +711,7 @@ public class Parser
                     ParseAssign(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                     break;
                 }
-                else throw new Exception("Parse: Niespodziewany token: " + token + ", linia: " + lineNumber);
+                else throw new Exception(SyntaxDirectory.ERROR);
         }
     }
 
@@ -739,7 +731,7 @@ public class Parser
         var lines = code.Split(new[] { '\r', '\n' }).ToList();
 
         if (lines.Count == 0 || (lines.Count == 1 && string.IsNullOrEmpty(lines[0])))
-            throw new Exception("# StartParse: Pusty kod");
+            throw new Exception(SyntaxDirectory.ERROR);
 
         var lineNumber = 0;
         var index = 0;
@@ -753,14 +745,14 @@ public class Parser
             if (token == "")
             {
                 if (countToken > 0) break;
-                else throw new Exception("StartParse: Pusty kod");
+                else throw new Exception(SyntaxDirectory.ERROR);
             }
 
             var newRoot = AST.Ast.Instance!.CreateTNode(EntityType.Program);
             AST.Ast.Instance.SetRoot(newRoot);
 
-            if (token != "procedure")
-                throw new Exception("StartParse: Spodziewano się słowa kluczowego procedure, linia: " + lineNumber);
+            if (token != SyntaxDirectory.Procedure)
+                throw new Exception(SyntaxDirectory.ERROR);
             Parse(lines, index, ref lineNumber, out endIndex, "", newRoot);
             index = endIndex;
         }
@@ -780,13 +772,13 @@ public class Parser
             {
                 var p1 = ProcedureTable.Instance!.GetProcedure(i);
                 if (p1 is null)
-                    throw new Exception("UpdateModifiesAndUsesTablesInProcedures: wywaliło się na procedurze");
+                    throw new Exception(SyntaxDirectory.ERROR);
                 for (var j = 0; j < sizeOfProcTable; j++)
                 {
                     if (i == j) continue;
                     var p2 = ProcedureTable.Instance!.GetProcedure(j);
                     if (p2 is null)
-                        throw new Exception("UpdateModifiesAndUsesTablesInProcedures: wywaliło się na procedurze");
+                        throw new Exception(SyntaxDirectory.ERROR);
                     if (!Calls.Calls.Instance!.IsCalls(p1.Identifier, p2.Identifier)) continue;
                     
                     foreach (var variable in p2.ModifiesList.Where(variable => p1.ModifiesList.TryAdd(variable.Key, true)))
@@ -852,7 +844,7 @@ public class Parser
 
     private void AddLineNumberQuery(string line, int lineNumber)
     {
-        if (line.Contains("procedure") || line.Contains("else")) return;
+        if (line.Contains(SyntaxDirectory.Procedure) || line.Contains(SyntaxDirectory.Else)) return;
         if (lineNumber - _lineNumberOld < 1) return;
         
         _lineNumberQuery++;

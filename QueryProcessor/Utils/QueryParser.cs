@@ -2,6 +2,7 @@
 using Parser.Interfaces;
 using QueryProcessor.Helper;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor.Utils
 {
@@ -31,7 +32,7 @@ namespace QueryProcessor.Utils
             var suchThatPart = new List<string>();
             try
             {
-                suchThatPart = new List<string>(queryDetails["SUCH THAT"]);
+                suchThatPart = new List<string>(queryDetails[SyntaxDirectory.SUCHTHAT]);
             }
             catch (Exception e)
             {
@@ -102,7 +103,7 @@ namespace QueryProcessor.Utils
                         _variableIndexes!.Add(key, GetConstantIndexes(attributes));
                         break;
                     default:
-                        throw new System.ArgumentException("# Invalid entity type!");
+                        throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
         }
@@ -241,7 +242,7 @@ namespace QueryProcessor.Utils
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"# Wrong stmt# = {stmtNumbers[0]}");
+                    throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
 
@@ -262,7 +263,7 @@ namespace QueryProcessor.Utils
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"# Wrong argument: \"{trimedVar}\"");
+                    throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
 
@@ -311,7 +312,7 @@ namespace QueryProcessor.Utils
                     QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCallsStar);
                     break;
                 default:
-                    throw new ArgumentException($"# Niepoprawna metoda: \"{typeAndArguments[0]}\"");
+                    throw new Exception(SyntaxDirectory.ERROR);
             }
         }
 
