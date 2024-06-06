@@ -14,4 +14,5 @@ public interface IProcTable
         Node? GetAstRoot(string procName);
         Node? GetAstRoot(int index);
         List<Procedure> GetProcedureList();
+        List<Procedure> ProceduresList { get; }
 }

@@ -1,3 +1,4 @@
+using Parser.AST;
 using Parser.AST.Utils;
 using Parser.Interfaces;
 using Parser.Tables;
@@ -8,38 +9,34 @@ namespace Parser.Calls;
 
 public class Calls : ICalls
 {
-    private static Calls? _singletonInstance;
-
-    public static Calls? Instance
+    private static Calls? _instance;
+    private static readonly IAst? Ast= AST.Ast.Instance;
+    private static readonly IProcTable? ProcTable= ProcedureTable.Instance;
+    public static ICalls? Instance
     {
         get
         {
-            if (_singletonInstance == null)
-            {
-                _singletonInstance = new Calls();
-            }
-
-            return _singletonInstance;
+            return _instance ??= new Calls();
         }
     }
 
     public IEnumerable<Procedure> GetCalledBy(string proc)
     {
-        return ProcedureTable.Instance!.ProceduresList.Where(procedure => IsCalls(procedure.Identifier, proc)).ToList();
+        return ProcTable!.ProceduresList.Where(procedure => IsCalls(procedure.Identifier, proc)).ToList();
     }
 
-    public IEnumerable<Procedure> GetCalledByStar(string proc) => ProcedureTable.Instance!.ProceduresList
+    public IEnumerable<Procedure> GetCalledByStar(string proc) => ProcTable!.ProceduresList
         .Where(procedure => IsCallsStar(procedure.Identifier, proc)).ToList();
 
     public List<Procedure> GetCalls(List<Procedure> procedures, Node stmtNode)
     {
-        foreach (var procName in AST.Ast.Instance!
+        foreach (var procName in Ast!
                      .GetLinkedNodes(stmtNode, LinkType.Child)
                      .Where(i => i.EntityType == EntityType.Call)
                      .Select(i => i.NodeAttribute.Name)
                      .ToList())
         {
-            var findProcedure = ProcedureTable.Instance!.GetProcedure(procName);
+            var findProcedure = ProcTable!.GetProcedure(procName);
             if (findProcedure is null)
                 continue;
 
@@ -47,10 +44,10 @@ public class Calls : ICalls
         }
 
 
-        foreach (var node in AST.Ast.Instance
+        foreach (var node in Ast
                      .GetLinkedNodes(stmtNode, LinkType.Child)
                      .Where(i => i.EntityType is EntityType.While or EntityType.If).ToList())
-        foreach (var stmtL in AST.Ast.Instance
+        foreach (var stmtL in Ast
                      .GetLinkedNodes(node, LinkType.Child)
                      .Where(i => i.EntityType == EntityType.Stmtlist).ToList())
             GetCalls(procedures, stmtL);
@@ -63,8 +60,8 @@ public class Calls : ICalls
     public List<Procedure> GetCalls(string proc)
     {
         var procedures = new List<Procedure>();
-        var procNode = ProcedureTable.Instance!.GetAstRoot(proc);
-        var stmtLstChild = AST.Ast.Instance!.GetFirstChild(procNode);
+        var procNode = ProcTable!.GetAstRoot(proc);
+        var stmtLstChild = Ast!.GetFirstChild(procNode);
         if (stmtLstChild is not null)
             GetCalls(procedures, stmtLstChild);
 

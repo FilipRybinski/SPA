@@ -3,6 +3,7 @@ using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor.Utils
 {
@@ -186,9 +187,9 @@ namespace QueryProcessor.Utils
             var secondStayinIndexes = new List<int>();
 
             if (firstArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", firstArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
             else if (secondArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", secondArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
 
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)

@@ -2,6 +2,7 @@
 using Parser.Interfaces;
 using QueryProcessor.Helper;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor.Utils
 {
@@ -15,6 +16,7 @@ namespace QueryProcessor.Utils
         private const string ValueKey = "value";
         private const string StatementKey = "stmt#";
         private static readonly IPkb Pkb= Parser.Pkb.Instance!;
+        private static readonly IAst Ast = Parser.AST.Ast.Instance!;
 
         private static void Initialize()
         {
@@ -31,7 +33,7 @@ namespace QueryProcessor.Utils
             var suchThatPart = new List<string>();
             try
             {
-                suchThatPart = new List<string>(queryDetails["SUCH THAT"]);
+                suchThatPart = new List<string>(queryDetails[SyntaxDirectory.SUCHTHAT]);
             }
             catch (Exception e)
             {
@@ -102,7 +104,7 @@ namespace QueryProcessor.Utils
                         _variableIndexes!.Add(key, GetConstantIndexes(attributes));
                         break;
                     default:
-                        throw new System.ArgumentException("# Invalid entity type!");
+                        throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
         }
@@ -199,7 +201,7 @@ namespace QueryProcessor.Utils
             foreach (var statement in Pkb.StmtTable!.GetStatementsList())
             {
                 var node = statement.AstRoot;
-                var constValues = Ast.Instance!.GetConstants(node);
+                var constValues = Ast!.GetConstants(node);
                 if (constants.Count == 1)
                 {
                     if (constValues.Contains(int.Parse(constants[0])))
@@ -241,7 +243,7 @@ namespace QueryProcessor.Utils
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"# Wrong stmt# = {stmtNumbers[0]}");
+                    throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
 
@@ -262,7 +264,7 @@ namespace QueryProcessor.Utils
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"# Wrong argument: \"{trimedVar}\"");
+                    throw new Exception(SyntaxDirectory.ERROR);
                 }
             }
 
@@ -293,16 +295,16 @@ namespace QueryProcessor.Utils
                     QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.IsUsed, Pkb.Uses.IsUsed);
                     break;
                 case StringDirectory.Parent:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParent);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParent);
                     break;
                 case StringDirectory.ParentAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParentStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParentStar);
                     break;
                 case StringDirectory.Follows:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowed);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowed);
                     break;
                 case StringDirectory.FollowsAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowedStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowedStar);
                     break;
                 case StringDirectory.Calls:
                     QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCalls);
@@ -311,7 +313,7 @@ namespace QueryProcessor.Utils
                     QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCallsStar);
                     break;
                 default:
-                    throw new ArgumentException($"# Niepoprawna metoda: \"{typeAndArguments[0]}\"");
+                    throw new Exception(SyntaxDirectory.ERROR);
             }
         }
 

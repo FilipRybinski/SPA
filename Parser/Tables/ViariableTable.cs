@@ -5,11 +5,11 @@ namespace Parser.Tables
 {
     public sealed class ViariableTable : IVarTable
     {
-        private static ViariableTable? _singletonInstance;
+        private static ViariableTable? _instance;
 
-        public static ViariableTable? Instance
+        public static IVarTable? Instance
         {
-            get { return _singletonInstance ?? (_singletonInstance = new ViariableTable()); }
+            get { return _instance ??= new ViariableTable(); }
         }
 
         public List<Variable> VariablesList { get; set; }
