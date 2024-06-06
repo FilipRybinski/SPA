@@ -12,12 +12,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.csproj" />
+    <ProjectReference Include="..\QueryProcessor\QueryProcessor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Parser">
       <HintPath>..\Parser\bin\Release\net7.0\Parser.dll</HintPath>
     </Reference>
     <Reference Include="QueryProcessor">
       <HintPath>..\QueryProcessor\bin\Release\net7.0\QueryProcessor.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.csproj" />
+    <ProjectReference Include="..\QueryProcessor\QueryProcessor.csproj" />
   </ItemGroup>
 
 </Project>

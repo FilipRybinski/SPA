@@ -22,8 +22,9 @@ namespace REST.Controllers
             var code = await streamReader.ReadToEndAsync();
             code =Regex.Replace(code, @"\r", "");
             var parser = new Parser.Parser();
-            parser.CleanData();
+            Parser.Parser.CleanData();
             parser.StartParse(code);
+            var queryProcessor = new QueryProcessor.QueryProcessor();
             var results = QueryProcessor.QueryProcessor.ProcessQuery(variables + query, testing: true);
             return Ok(results.Count == 0 ? Failed : string.Join(", ", results));
             

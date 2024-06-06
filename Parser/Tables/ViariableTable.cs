@@ -5,19 +5,13 @@ namespace Parser.Tables
 {
     public sealed class ViariableTable : IVarTable
     {
-        private static ViariableTable? _singletonInstance;
+        private static ViariableTable? _instance;
 
-        public static ViariableTable? Instance
+        public static IVarTable? Instance
         {
-            get
-            {
-                if (_singletonInstance == null)
-                {
-                    _singletonInstance = new ViariableTable();
-                }
-                return _singletonInstance;
-            }
+            get { return _instance ??= new ViariableTable(); }
         }
+
         public List<Variable> VariablesList { get; set; }
 
         private ViariableTable()
@@ -25,45 +19,28 @@ namespace Parser.Tables
             VariablesList = new List<Variable>();
         }
 
-        public int GetSize()
-        {
-            return VariablesList.Count();
-        }
+        public int GetSize() => VariablesList.Count;
 
-        public List<Variable> GetVariablesList()
-        {
-            return VariablesList;
-        }
+        public List<Variable> GetVariablesList() => VariablesList;
 
-        public Variable GetVar(int index)
-        {
-            return VariablesList.FirstOrDefault(i => i.Id == index)!;
-        }
+        public Variable? GetVar(int index) => VariablesList.FirstOrDefault(i => i.Id == index);
 
-        public Variable GetVar(string varName)
-        {
-            return VariablesList.FirstOrDefault(i => i.Identifier == varName)!;
-        }
+        public Variable? GetVar(string varName) => VariablesList.FirstOrDefault(i => i.Identifier == varName);
 
         public int GetVarIndex(string varName)
         {
             var variable = GetVar(varName);
-            return variable == null ? -1 : variable.Id;
+            return variable is null ? -1 : variable.Id;
         }
 
         public int AddVariable(string varName)
         {
             if (VariablesList.Any(i => i.Identifier == varName))
-            {
                 return -1;
-            }
-            else
-            {
-                Variable newVariable = new Variable(varName);
-                newVariable.Id = GetSize();
-                VariablesList.Add(newVariable);
-                return GetVarIndex(varName);
-            }
+            var newVariable = new Variable(varName);
+            newVariable.Id = GetSize();
+            VariablesList.Add(newVariable);
+            return GetVarIndex(varName);
         }
     }
 }

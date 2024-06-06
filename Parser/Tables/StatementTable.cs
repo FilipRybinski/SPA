@@ -7,31 +7,27 @@ namespace Parser.Tables
 {
     public sealed class StatementTable : IStmtTable
     {
-        private static StatementTable? _singletonInstance;
+        private static StatementTable? _instance;
 
-        public static StatementTable? Instance
+        public static IStmtTable? Instance
         {
-            get
-            {
-                if (_singletonInstance == null)
-                {
-                    _singletonInstance = new StatementTable();
-                }
-                return _singletonInstance;
-            }
+            get { return _instance ??= new StatementTable(); }
         }
-        public List<Statement> StatementsList { get; set; }
+
+        public List<Statement?> StatementsList { get; set; }
+
         private StatementTable()
         {
-            StatementsList = new List<Statement>();
+            StatementsList = new List<Statement?>();
         }
+
         public Node GetAstRoot(int lineNumber)
         {
             var stmt = GetStatement(lineNumber);
             return stmt == null ? null : stmt.AstRoot;
         }
 
-        public List<Statement> GetStatementsList()
+        public List<Statement?> GetStatementsList()
         {
             return StatementsList;
         }
@@ -41,7 +37,7 @@ namespace Parser.Tables
             return StatementsList.Count();
         }
 
-        public Statement GetStatement(int lineNumber)
+        public Statement? GetStatement(int lineNumber)
         {
             return StatementsList.FirstOrDefault(i => i.LineNumber == lineNumber)!;
         }
@@ -54,7 +50,7 @@ namespace Parser.Tables
             }
             else
             {
-                Statement newStmt = new Statement(entityType, lineNumber);
+                var newStmt = new Statement(entityType, lineNumber);
                 StatementsList.Add(newStmt);
                 return 0;
             }
@@ -66,7 +62,6 @@ namespace Parser.Tables
             if (procedure == null)
             {
                 return -1;
-
             }
             else
             {

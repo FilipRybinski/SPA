@@ -3,15 +3,17 @@ using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor.Utils
 {
     internal static class QueryChecker
     {
-        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
+        private static readonly IPkb Pkb = Parser.Pkb.Instance!;
+
         public static void CheckModifiesOrUses(string firstArgument, string secondArgument,
-                                        Func<Variable, Procedure, bool> methodForProc,
-                                        Func<Variable, Statement, bool> methodForStmt)
+            Func<Variable, Procedure, bool> methodForProc,
+            Func<Variable, Statement, bool> methodForStmt)
         {
             var firstArgType = DetermineEntityType(firstArgument);
 
@@ -20,6 +22,7 @@ namespace QueryProcessor.Utils
             else
                 CheckStatementModifiesOrUses(firstArgument, secondArgument, methodForStmt);
         }
+
         private static EntityType DetermineEntityType(string argument)
         {
             if (argument[0] == '\"' && argument[^1] == '\"')
@@ -32,7 +35,8 @@ namespace QueryProcessor.Utils
                 return QueryProcessor.GetVariableEnumType(argument);
         }
 
-        private static void CheckProcedureModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Procedure, bool> IsModifiedOrUsedByProc)
+        private static void CheckProcedureModifiesOrUses(string firstArgument, string secondArgument,
+            Func<Variable, Procedure, bool> IsModifiedOrUsedByProc)
         {
             EntityType secondArgType;
             EntityType firstArgType;
@@ -56,23 +60,24 @@ namespace QueryProcessor.Utils
             var varStayinIndexes = new List<int>();
 
             foreach (var firstIndex in firstArgIndexes)
-                foreach (var secondIndex in secondArgIndexes)
+            foreach (var secondIndex in secondArgIndexes)
+            {
+                var proc = Pkb.ProcTable!.GetProcedure(firstIndex);
+                var var = Pkb.VarTable!.GetVar(secondIndex);
+                if (IsModifiedOrUsedByProc(var, proc))
                 {
-                    var proc = Pkb.ProcTable!.GetProcedure(firstIndex);
-                    var var = Pkb.VarTable!.GetVar(secondIndex);
-                    if (IsModifiedOrUsedByProc(var, proc))
-                    {
-                        procStayinIndexes.Add(firstIndex);
-                        varStayinIndexes.Add(secondIndex);
-
-                    }
+                    procStayinIndexes.Add(firstIndex);
+                    varStayinIndexes.Add(secondIndex);
                 }
+            }
+
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                                                   procStayinIndexes,
-                                                   varStayinIndexes);
+                procStayinIndexes,
+                varStayinIndexes);
         }
 
-        private static void CheckStatementModifiesOrUses(string firstArgument, string secondArgument, Func<Variable, Statement, bool> IsModifiedOrUsedByStmt)
+        private static void CheckStatementModifiesOrUses(string firstArgument, string secondArgument,
+            Func<Variable, Statement, bool> IsModifiedOrUsedByStmt)
         {
             EntityType firstArgType;
             EntityType secondArgType;
@@ -98,22 +103,24 @@ namespace QueryProcessor.Utils
             var varStayinIndexes = new List<int>();
 
             foreach (var firstIndex in firstArgIndexes)
-                foreach (var secondIndex in secondArgIndexes)
+            foreach (var secondIndex in secondArgIndexes)
+            {
+                var statement = Pkb.StmtTable!.GetStatement(firstIndex);
+                var variable = Pkb.VarTable!.GetVar(secondIndex);
+                if (IsModifiedOrUsedByStmt(variable, statement))
                 {
-                    var statement = Pkb.StmtTable!.GetStatement(firstIndex);
-                    var variable = Pkb.VarTable!.GetVar(secondIndex);
-                    if (IsModifiedOrUsedByStmt(variable, statement))
-                    {
-                        stmtStayinIndexes.Add(firstIndex);
-                        varStayinIndexes.Add(secondIndex);
-                    }
+                    stmtStayinIndexes.Add(firstIndex);
+                    varStayinIndexes.Add(secondIndex);
                 }
+            }
+
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                                                   stmtStayinIndexes,
-                                                   varStayinIndexes);
+                stmtStayinIndexes,
+                varStayinIndexes);
         }
 
-        public static void CheckParentOrFollows(string firstArgument, string secondArgument, Func<Node, Node, bool> method)
+        public static void CheckParentOrFollows(string firstArgument, string secondArgument,
+            Func<Node, Node, bool> method)
         {
             EntityType firstArgType;
             EntityType secondArgType;
@@ -137,22 +144,21 @@ namespace QueryProcessor.Utils
             var firstStayinIndexes = new List<int>();
             var secondStayinIndexes = new List<int>();
 
-            foreach (int firstIndex in firstArgIndexes)
-                foreach (int secondIndex in secondArgIndexes)
+            foreach (var firstIndex in firstArgIndexes)
+            foreach (var secondIndex in secondArgIndexes)
+            {
+                var first = GetNodeByType(firstArgType, firstIndex);
+                var second = GetNodeByType(secondArgType, secondIndex);
+                if (method(first, second))
                 {
-                    var first = GetNodeByType(firstArgType, firstIndex);
-                    var second = GetNodeByType(secondArgType, secondIndex);
-                    if (method(first, second))
-                    {
-                        firstStayinIndexes.Add(firstIndex);
-                        secondStayinIndexes.Add(secondIndex);
-                    }
+                    firstStayinIndexes.Add(firstIndex);
+                    secondStayinIndexes.Add(secondIndex);
                 }
+            }
 
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                                                  firstStayinIndexes,
-                                                  secondStayinIndexes);
-
+                firstStayinIndexes,
+                secondStayinIndexes);
         }
 
         public static void CheckCalls(string firstArgument, string secondArgument, Func<string, string, bool> method)
@@ -181,29 +187,29 @@ namespace QueryProcessor.Utils
             var secondStayinIndexes = new List<int>();
 
             if (firstArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", firstArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
             else if (secondArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", secondArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
 
             foreach (var firstIndex in firstArgIndexes)
-                foreach (var secondIndex in secondArgIndexes)
+            foreach (var secondIndex in secondArgIndexes)
+            {
+                var p1 = Pkb.ProcTable!.GetProcedure(firstIndex);
+                var p2 = Pkb.ProcTable.GetProcedure(secondIndex);
+
+                var first = p1 == null ? "" : p1.Identifier;
+                var second = p2 == null ? "" : p2.Identifier;
+
+                if (method(first, second))
                 {
-                    var p1 = Pkb.ProcTable!.GetProcedure(firstIndex);
-                    var p2 = Pkb.ProcTable.GetProcedure(secondIndex);
-
-                    var first = p1 == null ? "" : p1.Identifier;
-                    var second = p2 == null ? "" : p2.Identifier;
-
-                    if (method(first, second))
-                    {
-                        firstStayinIndexes.Add(firstIndex);
-                        secondStayinIndexes.Add(secondIndex);
-                    }
+                    firstStayinIndexes.Add(firstIndex);
+                    secondStayinIndexes.Add(secondIndex);
                 }
+            }
 
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                                                  firstStayinIndexes,
-                                                  secondStayinIndexes);
+                firstStayinIndexes,
+                secondStayinIndexes);
         }
 
         public static void CheckNext(string firstArgument, string secondArgument, Func<int, int, bool> method)
@@ -231,19 +237,18 @@ namespace QueryProcessor.Utils
             var secondStayinIndexes = new List<int>();
 
             foreach (var firstIndex in firstArgIndexes)
-                foreach (var secondIndex in secondArgIndexes)
+            foreach (var secondIndex in secondArgIndexes)
+            {
+                if (method(firstIndex, secondIndex))
                 {
-                    if (method(firstIndex, secondIndex))
-                    {
-                        firstStayinIndexes.Add(firstIndex);
-                        secondStayinIndexes.Add(secondIndex);
-                    }
+                    firstStayinIndexes.Add(firstIndex);
+                    secondStayinIndexes.Add(secondIndex);
                 }
+            }
 
             QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                                                  firstStayinIndexes,
-                                                  secondStayinIndexes);
-
+                firstStayinIndexes,
+                secondStayinIndexes);
         }
 
         private static Node GetNodeByType(EntityType entityType, int index)
@@ -256,9 +261,6 @@ namespace QueryProcessor.Utils
             {
                 return Pkb.StmtTable!.GetAstRoot(index);
             }
-
         }
-
-
     }
 }

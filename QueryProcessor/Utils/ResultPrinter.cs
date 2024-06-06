@@ -8,12 +8,12 @@ namespace QueryProcessor.Utils
         private static readonly IPkb Pkb= Parser.Pkb.Instance!;
         public static List<string> Print(Dictionary<string, List<int>> resultToPrint, bool testing)
         {
-            List<string> results = new List<string>();
+            var results = new List<string>();
 
 
-            foreach (KeyValuePair<string, List<int>> oneVar in resultToPrint)
+            foreach (var oneVar in resultToPrint)
             {
-                EntityType entityType = QueryProcessor.GetVariableEnumType(oneVar.Key);
+                var entityType = QueryProcessor.GetVariableEnumType(oneVar.Key);
 
 
                 switch (entityType)
@@ -49,10 +49,10 @@ namespace QueryProcessor.Utils
 
         private static List<string> PrintVariables(List<int> indexes)
         {
-            List<string> results = new List<string>();
-            foreach (int index in indexes)
+            var results = new List<string>();
+            foreach (var index in indexes)
             {
-                results.Add(Pkb.VarTable!.GetVar(index).Identifier);
+                results.Add(Pkb.VarTable!.GetVar(index)?.Identifier);
             }
 
             return results;
@@ -60,10 +60,10 @@ namespace QueryProcessor.Utils
 
         private static List<string> PrintProcedures(List<int> indexes)
         {
-            List<string> results = new List<string>();
-            foreach (int index in indexes)
+            var results = new List<string>();
+            foreach (var index in indexes)
             {
-                results.Add(Pkb.ProcTable!.GetProcedure(index).Identifier);
+                results.Add(Pkb.ProcTable!.GetProcedure(index)?.Identifier);
 
             }
             
@@ -73,13 +73,7 @@ namespace QueryProcessor.Utils
 
         private static List<string> PrintStatements(List<int> indexes)
         {
-            List<string> results = new List<string>();
-            foreach (int index in indexes)
-            {
-                results.Add(index.ToString());
-            }
-            
-            return results;
+            return indexes.Select(index => index.ToString()).ToList();
         }
     }
 }
