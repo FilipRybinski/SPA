@@ -286,3 +286,564 @@ Select s such that Parent(s, 21) and Uses(s, "radius")
 assign a;
 Select a such that Uses(a, "tmp") and Modifies(a, "x2")
 74, 139, 186
+assign a;
+Select a such that Uses(a, "z1")
+none
+stmt s;
+Select s such that Modifies(s, "x5")
+6, 12, 14, 15, 16, 45, 55, 57, 64, 105, 107, 109, 113, 114, 154
+procedure p;
+Select p such that Calls(p, "Execute")
+none
+stmt s;
+Select s such that Parent(s, 30)
+29
+stmt s;
+Select s such that Follows(s, 12)
+11
+variable v;
+Select v such that Modifies(23, v)
+y1, y2
+procedure p;
+Select p such that Uses(p, "volume")
+Main
+while w;
+Select w such that Parent(w, 34)
+16
+assign a;
+Select a such that Modifies(a, "surfaceArea")
+none
+stmt s;
+Select s such that Uses(s, "perimeter")
+none
+variable v;
+Select v such that Modifies("Compute", v)
+none
+assign a;
+Select a such that Uses(a, "x6")
+none
+procedure p;
+Select p such that Calls("Start", p)
+none
+stmt s;
+Select s such that Parent(s, 22)
+16
+variable v;
+Select v such that Uses(35, v)
+incre, difference
+while w;
+Select w such that Modifies(w, "radius")
+6, 12, 16
+assign a;
+Select a such that Uses(a, "incValue")
+none
+procedure p;
+Select p such that Modifies(p, "velocity")
+none
+stmt s;
+Select s such that Parent(10, s)
+none
+variable v;
+Select v such that Modifies(5, v)
+left, right
+assign a;
+Select a such that Uses(a, "depth")
+219, 220, 242, 243, 268
+stmt s;
+Select s such that Follows(3, s)
+4
+stmt s;
+Select s such that Modifies(s, "temp")
+none
+variable v;
+Select v such that Uses("Resize", v)
+none
+assign a;
+Select a such that Parent(9, a)
+none
+while w;
+Select w such that Follows(w, 4)
+none
+procedure p;
+Select p such that Calls("Main", p)
+Init, Random, Transform, Shift, Shear, Move, Draw, Enlarge, Shrink, Translate
+stmt s;
+Select s such that Parent(s, 15)
+14
+variable v;
+Select v such that Uses(8, v)
+x1, incre, right
+assign a;
+Select a such that Modifies(a, "reduce")
+none
+while w;
+Select w such that Uses(w, "temp")
+none
+stmt s;
+Select s such that Modifies(s, "depth")
+6, 12, 14, 15, 16, 18, 59, 62, 79, 80, 89, 92, 216, 217, 218, 221, 222, 229, 230, 231, 232, 234, 235, 241, 242
+procedure p;
+Select p such that Uses(p, "x6")
+Main
+assign a;
+Select a such that Parent(10, a)
+none
+stmt s;
+Select s such that Follows(5, s)
+6
+procedure p;
+Select p such that Modifies(p, "temp")
+none
+variable v;
+Select v such that Modifies(25, v)
+y2
+while w;
+Select w such that Parent(w, 20)
+16
+stmt s;
+Select s such that Uses(s, "x5")
+6, 12, 14, 15, 16, 55, 56, 66, 68
+procedure p;
+Select p such that Calls(p, "Minimize")
+none
+assign a;
+Select a such that Follows(a, 8)
+7
+variable v;
+Select v such that Modifies("Transform", v)
+tmp, x1, incre, x2, y1, y2, decrement, weight
+while w;
+Select w such that Modifies(w, "depth")
+6, 12, 16, 59, 79, 89, 217, 218, 234
+stmt s;
+Select s such that Parent(s, 26)
+23
+assign a;
+Select a such that Uses(a, "temp")
+none
+procedure p;
+Select p such that Calls(p, "Adjust")
+none
+stmt s;
+Select s such that Modifies(s, "x6")
+6, 12, 14, 15, 16, 45, 66, 68, 69, 71, 105, 107, 109, 113, 114, 155
+variable v;
+Select v such that Uses("Translate", v)
+height, incre, top, bottom, difference, decrement, dx, dy, pink, green, pixel, dot, line, edge, depth, temporary, half, triangle, base, degrees, triange
+assign a;
+Select a such that Modifies(a, "x4")
+153
+assign a;
+Select a such that Modifies(a, "x2") and Uses(a, "x3")
+none
+procedure p;
+Select p such that Calls("Compute", p) and Modifies(p, "temp") and Uses(p, "x2")
+none
+stmt s, s1;
+Select s such that Parent(s, s1) and Follows(s1, s)
+none
+variable v;
+Select v such that Modifies(11, v) and Uses(13, v)
+none
+assign a;
+Select a such that Modifies(a, "depth") and Uses(a, "surfaceArea")
+none
+procedure p;
+Select p such that Calls(p, "Execute") and Modifies(p, "volume")
+none
+stmt s;
+Select s such that Parent(s, 26) and Modifies(s, "x4")
+none
+stmt s;
+Select s such that Follows(s, 10) and Uses(s, "surfaceArea")
+none
+variable v;
+Select v such that Modifies(19, v) and Uses(21, v)
+none
+procedure p;
+Select p such that Uses(p, "volume") and Calls(p, "Transform")
+Main
+while w;
+Select w such that Parent(w, 30) and Modifies(w, "temp")
+none
+assign a;
+Select a such that Modifies(a, "surfaceArea") and Uses(a, "x5")
+none
+stmt s;
+Select s such that Uses(s, "perimeter") and Follows(s, 5)
+none
+variable v;
+Select v such that Modifies("Compute", v) and Uses("Resize", v)
+none
+assign a;
+Select a such that Uses(a, "x4") and Modifies(a, "temp")
+none
+procedure p;
+Select p such that Calls("Start", p) and Modifies(p, "radius")
+none
+stmt s;
+Select s such that Parent(s, 21) and Uses(s, "x2")
+16
+variable v;
+Select v such that Uses(31, v) and Modifies(33, v)
+incre, y1, y2
+while w;
+Select w such that Modifies(w, "radius") and Uses(w, "depth")
+6, 12, 16
+assign a;
+Select a such that Uses(a, "incValue") and Modifies(a, "temp")
+none
+procedure p;
+Select p such that Modifies(p, "velocity") and Calls(p, "Move")
+none
+stmt s;
+Select s such that Parent(11, s) and Uses(s, "x3")
+none
+variable v;
+Select v such that Modifies(6, v) and Uses(8, v)
+x1, incre, right
+assign a;
+Select a such that Uses(a, "depth") and Modifies(a, "x3")
+none
+stmt s;
+Select s such that Follows(4, s) and Uses(s, "volume")
+none
+stmt s;
+Select s such that Modifies(s, "temp") and Uses(s, "radius")
+none
+variable v;
+Select v such that Uses("Resize", v) and Modifies("Transform", v)
+none
+assign a;
+Select a such that Parent(9, a) and Uses(a, "height")
+none
+while w;
+Select w such that Follows(w, 5) and Modifies(w, "temp")
+none
+stmt s;
+Select s such that Parent(s, 16) and Uses(s, "x4")
+15
+variable v;
+Select v such that Uses(9, v) and Modifies(11, v)
+none
+assign a;
+Select a such that Modifies(a, "reduce") and Uses(a, "temp")
+none
+while w;
+Select w such that Uses(w, "temp") and Modifies(w, "radius")
+none
+stmt s;
+Select s such that Modifies(s, "depth") and Uses(s, "x6")
+6, 12, 14, 15
+procedure p;
+Select p such that Uses(p, "x6") and Calls(p, "Compute")
+none
+assign a;
+Select a such that Parent(10, a) and Modifies(a, "temp")
+none
+stmt s;
+Select s such that Follows(6, s) and Uses(s, "perimeter")
+none
+procedure p;
+Select p such that Modifies(p, "temp") and Uses(p, "x2")
+none
+variable v;
+Select v such that Modifies(25, v) and Uses(27, v)
+none
+while w;
+Select w such that Parent(w, 21) and Uses(w, "temp")
+none
+stmt s;
+Select s such that Uses(s, "x5") and Modifies(s, "radius")
+6, 12, 14, 15, 16
+procedure p;
+Select p such that Calls(p, "Minimize") and Uses(p, "height")
+none
+assign a;
+Select a such that Follows(a, 9) and Uses(a, "temp")
+none
+variable v;
+Select v such that Modifies("Transform", v) and Uses("Rotate", v)
+incre, decrement
+while w;
+Select w such that Modifies(w, "depth") and Uses(w, "radius")
+6, 12, 16
+stmt s;
+Select s such that Parent(s, 27) and Uses(s, "x4")
+none
+assign a;
+Select a such that Uses(a, "temp") and Modifies(a, "x6")
+none
+procedure p;
+Select p such that Calls(p, "Adjust") and Uses(p, "depth")
+none
+stmt s;
+Select s such that Modifies(s, "x6") and Uses(s, "temp")
+none
+variable v;
+Select v such that Uses("Translate", v) and Modifies("Resize", v)
+none
+assign a;
+Select a such that Modifies(a, "x4") and Uses(a, "depth")
+none
+stmt s, s2;
+Select s such that Parent(s, s2) and Modifies(s2, "radius")
+6, 12, 14, 15, 16, 34
+variable v;
+Select v such that Modifies("Compute", v) and Uses("Minimize", v)
+none
+assign a;
+Select a such that Uses(a, "x6") and Modifies(a, "surfaceArea")
+none
+stmt s, s1;
+Select s such that Follows(s1, s) and Modifies(s, "volume")
+6, 12, 14, 34, 40, 55
+while w;
+Select w such that Parent(w, 12) and Uses(w, "temp")
+none
+stmt s;
+Select s such that Uses(s, "radius") and Modifies(s, "depth")
+6, 12, 14, 15, 16
+procedure p;
+Select p such that Uses(p, "velocity") and Calls(p, "Compute")
+none
+variable v;
+Select v such that Modifies("Resize", v) and Uses("depth", v)
+none
+assign a;
+Select a such that Modifies(a, "perimeter") and Uses(a, "x4")
+none
+stmt s, s3;
+Select s such that Parent(s, s3) and Follows(s3, s)
+none
+while w;
+Select w such that Uses(w, "depth") and Modifies(w, "radius")
+6, 12, 16
+stmt s, s2;
+Select s such that Follows(s2, s) and Modifies(s, "x2")
+6, 8, 12, 14, 21, 22, 29, 33, 34, 41, 42, 63, 66, 69, 72, 83, 105, 107, 119, 121, 136, 139, 166, 173, 186, 246, 250, 254
+procedure p;
+Select p such that Calls(p, "Transform") and Modifies(p, "depth")
+Main
+variable v;
+Select v such that Uses("Execute", v) and Modifies("x3", v)
+none
+stmt s;
+Select s such that Uses(s, "x6") and Modifies(s, "temp")
+none
+assign a;
+Select a such that Uses(a, "volume") and Modifies(a, "x5")
+none
+procedure p;
+Select p such that Modifies(p, "velocity") and Calls(p, "Minimize")
+none
+variable v;
+Select v such that Uses("Translate", v) and Modifies("depth", v)
+none
+while w;
+Select w such that Uses(w, "surfaceArea") and Modifies(w, "x3")
+none
+variable v;
+Select v such that Uses("Adjust", v) and Modifies("x1", v)
+none
+assign a;
+Select a such that Uses(a, "x4") and Modifies(a, "perimeter")
+none
+stmt s, s4;
+Select s such that Parent(s, s4) and Uses(s, "radius")
+6, 12, 14, 15, 16, 34, 66, 69, 72, 101
+procedure p;
+Select p such that Uses(p, "volume") and Calls("Minimize", p)
+none
+variable v;
+Select v such that Modifies("Transform", v) and Uses("x3", v)
+none
+stmt s;
+Select s such that Uses(s, "x2") and Modifies(s, "depth")
+6, 12, 14, 15, 16, 79, 80
+while w;
+Select w such that Uses(w, "radius") and Modifies(w, "temp")
+none
+variable v;
+Select v such that Uses("Execute", v) and Modifies("x2", v)
+none
+stmt s;
+Select s such that Modifies(s, "volume") and Uses(s, "x4")
+6, 12, 14, 15, 16, 34, 55, 56
+assign a;
+Select a such that Modifies(a, "x5") and Uses(a, "temp")
+none
+procedure p;
+Select p such that Calls(p, "Compute") and Modifies(p, "surfaceArea")
+none
+variable v;
+Select v such that Modifies("Minimize", v) and Uses("x1", v)
+none
+stmt s;
+Select s such that Uses(s, "x6") and Modifies(s, "perimeter")
+none
+while w;
+Select w such that Uses(w, "temp") and Modifies(w, "x4")
+none
+assign a;
+Select a such that Uses(a, "z1")
+none
+stmt s;
+Select s such that Modifies(s, "x5")
+6, 12, 14, 15, 16, 45, 55, 57, 64, 105, 107, 109, 113, 114, 154
+procedure p;
+Select p such that Calls(p, "Execute")
+none
+stmt s;
+Select s such that Parent(s, 30)
+29
+stmt s;
+Select s such that Follows(s, 12)
+11
+variable v;
+Select v such that Modifies(23, v)
+y1, y2
+procedure p;
+Select p such that Uses(p, "volume")
+Main
+while w;
+Select w such that Parent(w, 34)
+16
+assign a;
+Select a such that Modifies(a, "surfaceArea")
+none
+stmt s;
+Select s such that Uses(s, "perimeter")
+none
+variable v;
+Select v such that Modifies("Compute", v)
+none
+assign a;
+Select a such that Uses(a, "x6")
+none
+procedure p;
+Select p such that Calls("Start", p)
+none
+stmt s;
+Select s such that Parent(s, 22)
+16
+variable v;
+Select v such that Uses(35, v)
+incre, difference
+while w;
+Select w such that Modifies(w, "radius")
+6, 12, 16
+assign a;
+Select a such that Uses(a, "incValue")
+none
+procedure p;
+Select p such that Modifies(p, "velocity")
+none
+stmt s;
+Select s such that Parent(10, s)
+none
+variable v;
+Select v such that Modifies(5, v)
+left, right
+assign a;
+Select a such that Uses(a, "depth")
+219, 220, 242, 243, 268
+stmt s;
+Select s such that Follows(3, s)
+4
+stmt s;
+Select s such that Modifies(s, "temp")
+none
+variable v;
+Select v such that Uses("Resize", v)
+none
+assign a;
+Select a such that Parent(9, a)
+none
+while w;
+Select w such that Follows(w, 4)
+none
+procedure p;
+Select p such that Calls("Main", p)
+Init, Random, Transform, Shift, Shear, Move, Draw, Enlarge, Shrink, Translate
+stmt s;
+Select s such that Parent(s, 15)
+14
+variable v;
+Select v such that Uses(8, v)
+x1, incre, right
+assign a;
+Select a such that Modifies(a, "reduce")
+none
+while w;
+Select w such that Uses(w, "temp")
+none
+stmt s;
+Select s such that Modifies(s, "depth")
+6, 12, 14, 15, 16, 18, 59, 62, 79, 80, 89, 92, 216, 217, 218, 221, 222, 229, 230, 231, 232, 234, 235, 241, 242
+procedure p;
+Select p such that Uses(p, "x6")
+Main
+assign a;
+Select a such that Parent(10, a)
+none
+stmt s;
+Select s such that Follows(5, s)
+6
+procedure p;
+Select p such that Modifies(p, "temp")
+none
+variable v;
+Select v such that Modifies(25, v)
+y2
+while w;
+Select w such that Parent(w, 20)
+16
+stmt s;
+Select s such that Uses(s, "x5")
+6, 12, 14, 15, 16, 55, 56, 66, 68
+procedure p;
+Select p such that Calls(p, "Minimize")
+none
+assign a;
+Select a such that Follows(a, 8)
+7
+variable v;
+Select v such that Modifies("Transform", v)
+tmp, x1, incre, x2, y1, y2, decrement, weight
+while w;
+Select w such that Modifies(w, "depth")
+6, 12, 16, 59, 79, 89, 217, 218, 234
+stmt s;
+Select s such that Parent(s, 26)
+23
+assign a;
+Select a such that Uses(a, "temp")
+none
+procedure p;
+Select p such that Calls(p, "Adjust")
+none
+stmt s;
+Select s such that Modifies(s, "x6")
+6, 12, 14, 15, 16, 45, 66, 68, 69, 71, 105, 107, 109, 113, 114, 155
+variable v;
+Select v such that Uses("Translate", v)
+height, incre, top, bottom, difference, decrement, dx, dy, pink, green, pixel, dot, line, edge, depth, temporary, half, triangle, base, degrees, triange
+assign a;
+Select a such that Modifies(a, "x4")
+153
+assign a;
+Select a such that Modifies(a, "x2") and Uses(a, "x3")
+none
+procedure p;
+Select p such that Calls("Compute", p) and Modifies(p, "temp") and Uses(p, "x2")
+none
+stmt s, s1;
+Select s such that Parent(s, s1) and Follows(s1, s)
+none
+variable v;
+Select v such that Modifies(11, v) and Uses(13, v)
+none
+assign a;
+Select a such that Modifies(a, "depth") and Uses(a, "surfaceArea")
+none
