@@ -14,4 +14,9 @@
       <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CompareNETObjects" Version="4.83.0" />
+      <PackageReference Include="DynamicLinqCore" Version="0.1.5" />
+    </ItemGroup>
+
 </Project>

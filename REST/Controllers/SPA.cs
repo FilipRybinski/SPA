@@ -24,6 +24,7 @@ namespace REST.Controllers
             var parser = new Parser.Parser();
             parser.CleanData();
             parser.StartParse(code);
+            var queryProcessor = new QueryProcessor.QueryProcessor();
             var results = QueryProcessor.QueryProcessor.ProcessQuery(variables + query, testing: true);
             return Ok(results.Count == 0 ? Failed : string.Join(", ", results));
             

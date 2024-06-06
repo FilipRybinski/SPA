@@ -21,13 +21,6 @@ public sealed class Pkb : IPkb
 
     public static IPkb? Instance 
     {
-        get
-        {
-            if (_singletonInstance == null)
-            {
-                _singletonInstance = new Pkb();
-            }
-            return _singletonInstance;
-        }
+        get { return _singletonInstance ??= new Pkb(); }
     }
 }

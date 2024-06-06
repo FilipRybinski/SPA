@@ -253,9 +253,9 @@ namespace QueryProcessor.Utils
         {
             var varsToSelect = QueryProcessor.GetVariableToSelect();
             var varIndexesToPrint = new Dictionary<string, List<int>>();
-            foreach (string variable in varsToSelect)
+            foreach (var variable in varsToSelect)
             {
-                string trimedVar = variable.Trim();
+                var trimedVar = variable.Trim();
                 try
                 {
                     varIndexesToPrint.Add(trimedVar, _variableIndexes![trimedVar]);
@@ -273,9 +273,7 @@ namespace QueryProcessor.Utils
         {
             var tmpSum = 0;
             foreach (var (_, value) in _variableIndexes!)
-            {
                 tmpSum += value.Count;
-            }
 
             if (tmpSum != _currentSum)
                 _currentSum = tmpSum;
@@ -285,7 +283,7 @@ namespace QueryProcessor.Utils
 
         private static void DecodeMethod(string method)
         {
-            string[] typeAndArguments = method.Split(new string[] { " ", "(", ")", "," }, System.StringSplitOptions.RemoveEmptyEntries);
+            var typeAndArguments = method.Split(new string[] { " ", "(", ")", "," }, System.StringSplitOptions.RemoveEmptyEntries);
             switch (typeAndArguments[0].ToLower())
             {
                 case StringDirectory.Modifies:
@@ -324,7 +322,7 @@ namespace QueryProcessor.Utils
 
             if (var[0] == '\"' & var[^1] == '\"')
             {
-                string name = var.Substring(1, var.Length - 2);
+                var name = var.Substring(1, var.Length - 2);
                 if (type == EntityType.Procedure)
                     return new List<int>(new int[] { Pkb.ProcTable!.GetProcIndex(name) });
 
@@ -369,7 +367,7 @@ namespace QueryProcessor.Utils
 
         private static List<string> SortSuchThatPart(List<string> stp)
         {
-            List<string> sortedSuchThatPart = stp.OrderBy(x => x.Contains("\"")).ToList();
+            var sortedSuchThatPart = stp.OrderBy(x => x.Contains("\"")).ToList();
             sortedSuchThatPart.Reverse();
             return sortedSuchThatPart;
         }

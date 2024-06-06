@@ -13,9 +13,9 @@ public interface IModifies
         
         List<Variable> GetModified(Procedure proc);
         
-        List<Statement> GetModifiesForStmts(Variable var);
+        List<Statement?> GetModifiesForStmts(Variable var);
 
-        bool IsModified(Variable var, Statement stat);
+        bool IsModified(Variable var, Statement? stat);
         
         bool IsModified(Variable var, Procedure proc);
 }

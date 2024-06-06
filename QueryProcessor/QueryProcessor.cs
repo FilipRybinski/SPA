@@ -21,15 +21,15 @@ namespace QueryProcessor
             query = Regex.Replace(query, @"\t|\n|\r", ""); //usunięcie znaków przejścia do nowej linii i tabulatorów
 
 
-            string[] queryParts = query.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var queryParts = query.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (int i = 0; i < queryParts.Length - 1; i++)
+            for (var i = 0; i < queryParts.Length - 1; i++)
             {
                 DecodeVarDefinitionAndInsertToDict(queryParts[i].Trim()); //dekoduje np. assign a, a1;
             }
 
-            String selectPart = queryParts[queryParts.Length - 1];
-            List<string> errors = CheckQuery(selectPart.ToLower());
+            var selectPart = queryParts[queryParts.Length - 1];
+            var errors = CheckQuery(selectPart.ToLower());
             if (errors.Count > 0)
                 return errors;
             ProcessSelectPart(selectPart.Trim()); //dekoduje część "Select ... "
@@ -47,7 +47,7 @@ namespace QueryProcessor
 
         public static List<string> CheckQuery(string query)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
             if (query.Contains("boolean"))
                 errors.Add("BOOLEAN not supported");
             else if (query.Contains("affects"))
@@ -59,7 +59,7 @@ namespace QueryProcessor
                 return errors;
 
             String[] spearator = { "such that", "with" };
-            String[] partsList = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
+            var partsList = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
             if (partsList[0].Contains(","))
                 errors.Add("Tuple not supported");
 
@@ -68,8 +68,8 @@ namespace QueryProcessor
 
         private static void DecodeVarDefinitionAndInsertToDict(String variableDefinition)
         {
-            string[] variableParts = variableDefinition.Replace(" ", ",").Split(',');
-            string varTypeAsString = variableParts[0]; //Typ jako string (statement, assign, wgile albo procedure)
+            var variableParts = variableDefinition.Replace(" ", ",").Split(',');
+            var varTypeAsString = variableParts[0]; //Typ jako string (statement, assign, wgile albo procedure)
             EntityType entityType;
 
             switch (varTypeAsString.ToLower())
@@ -105,7 +105,7 @@ namespace QueryProcessor
                     throw new System.ArgumentException(string.Format("# Wrong argument: \"{0}\"", varTypeAsString));
             }
 
-            for (int i = 1; i < variableParts.Length; i++)
+            for (var i = 1; i < variableParts.Length; i++)
             {
                 if (variableParts[i] != "") //tak nawet takie coś jak "" dodawało...
                     variables.Add(variableParts[i], entityType);
@@ -114,54 +114,54 @@ namespace QueryProcessor
 
         private static void ProcessSelectPart(string selectPart)
         {
-            string[] splitSelectParts = Regex.Split(selectPart.ToLower(), "(such that)");
-            List<string[]> splitSelectPartsArrays = new List<string[]>();
-            List<string> mergedSelectParts = new List<string>();
-            List<string> finalSelectParts = new List<string>();
+            var splitSelectParts = Regex.Split(selectPart.ToLower(), "(such that)");
+            var splitSelectPartsArrays = new List<string[]>();
+            var mergedSelectParts = new List<string>();
+            var finalSelectParts = new List<string>();
             queryComponents.Add("SELECT", new List<string>());
             queryComponents.Add("SUCH THAT", new List<string>());
             queryComponents.Add("WITH", new List<string>());
 
 
-            foreach (string part in splitSelectParts)
+            foreach (var part in splitSelectParts)
                 splitSelectPartsArrays.Add(Regex.Split(part, "(with)"));
 
-            foreach (string[] parts in splitSelectPartsArrays)
-                foreach (string part in parts)
+            foreach (var parts in splitSelectPartsArrays)
+                foreach (var part in parts)
                     mergedSelectParts.Add(part);
 
             finalSelectParts.Add(mergedSelectParts[0]);
-            for (int i = 1; i < mergedSelectParts.Count; i += 2)
+            for (var i = 1; i < mergedSelectParts.Count; i += 2)
                 finalSelectParts.Add(mergedSelectParts[i] + mergedSelectParts[i + 1]);
 
 
-            foreach (string part in finalSelectParts)
+            foreach (var part in finalSelectParts)
             {
                
-                int index = selectPart.ToLower().IndexOf(part);
+                var index = selectPart.ToLower().IndexOf(part);
 
                 string substring;
                 string[] substrings;
-                string[] separator = { " and ", " And ", " ANd ", " AND ", " anD ", " aND ", " aNd ", " AnD " };
+                var separator = "and";
                 if (part.StartsWith("such that"))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(9).Trim();
-                    substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string sbs in substrings)
+                    substrings = substring.ToLower().Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var sbs in substrings)
                         queryComponents["SUCH THAT"].Add(sbs.Trim());
                 }
                 else if (part.StartsWith("with"))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(4).Trim();
                     substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string sbs in substrings)
+                    foreach (var sbs in substrings)
                         queryComponents["WITH"].Add(sbs.Trim());
                 }
                 else if (part.StartsWith("select"))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(6).Trim();
                     substrings = substring.Split(',');
-                    foreach (string sbs in substrings)
+                    foreach (var sbs in substrings)
                         queryComponents["SELECT"].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
                 }
             }
@@ -173,15 +173,15 @@ namespace QueryProcessor
         private static void PrintParsingResults()
         {
             Console.WriteLine("QUERY VARIABLES:");
-            foreach (KeyValuePair<string, EntityType> oneVar in variables)
+            foreach (var oneVar in variables)
             {
                 Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
             }
 
-            foreach (KeyValuePair<string, List<string>> oneDetail in queryComponents)
+            foreach (var oneDetail in queryComponents)
             {
                 Console.WriteLine("{0}:", oneDetail.Key);
-                foreach (string word in oneDetail.Value)
+                foreach (var word in oneDetail.Value)
                 {
                     Console.WriteLine("\t\"{0}\"", word);
                 }
@@ -201,12 +201,12 @@ namespace QueryProcessor
 
         public static Dictionary<string, List<string>> GetVariableAttributes()
         {
-            Dictionary<string, List<string>> variableAttributes = new Dictionary<string, List<string>>();
+            var variableAttributes = new Dictionary<string, List<string>>();
             if (queryComponents.ContainsKey("WITH"))
             {
-                foreach (string attribute in queryComponents["WITH"])
+                foreach (var attribute in queryComponents["WITH"])
                 {
-                    string[] attribtueWithValue = attribute.Split('=');
+                    var attribtueWithValue = attribute.Split('=');
                     if (!variableAttributes.ContainsKey(attribtueWithValue[0].Trim()))
                     {
                         variableAttributes[attribtueWithValue[0].Trim()] = new List<string>();

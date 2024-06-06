@@ -20,4 +20,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.csproj" />
+    <ProjectReference Include="..\QueryProcessor\QueryProcessor.csproj" />
+  </ItemGroup>
+
 </Project>

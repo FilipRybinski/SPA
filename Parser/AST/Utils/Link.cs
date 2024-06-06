@@ -1,4 +1,3 @@
-
 using Utils.Enums;
 
 namespace Parser.AST.Utils;
