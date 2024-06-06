@@ -774,83 +774,8 @@ public class Parser
             do
             {
                 isChanged = false;
-                foreach (var i in Enumerable.Range(0, ProcTable!.GetSize()))
-                {
-                    var p1 = ProcTable!.GetProcedure(i);
-                    if (p1 != null) 
-                    {
-                        foreach (var j in Enumerable.Range(0, ProcTable!.GetSize()))
-                        {
-                            var p2 = ProcTable!.GetProcedure(j); 
-                            if (p2 != null) 
-                            {
-                                if (Calls!.IsCalls(p1.Identifier, p2.Identifier))
-                                {
-                                    foreach (var variable in p2.ModifiesList)
-                                    {
-                                        isChanged = IsListChanged(p1.ModifiesList, variable.Key);
-                                    }
-                                    foreach (var variable in p2.UsesList)
-                                    {
-                                        isChanged = IsListChanged(p1.UsesList, variable.Key);
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(SyntaxDirectory.ERROR);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(SyntaxDirectory.ERROR);
-                    }
-                }
-            
-                //# b
-                foreach (var i in Enumerable.Range(0, ProcTable!.GetSize()))
-                {
-                    var p1 = ProcTable!.GetProcedure(i);
-                    if (p1 != null)
-                    {
-                        foreach (var j in Enumerable.Range(0, ProcTable!.GetSize()))
-                        {   
-                            var p2 = ProcTable!.GetProcedure(j);
-                            if (p2 != null)
-                            {
-                                if (Calls!.IsCalls(p1.Identifier, p2.Identifier))
-                                {
-                                    foreach (var variable in p2.ModifiesList)
-                                    {
-                                        isChanged = IsListChanged(p1.ModifiesList, variable.Key);
-                                    }
-                                    foreach (var variable in p2.UsesList)
-                                    {
-                                        isChanged = IsListChanged(p1.UsesList, variable.Key);
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(SyntaxDirectory.ERROR);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(SyntaxDirectory.ERROR);
-                    }
-                }
-                
+                isChanged = checkCollection(isChanged);
+                isChanged = checkCollection(isChanged);
             } while (isChanged);
 
             foreach (var variable in StmtTable!.StatementsList)
@@ -886,6 +811,50 @@ public class Parser
     private bool IsListChanged(Dictionary<int, bool> collection, int i)
     {
         return collection.TryAdd(i, true) ? true : false;
+    }
+
+    private bool checkCollection(bool isChanged)
+    {
+        bool isChanged = false;
+        foreach (var i in Enumerable.Range(0, ProcTable!.GetSize()))
+        {
+            var p1 = ProcTable!.GetProcedure(i);
+            if (p1 != null)
+            {
+                foreach (var j in Enumerable.Range(0, ProcTable!.GetSize()))
+                {   
+                    var p2 = ProcTable!.GetProcedure(j);
+                    if (p2 != null)
+                    {
+                        if (Calls!.IsCalls(p1.Identifier, p2.Identifier))
+                        {
+                            foreach (var variable in p2.ModifiesList)
+                            {
+                                isChanged = IsListChanged(p1.ModifiesList, variable.Key);
+                            }
+                            foreach (var variable in p2.UsesList)
+                            {
+                                isChanged = IsListChanged(p1.UsesList, variable.Key);
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(SyntaxDirectory.ERROR);
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception(SyntaxDirectory.ERROR);
+            }
+        }
+
+        return isChanged;
     }
 
     private void UpdateModifiesAndUsesTablesInWhilesAndIfs()
