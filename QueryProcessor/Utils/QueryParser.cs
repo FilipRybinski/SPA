@@ -319,22 +319,26 @@ namespace QueryProcessor.Utils
 
         public static List<int> GetArgIndexes(string var, EntityType type)
         {
-            if (var == "_")
-                return GetAllArgIndexes(type);
-
-            if (SyntaxDirectory.ArgumentChecker(var))
+            switch (var)
             {
-                var name = var.Substring(1, var.Length - 2);
-                if (type == EntityType.Procedure)
-                    return new List<int>(new int[] { Pkb.ProcTable!.GetProcIndex(name) });
+                case "_":
+                    return GetAllArgIndexes(type);
 
-                else if (type == EntityType.Variable)
-                    return new List<int>(new int[] { Pkb.VarTable!.GetVarIndex(name) });
+                case string variable when SyntaxDirectory.ArgumentChecker(variable):
+                    var name = var.Substring(1, var.Length - 2);
+                    if (type == EntityType.Procedure)
+                        return new List<int>(new int[] { Pkb.ProcTable!.GetProcIndex(name) });
+
+                    else if (type == EntityType.Variable)
+                        return new List<int>(new int[] { Pkb.VarTable!.GetVarIndex(name) });
+                    return _variableIndexes![var];
+
+                case string _ when int.TryParse(var, out _):
+                    return new List<int>(new int[] { Int32.Parse(var) });
+                
+                default:
+                    return _variableIndexes![var];
             }
-
-            if (int.TryParse(var, out _))
-                return new List<int>(new int[] { Int32.Parse(var) });
-            return _variableIndexes![var];
         }
 
         public static List<int> GetAllArgIndexes(EntityType type)
