@@ -37,8 +37,9 @@ public class Modifies : IModifies
     public List<Statement?> GetModifiesForStmts(Variable var) => StatementTable.Instance!.StatementsList
         .Where(statement => IsModified(var, statement)).ToList();
 
-    public bool IsModified(Variable var, Statement? stat) =>
-        stat.ModifiesList.TryGetValue(var.Id, out var value) && value;
+    public bool IsModified(Variable var, Statement? stat) => 
+        var == null ? false
+            : stat.ModifiesList.TryGetValue(var.Id, out var value) && value;
 
     public bool IsModified(Variable var, Procedure proc) =>
         proc.ModifiesList.TryGetValue(var.Id, out var value) && value;
