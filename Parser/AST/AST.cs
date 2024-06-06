@@ -62,6 +62,7 @@ public class Ast : IAst
     }
 
     public List<Node> GetLinkedNodes(Node node, LinkType linkType) =>
+        node == null ? new() :
         node.Links.Where(i => i.Type == linkType).Select(i => i.LinkNode).ToList();
 
     public List<Node> GetPrevLinkedNodes(Node node, LinkType linkType) =>
