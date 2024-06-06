@@ -322,7 +322,7 @@ namespace QueryProcessor.Utils
             if (var == "_")
                 return GetAllArgIndexes(type);
 
-            if (var[0] == '\"' & var[^1] == '\"')
+            if (SyntaxDirectory.ArgumentChecker(var))
             {
                 var name = var.Substring(1, var.Length - 2);
                 if (type == EntityType.Procedure)
@@ -358,11 +358,11 @@ namespace QueryProcessor.Utils
         {
 
             if (firstArgument != "_")
-                if (!(firstArgument[0] == '\"' & firstArgument[^1] == '\"'))
+                if (!SyntaxDirectory.ArgumentChecker(firstArgument))
                     if (!(int.TryParse(firstArgument, out _)))
                         _variableIndexes![firstArgument] = _variableIndexes[firstArgument].Where(i => firstList.Any(j => j == i)).Distinct().ToList();
             if (secondArgument != "_")
-                if (!(secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
+                if (!SyntaxDirectory.ArgumentChecker(secondArgument))
                     if (!(int.TryParse(secondArgument, out _)))
                         _variableIndexes![secondArgument] = _variableIndexes[secondArgument].Where(i => secondList.Any(j => j == i)).Distinct().ToList();
         }

@@ -24,4 +24,9 @@ public static class SyntaxDirectory
     public const string And = "and";
     public const string Else = "else";
     public const string Then = "then";
+
+    public static bool ArgumentChecker(string argument)
+    {
+        return argument[0] == '\"' && argument[^1] == '\"';
+    }
 }
