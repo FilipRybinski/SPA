@@ -339,17 +339,12 @@ namespace QueryProcessor.Utils
 
         public static List<int> GetAllArgIndexes(EntityType type)
         {
-            var result = new List<int>();
-            if (type == EntityType.Variable)
-                foreach (var v in Pkb.VarTable!.GetVariablesList())
-                    result.Add(v.Id);
-
-            else if (type == EntityType.Procedure)
-                foreach (var p in Pkb.ProcTable!.GetProcedureList())
-                    result.Add(p.Id);
-            else
-                foreach (var s in Pkb.StmtTable!.GetStatementsList())
-                    result.Add(s.LineNumber);
+            var result = type switch
+            {
+                EntityType.Variable => Pkb.VarTable!.GetVariablesList().Select(v => v.Id).ToList(),
+                EntityType.Procedure => Pkb.ProcTable!.GetProcedureList().Select(p => p.Id).ToList(),
+                _ => Pkb.StmtTable!.GetStatementsList().Select(s => s.LineNumber).ToList()
+            };
 
             return result;
         }
@@ -357,14 +352,21 @@ namespace QueryProcessor.Utils
         public static void RemoveIndexesFromLists(string firstArgument, string secondArgument, List<int> firstList, List<int> secondList)
         {
 
-            if (firstArgument != "_")
-                if (!SyntaxDirectory.ArgumentChecker(firstArgument))
-                    if (!(int.TryParse(firstArgument, out _)))
-                        _variableIndexes![firstArgument] = _variableIndexes[firstArgument].Where(i => firstList.Any(j => j == i)).Distinct().ToList();
-            if (secondArgument != "_")
-                if (!SyntaxDirectory.ArgumentChecker(secondArgument))
-                    if (!(int.TryParse(secondArgument, out _)))
-                        _variableIndexes![secondArgument] = _variableIndexes[secondArgument].Where(i => secondList.Any(j => j == i)).Distinct().ToList();
+            if (firstArgument != "_" && !SyntaxDirectory.ArgumentChecker(firstArgument) && !int.TryParse(firstArgument, out _))
+            {
+                _variableIndexes![firstArgument] = _variableIndexes[firstArgument]
+                    .Where(i => firstList.Any(j => j == i))
+                    .Distinct()
+                    .ToList();
+            }
+
+            if (secondArgument != "_" && !SyntaxDirectory.ArgumentChecker(secondArgument) && !int.TryParse(secondArgument, out _))
+            {
+                _variableIndexes![secondArgument] = _variableIndexes[secondArgument]
+                    .Where(i => secondList.Any(j => j == i))
+                    .Distinct()
+                    .ToList();
+            }
         }
 
         private static List<string> SortSuchThatPart(List<string> stp)

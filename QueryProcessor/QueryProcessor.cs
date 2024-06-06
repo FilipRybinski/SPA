@@ -50,13 +50,18 @@ namespace QueryProcessor
         public static List<string> CheckQuery(string query)
         {
             var errors = new List<string>();
-            if (query.Contains(SyntaxDirectory.boolean))
-                errors.Add(ErrorDirectory.BooleanError);
-            else if (query.Contains(SyntaxDirectory.affects))
-                errors.Add(ErrorDirectory.AffectsError);
-            else if (query.Contains(SyntaxDirectory.pattern))
-                errors.Add(ErrorDirectory.PatternError);
-
+            switch (query)
+            {
+                case var q when q.Contains(SyntaxDirectory.boolean):
+                    errors.Add(ErrorDirectory.BooleanError);
+                    break;
+                case var q when q.Contains(SyntaxDirectory.affects):
+                    errors.Add(ErrorDirectory.AffectsError);
+                    break;
+                case var q when q.Contains(SyntaxDirectory.pattern):
+                    errors.Add(ErrorDirectory.PatternError);
+                    break;
+            }
             if (errors.Count > 0)
                 return errors;
 
