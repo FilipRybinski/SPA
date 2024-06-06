@@ -20,6 +20,7 @@ public static class SyntaxDirectory
     public const string affects = "affects";
     public const string pattern = "pattern";
     public const string ERROR = "ERROR";
+    public const string DEFAULT = "DEFAULT";
     public const string And = "and";
     public const string Else = "else";
     public const string Then = "then";

@@ -32,7 +32,7 @@ namespace Program
         private static void ParseCode(string code)
         {
             var parser = new Parser.Parser();
-            parser.CleanData();
+            Parser.Parser.CleanData();
             parser.StartParse(code);
             Console.WriteLine(QueryProcessorReady);
         }

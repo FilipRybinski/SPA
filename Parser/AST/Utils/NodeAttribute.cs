@@ -1,10 +1,11 @@
 using KellermanSoftware.CompareNetObjects;
+using Utils.Helper;
 
 namespace Parser.AST.Utils;
 
 public class NodeAttribute
 {
-    public string Name { get; set; } = "DEFAULT";
+    public string Name { get; set; } = SyntaxDirectory.DEFAULT;
 
     public override bool Equals(object? obj)
     {

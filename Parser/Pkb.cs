@@ -8,7 +8,7 @@ namespace Parser;
 
 public sealed class Pkb : IPkb
 {
-    private static Pkb? _singletonInstance;
+    private static Pkb? _instance;
     public IUses? Uses => UsesParser.Instance;
     public ICalls? Calls => CallsParser.Instance;
     public IModifies? Modifies => ModifiesParser.Instance;
@@ -21,6 +21,6 @@ public sealed class Pkb : IPkb
 
     public static IPkb? Instance 
     {
-        get { return _singletonInstance ??= new Pkb(); }
+        get { return _instance ??= new Pkb(); }
     }
 }

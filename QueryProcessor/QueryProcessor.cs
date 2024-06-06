@@ -8,13 +8,13 @@ namespace QueryProcessor
 {
     public class QueryProcessor
     {
-        private static Dictionary<string, EntityType> variables = null;
-        private static Dictionary<string, List<string>> queryComponents = null;
+        private static Dictionary<string, EntityType> _variables = null;
+        private static Dictionary<string, List<string>> _queryComponents = null;
 
         private static void Initialize()
         {
-            variables = new Dictionary<string, EntityType>();
-            queryComponents = new Dictionary<string, List<string>>();
+            _variables = new Dictionary<string, EntityType>();
+            _queryComponents = new Dictionary<string, List<string>>();
 
         }
         public static List<string> ProcessQuery(String query, bool testing = false)
@@ -60,7 +60,7 @@ namespace QueryProcessor
             if (errors.Count > 0)
                 return errors;
 
-            String[] spearator = { SyntaxDirectory.SuchThat, SyntaxDirectory.With };
+            string[] spearator = { SyntaxDirectory.SuchThat, SyntaxDirectory.With };
             var partsList = query.Split(spearator, StringSplitOptions.RemoveEmptyEntries);
             if (partsList[0].Contains(","))
                 errors.Add(SyntaxDirectory.ERROR);
@@ -110,7 +110,7 @@ namespace QueryProcessor
             for (var i = 1; i < variableParts.Length; i++)
             {
                 if (variableParts[i] != "")
-                    variables.Add(variableParts[i], entityType);
+                    _variables.Add(variableParts[i], entityType);
             }
         }
 
@@ -120,9 +120,9 @@ namespace QueryProcessor
             var splitSelectPartsArrays = new List<string[]>();
             var mergedSelectParts = new List<string>();
             var finalSelectParts = new List<string>();
-            queryComponents.Add(SyntaxDirectory.SELECT, new List<string>());
-            queryComponents.Add(SyntaxDirectory.SUCHTHAT, new List<string>());
-            queryComponents.Add(SyntaxDirectory.WITH, new List<string>());
+            _queryComponents.Add(SyntaxDirectory.SELECT, new List<string>());
+            _queryComponents.Add(SyntaxDirectory.SUCHTHAT, new List<string>());
+            _queryComponents.Add(SyntaxDirectory.WITH, new List<string>());
 
 
             foreach (var part in splitSelectParts)
@@ -150,21 +150,21 @@ namespace QueryProcessor
                     string pattern = @"(?<!\w)and(?!\w)";
                     substrings = Regex.Split(substring.ToLower(), pattern, RegexOptions.IgnoreCase);
                     foreach (var sbs in substrings)
-                        queryComponents[SyntaxDirectory.SUCHTHAT].Add(sbs.Trim());
+                        _queryComponents[SyntaxDirectory.SUCHTHAT].Add(sbs.Trim());
                 }
                 else if (part.StartsWith(SyntaxDirectory.With))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(4).Trim();
                     substrings = substring.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var sbs in substrings)
-                        queryComponents[SyntaxDirectory.WITH].Add(sbs.Trim());
+                        _queryComponents[SyntaxDirectory.WITH].Add(sbs.Trim());
                 }
                 else if (part.StartsWith(SyntaxDirectory.SELECT.ToLower()))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(6).Trim();
                     substrings = substring.Split(',');
                     foreach (var sbs in substrings)
-                        queryComponents[SyntaxDirectory.SELECT].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
+                        _queryComponents[SyntaxDirectory.SELECT].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
                 }
             }
 
@@ -174,12 +174,12 @@ namespace QueryProcessor
 
         private static void PrintParsingResults()
         {
-            foreach (var oneVar in variables)
+            foreach (var oneVar in _variables)
             {
                 Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
             }
 
-            foreach (var oneDetail in queryComponents)
+            foreach (var oneDetail in _queryComponents)
             {
                 Console.WriteLine("{0}:", oneDetail.Key);
                 foreach (var word in oneDetail.Value)
@@ -192,20 +192,20 @@ namespace QueryProcessor
 
         public static Dictionary<string, EntityType> GetQueryVariables()
         {
-            return variables;
+            return _variables;
         }
 
         public static Dictionary<string, List<string>> GetQueryDetails()
         {
-            return queryComponents;
+            return _queryComponents;
         }
 
         public static Dictionary<string, List<string>> GetVariableAttributes()
         {
             var variableAttributes = new Dictionary<string, List<string>>();
-            if (queryComponents.ContainsKey(SyntaxDirectory.WITH))
+            if (_queryComponents.ContainsKey(SyntaxDirectory.WITH))
             {
-                foreach (var attribute in queryComponents[SyntaxDirectory.WITH])
+                foreach (var attribute in _queryComponents[SyntaxDirectory.WITH])
                 {
                     var attribtueWithValue = attribute.Split('=');
                     if (!variableAttributes.ContainsKey(attribtueWithValue[0].Trim()))
@@ -220,14 +220,14 @@ namespace QueryProcessor
 
         public static List<string> GetVariableToSelect()
         {
-            return queryComponents[SyntaxDirectory.SELECT];
+            return _queryComponents[SyntaxDirectory.SELECT];
         }
 
         public static EntityType GetVariableEnumType(string var)
         {
             try
             {
-                return variables[var];
+                return _variables[var];
             }
             catch (Exception e)
             {

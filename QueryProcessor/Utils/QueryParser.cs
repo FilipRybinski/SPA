@@ -16,6 +16,7 @@ namespace QueryProcessor.Utils
         private const string ValueKey = "value";
         private const string StatementKey = "stmt#";
         private static readonly IPkb Pkb= Parser.Pkb.Instance!;
+        private static readonly IAst Ast = Parser.AST.Ast.Instance!;
 
         private static void Initialize()
         {
@@ -200,7 +201,7 @@ namespace QueryProcessor.Utils
             foreach (var statement in Pkb.StmtTable!.GetStatementsList())
             {
                 var node = statement.AstRoot;
-                var constValues = Ast.Instance!.GetConstants(node);
+                var constValues = Ast!.GetConstants(node);
                 if (constants.Count == 1)
                 {
                     if (constValues.Contains(int.Parse(constants[0])))
@@ -294,16 +295,16 @@ namespace QueryProcessor.Utils
                     QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.IsUsed, Pkb.Uses.IsUsed);
                     break;
                 case StringDirectory.Parent:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParent);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParent);
                     break;
                 case StringDirectory.ParentAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsParentStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParentStar);
                     break;
                 case StringDirectory.Follows:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowed);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowed);
                     break;
                 case StringDirectory.FollowsAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast.Instance!.IsFollowedStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowedStar);
                     break;
                 case StringDirectory.Calls:
                     QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCalls);

@@ -6,35 +6,34 @@ namespace Parser.Modifies;
 
 public class Modifies : IModifies
 {
-    private static Modifies? _singletonInstance;
+    private static Modifies? _instance;
+    private readonly IVarTable? _varTable = ViariableTable.Instance;
+    private readonly IProcTable? _procTable =ProcedureTable.Instance;
+    private readonly IStmtTable? _stmtTable = StatementTable.Instance;
 
-    public static Modifies? Instance
+    public static IModifies? Instance
     {
-        get { return _singletonInstance ?? (_singletonInstance = new Modifies()); }
-    }
-
-    private Modifies()
-    {
+        get { return _instance ??= new Modifies(); }
     }
 
     public List<Variable> GetModified(Statement stmt)
     {
         var varIndexes = stmt.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-        return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+        return _varTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
     }
 
     public List<Variable> GetModified(Procedure proc)
     {
         var varIndexes = proc.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-        return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+        return _varTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
     }
 
-    public List<Procedure> GetModifiesForProcs(Variable var) => ProcedureTable.Instance!.ProceduresList
+    public List<Procedure> GetModifiesForProcs(Variable var) => _procTable!.ProceduresList
         .Where(procedure => IsModified(var, procedure)).ToList();
 
-    public List<Statement?> GetModifiesForStmts(Variable var) => StatementTable.Instance!.StatementsList
+    public List<Statement?> GetModifiesForStmts(Variable var) => _stmtTable!.StatementsList
         .Where(statement => IsModified(var, statement)).ToList();
 
     public bool IsModified(Variable var, Statement? stat) =>

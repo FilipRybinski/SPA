@@ -6,11 +6,13 @@ namespace Parser.Uses
 {
     public sealed class Uses : IUses
     {
-        private static Uses? _singletonInstance;
-
-        public static Uses? Instance
+        private static Uses? _instance;
+        private static IVarTable? VarTable = ViariableTable.Instance;
+        private static IProcTable? ProcTable = ProcedureTable.Instance;
+        private static IStmtTable? StmtTable = StatementTable.Instance;
+        public static IUses? Instance
         {
-            get { return _singletonInstance ?? (_singletonInstance = new Uses()); }
+            get { return _instance ??= new Uses(); }
         }
         private Uses()
         {
@@ -20,17 +22,17 @@ namespace Parser.Uses
         {
             var varIndexes = statement.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return VarTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
         public List<Variable> GetUsed(Procedure procedure)
         {
             var varIndexes = procedure.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
 
-            return ViariableTable.Instance!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
+            return VarTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
         }
 
-        public List<Procedure> GetUsesForProcs(Variable variable) => ProcedureTable.Instance!.ProceduresList.Where(procedure => IsUsed(variable, procedure)).ToList();
+        public List<Procedure> GetUsesForProcs(Variable variable) => ProcTable!.ProceduresList.Where(procedure => IsUsed(variable, procedure)).ToList();
 
         public List<Statement?> GetUsesForStmts(Variable? variable) => StatementTable.Instance!.StatementsList.Where(statement => IsUsed(variable, statement)).ToList();
 

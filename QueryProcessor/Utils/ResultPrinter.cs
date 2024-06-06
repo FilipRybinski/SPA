@@ -52,7 +52,7 @@ namespace QueryProcessor.Utils
             var results = new List<string>();
             foreach (var index in indexes)
             {
-                results.Add(Pkb.VarTable!.GetVar(index).Identifier);
+                results.Add(Pkb.VarTable!.GetVar(index)?.Identifier);
             }
 
             return results;
@@ -63,7 +63,7 @@ namespace QueryProcessor.Utils
             var results = new List<string>();
             foreach (var index in indexes)
             {
-                results.Add(Pkb.ProcTable!.GetProcedure(index).Identifier);
+                results.Add(Pkb.ProcTable!.GetProcedure(index)?.Identifier);
 
             }
             
@@ -73,13 +73,7 @@ namespace QueryProcessor.Utils
 
         private static List<string> PrintStatements(List<int> indexes)
         {
-            var results = new List<string>();
-            foreach (var index in indexes)
-            {
-                results.Add(index.ToString());
-            }
-            
-            return results;
+            return indexes.Select(index => index.ToString()).ToList();
         }
     }
 }
