@@ -45,7 +45,7 @@ namespace Parser.Tables
 
         public Procedure? GetProcedure(int id) => ProceduresList.FirstOrDefault(i => i.Id == id);
 
-        public Procedure? GetProcedure(string procName) => ProceduresList.FirstOrDefault(i => i.Identifier == procName);
+        public Procedure? GetProcedure(string procName) => ProceduresList.FirstOrDefault(i => i.Identifier.ToLower() == procName.ToLower());
 
         public int GetProcIndex(string procName)
         {
