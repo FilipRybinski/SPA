@@ -514,3 +514,63 @@ none
 procedure p;
 Select p such that Calls* ("Translate", p) and Modifies (p, "tmp")
 none
+stmt s;
+Select s such that Parent(s, 3)
+none
+stmt s;
+Select s such that Follows(s, 3)
+2
+variable v;
+Select v such that Modifies(3, v)
+height
+stmt s;
+Select s such that Parent*(s, 10)
+6
+stmt s;
+Select s such that Follows(s, 11)
+10
+if ifstat;
+Select ifstat such that Follows*(ifstat, 10)
+none
+stmt s;
+Select s such that Parent(3, s)
+none
+variable v;
+Select v such that Uses(5, v)
+incre, top, bottom, decrement
+procedure p;
+Select p such that Calls(p, "Draw")
+Main, Shrink
+stmt s;
+Select s such that Next(s, 7)
+6
+stmt s;
+Select s such that Parent(s, 3) and Follows(s, 4)
+none
+stmt s;
+Select s such that Follows(s, 3) and Parent(s, 2)
+none
+variable v;
+Select v such that Modifies(3, v) and Uses(5, v)
+none
+stmt s;
+Select s such that Follows(s, 11) and Next(s, 13)
+none
+stmt s;
+Select s such that Parent(3, s) and Modifies(s, "height")
+none
+stmt s;
+Select s such that Parent(s, 5) and Follows*(s, 6)
+none
+stmt s;
+Select s such that Follows(s, 2) and Modifies(s, "tmp")
+none
+stmt s;
+Select s such that Parent*(s, 8) and Uses(3, "width")
+none
+stmt s1, s2;
+Select s1 such that Parent(s1, s2) and Follows(s2, s1)
+none
+stmt s;
+Select s such that Modifies(s, "height") and Uses(s, "width")
+6, 12, 14, 15, 16, 29, 79, 80, 83, 105, 107
