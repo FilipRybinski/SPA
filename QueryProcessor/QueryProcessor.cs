@@ -137,16 +137,16 @@ namespace QueryProcessor
 
             foreach (var part in finalSelectParts)
             {
-               
                 var index = selectPart.ToLower().IndexOf(part);
 
-                string substring;
-                string[] substrings;
-                var separator = "and";
+                var substring = "";
+                var substrings = Array.Empty<string>();
+                var separator = " and ";
                 if (part.StartsWith("such that"))
                 {
                     substring = selectPart.Substring(index, part.Length).Substring(9).Trim();
-                    substrings = substring.ToLower().Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    string pattern = @"(?<!\w)and(?!\w)";
+                    substrings = Regex.Split(substring.ToLower(), pattern, RegexOptions.IgnoreCase);
                     foreach (var sbs in substrings)
                         queryComponents["SUCH THAT"].Add(sbs.Trim());
                 }
