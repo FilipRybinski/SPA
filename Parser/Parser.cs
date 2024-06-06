@@ -815,7 +815,6 @@ public class Parser
 
     private bool checkCollection(bool isChanged)
     {
-        bool isChanged = false;
         foreach (var i in Enumerable.Range(0, ProcTable!.GetSize()))
         {
             var p1 = ProcTable!.GetProcedure(i);
