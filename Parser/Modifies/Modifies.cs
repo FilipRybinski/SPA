@@ -42,7 +42,8 @@ public class Modifies : IModifies
             : stat.ModifiesList.TryGetValue(var.Id, out var value) && value;
 
     public bool IsModified(Variable var, Procedure proc) =>
-        proc.ModifiesList.TryGetValue(var.Id, out var value) && value;
+        var == null || proc == null ? false 
+        : proc.ModifiesList.TryGetValue(var.Id, out var value) && value;
 
     public void SetModifies(Statement stmt, Variable var)
     {
