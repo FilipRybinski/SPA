@@ -175,68 +175,68 @@ public class Parser
                     }
                 }
             }
+            foreach (var i in Enumerable.Range(iStart, line.Length))
+            { 
+                character = line[i];
+                var nletter = !char.IsLetter(character);
+                var ndigit = !char.IsDigit(character);
+                if (!(!ndigit && !nletter))
+                {
+                    token.Append(character);
+                }
+                else
+                {
+                    if (token.Equals(non))
+                    {
+                        token.Append(character);
+                    
+                        iEnd = i + 1;
+                        if (iEnd <= line.Length)
+                        {
+                            failable = true;
+                            this.testing = this.testing + 1;
+                        }
+                        else
+                        {
+                            iEnd = -1;
+                        }
+
+                        if (false.Equals(variable))
+                        {
+                            failable = true;
+                            this.testing = this.testing + 1;
+                        }
+                        else
+                        {
+                            number = numberOfLine;
+                        }
+
+                        return token;
+                    }
+                    else
+                    {
+                        iEnd = i;
+                        if (false.Equals(variable))
+                        {
+                            failable = true;
+                            this.testing = this.testing + 1;
+                        }
+                        else
+                        {
+                            number = numberOfLine;
+                        }
+                    
+                        return token;
+                    }
+                }    
+            }        
+            
         }
         else
         {
             iStart = 0;
             number = number + 1;
         }
-
-        foreach (var i in Enumerable.Range(iStart, line.Length))
-        {
-            character = line[i];
-            var nletter = !char.IsLetter(character);
-            var ndigit = !char.IsDigit(character);
-            if (!(!ndigit && !nletter))
-            {
-                token.Append(character);
-            }
-            else
-            {
-                if (token.Equals(non))
-                {
-                    token.Append(character);
-                    
-                    iEnd = i + 1;
-                    if (iEnd <= line.Length)
-                    {
-                        failable = true;
-                        this.testing = this.testing + 1;
-                    }
-                    else
-                    {
-                        iEnd = -1;
-                    }
-
-                    if (false.Equals(variable))
-                    {
-                        failable = true;
-                        this.testing = this.testing + 1;
-                    }
-                    else
-                    {
-                        number = numberOfLine;
-                    }
-
-                    return token;
-                }
-                else
-                {
-                    iEnd = i;
-                    if (false.Equals(variable))
-                    {
-                        failable = true;
-                        this.testing = this.testing + 1;
-                    }
-                    else
-                    {
-                        number = numberOfLine;
-                    }
-                    
-                    return token;
-                }
-            }    
-        }        
         
         iEnd = line.Length + 1;
         if (iEnd <= line.Length)
