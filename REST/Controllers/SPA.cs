@@ -16,18 +16,18 @@ namespace REST.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<string>> ProcessSpa(IFormFile file,[FromQuery]string variables,[FromQuery] string query)
+        public async Task<ActionResult<string>> ProcessSpa(IFormFile file, [FromQuery] string variables,
+            [FromQuery] string query)
         {
             using var streamReader = new StreamReader(file.OpenReadStream());
             var code = await streamReader.ReadToEndAsync();
-            code =Regex.Replace(code, @"\r", "");
+            code = Regex.Replace(code, @"\r", "");
             var parser = new Parser.Parser();
             Parser.Parser.CleanData();
-            parser.StartParse(code);
+            parser.StartDecoding(code);
             var queryProcessor = new QueryProcessor.QueryProcessor();
             var results = QueryProcessor.QueryProcessor.ProcessQuery(variables + query, testing: true);
             return Ok(results.Count == 0 ? Failed : string.Join(", ", results));
-            
         }
     }
 }

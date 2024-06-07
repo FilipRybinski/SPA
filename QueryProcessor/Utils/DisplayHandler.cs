@@ -3,9 +3,10 @@ using Utils.Enums;
 
 namespace QueryProcessor.Utils
 {
-    internal static class ResultPrinter
+    internal static class DisplayHandler
     {
-        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
+        private static readonly IPkb Pkb = Parser.Pkb.Instance!;
+
         public static List<string> Print(Dictionary<string, List<int>> resultToPrint, bool testing)
         {
             var results = new List<string>();
@@ -19,17 +20,17 @@ namespace QueryProcessor.Utils
                 switch (entityType)
                 {
                     case EntityType.Variable:
-                        results.AddRange(PrintVariables(oneVar.Value));
+                        results.AddRange(DisplayVariables(oneVar.Value));
                         break;
                     case EntityType.Procedure:
-                        results.AddRange(PrintProcedures(oneVar.Value));
+                        results.AddRange(DisplayProcedures(oneVar.Value));
                         break;
                     default:
-                        results.AddRange(PrintStatements(oneVar.Value));
+                        results.AddRange(DisplayStatements(oneVar.Value));
                         break;
                 }
-
             }
+
             if (!testing)
                 if (results.Count > 0)
                     Console.WriteLine(string.Join(", ", results));
@@ -37,17 +38,9 @@ namespace QueryProcessor.Utils
                     Console.WriteLine("none");
 
             return results;
-
         }
 
-        private static int PrintCodeLine(int number, bool lastResult)
-        {
-            if (lastResult) Console.Write("{0}", number);
-            else Console.Write("{0},", number);
-            return number;
-        }
-
-        private static List<string> PrintVariables(List<int> indexes)
+        private static List<string> DisplayVariables(List<int> indexes)
         {
             var results = new List<string>();
             foreach (var index in indexes)
@@ -58,20 +51,19 @@ namespace QueryProcessor.Utils
             return results;
         }
 
-        private static List<string> PrintProcedures(List<int> indexes)
+        private static List<string> DisplayProcedures(List<int> indexes)
         {
             var results = new List<string>();
             foreach (var index in indexes)
             {
                 results.Add(Pkb.ProcTable!.FindProcedure(index)?.Identifier);
-
             }
-            
+
 
             return results;
         }
 
-        private static List<string> PrintStatements(List<int> indexes)
+        private static List<string> DisplayStatements(List<int> indexes)
         {
             return indexes.Select(index => index.ToString()).ToList();
         }

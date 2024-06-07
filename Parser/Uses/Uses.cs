@@ -10,31 +10,15 @@ namespace Parser.Uses
         private static IVarTable? VarTable = ViariableTable.Instance;
         private static IProcTable? ProcTable = ProcedureTable.Instance;
         private static IStmtTable? StmtTable = StatementTable.Instance;
+
+        private Uses()
+        {
+        }
+
         public static IUses? Instance
         {
             get { return _instance ??= new Uses(); }
         }
-        private Uses()
-        {
-
-        }
-        public List<Variable> GetUsed(Statement statement)
-        {
-            var varIndexes = statement.UsesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
-
-            return VarTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
-        }
-
-        public List<Variable> GetUsed(Procedure procedure)
-        {
-            var varIndexes = procedure.ModifiesList.Where(i => i.Value == true).Select(i => i.Key).ToList();
-
-            return VarTable!.VariablesList.Where(i => varIndexes.Contains(i.Id)).ToList();
-        }
-
-        public List<Procedure> GetUsesForProcs(Variable variable) => ProcTable!.ProceduresList.Where(procedure => CheckUsesUsed(variable, procedure)).ToList();
-
-        public List<Statement?> GetUsesForStmts(Variable? variable) => StatementTable.Instance!.StatementsList.Where(statement => CheckUsesUsed(variable, statement)).ToList();
 
         public bool CheckUsesUsed(Variable? variable, Statement? statement)
         {

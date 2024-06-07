@@ -1,4 +1,3 @@
-using Parser.AST;
 using Parser.AST.Utils;
 using Parser.Interfaces;
 using Parser.Tables;
@@ -7,26 +6,16 @@ using Utils.Enums;
 
 namespace Parser.Calls;
 
-public class Calls : ICalls
+public sealed class Calls : ICalls
 {
     private static Calls? _instance;
-    private static readonly IAst? Ast= AST.Ast.Instance;
-    private static readonly IProcTable? ProcTable= ProcedureTable.Instance;
+    private static readonly IAst? Ast = AST.Ast.Instance;
+    private static readonly IProcTable? ProcTable = ProcedureTable.Instance;
+
     public static ICalls? Instance
     {
-        get
-        {
-            return _instance ??= new Calls();
-        }
+        get { return _instance ??= new Calls(); }
     }
-
-    public IEnumerable<Procedure> GetCalledBy(string proc)
-    {
-        return ProcTable!.ProceduresList.Where(procedure => CheckCalls(procedure.Identifier, proc)).ToList();
-    }
-
-    public IEnumerable<Procedure> GetCalledByStar(string proc) => ProcTable!.ProceduresList
-        .Where(procedure => CheckCallsStar(procedure.Identifier, proc)).ToList();
 
     public List<Procedure> FindCalls(List<Procedure> procedures, Node stmtNode)
     {
@@ -56,8 +45,24 @@ public class Calls : ICalls
         return procedures;
     }
 
+    public bool CheckCalls(string proc1, string proc2) =>
+        GetCalls(proc1)
+            .Any(i => i.Identifier == proc2);
 
-    public List<Procedure> GetCalls(string proc)
+    public bool CheckCallsStar(string proc1, string proc2) =>
+        GetCallsStar(proc1)
+            .Any(i => i.Identifier == proc2);
+
+    private IEnumerable<Procedure> GetCalledBy(string proc)
+    {
+        return ProcTable!.ProceduresList.Where(procedure => CheckCalls(procedure.Identifier, proc)).ToList();
+    }
+
+    private IEnumerable<Procedure> GetCalledByStar(string proc) => ProcTable!.ProceduresList
+        .Where(procedure => CheckCallsStar(procedure.Identifier, proc)).ToList();
+
+
+    private List<Procedure> GetCalls(string proc)
     {
         var procedures = new List<Procedure>();
         var procNode = ProcTable!.FindAstRootNode(proc);
@@ -68,7 +73,7 @@ public class Calls : ICalls
         return procedures;
     }
 
-    public IEnumerable<Procedure> GetCallsStar(string proc) => GetCallsStar(proc, new List<Procedure>());
+    private IEnumerable<Procedure> GetCallsStar(string proc) => GetCallsStar(proc, new List<Procedure>());
 
     private List<Procedure> GetCallsStar(string proc, List<Procedure> procedures)
     {
@@ -80,14 +85,6 @@ public class Calls : ICalls
 
         return procedures;
     }
-
-    public bool CheckCalls(string proc1, string proc2) =>
-        GetCalls(proc1)
-            .Any(i => i.Identifier == proc2);
-
-    public bool CheckCallsStar(string proc1, string proc2) =>
-        GetCallsStar(proc1)
-            .Any(i => i.Identifier == proc2);
 
     public bool IsCalledBy(string proc1, string proc2) =>
         GetCalledBy(proc1)

@@ -7,19 +7,17 @@ namespace Parser.Tables
     {
         private static ViariableTable? _instance;
 
+        private ViariableTable()
+        {
+            VariablesList = new List<Variable>();
+        }
+
         public static IVarTable? Instance
         {
             get { return _instance ??= new ViariableTable(); }
         }
 
         public List<Variable> VariablesList { get; set; }
-
-        private ViariableTable()
-        {
-            VariablesList = new List<Variable>();
-        }
-
-        public int GetSize() => VariablesList.Count;
 
         public List<Variable> GetVariablesList() => VariablesList;
 
@@ -42,5 +40,7 @@ namespace Parser.Tables
             VariablesList.Add(newVariable);
             return FindIndexOfGetIndex(varName);
         }
+
+        private int GetSize() => VariablesList.Count;
     }
 }

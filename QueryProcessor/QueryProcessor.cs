@@ -15,8 +15,8 @@ namespace QueryProcessor
         {
             _variables = new Dictionary<string, EntityType>();
             _queryComponents = new Dictionary<string, List<string>>();
-
         }
+
         public static List<string> ProcessQuery(String query, bool testing = false)
         {
             Initialize();
@@ -27,14 +27,14 @@ namespace QueryProcessor
 
             for (var i = 0; i < queryParts.Length - 1; i++)
             {
-                DecodeVarDefinitionAndInsertToDict(queryParts[i].Trim()); 
+                DecodeVarDefinitionAndInsertToDict(queryParts[i].Trim());
             }
 
             var selectPart = queryParts[queryParts.Length - 1];
             var errors = CheckQuery(selectPart.ToLower());
             if (errors.Count > 0)
                 return errors;
-            ProcessSelectPart(selectPart.Trim()); 
+            ProcessSelectPart(selectPart.Trim());
             try
             {
                 return QueryParser.GetData(testing);
@@ -44,10 +44,9 @@ namespace QueryProcessor
                 errors = new List<string> { e.Message };
                 return errors;
             }
-
         }
 
-        public static List<string> CheckQuery(string query)
+        private static List<string> CheckQuery(string query)
         {
             var errors = new List<string>();
             switch (query)
@@ -62,6 +61,7 @@ namespace QueryProcessor
                     errors.Add(ErrorDirectory.PatternError);
                     break;
             }
+
             if (errors.Count > 0)
                 return errors;
 
@@ -134,8 +134,8 @@ namespace QueryProcessor
                 splitSelectPartsArrays.Add(Regex.Split(part, $"({SyntaxDirectory.With})"));
 
             foreach (var parts in splitSelectPartsArrays)
-                foreach (var part in parts)
-                    mergedSelectParts.Add(part);
+            foreach (var part in parts)
+                mergedSelectParts.Add(part);
 
             finalSelectParts.Add(mergedSelectParts[0]);
             for (var i = 1; i < mergedSelectParts.Count; i += 2)
@@ -172,27 +172,6 @@ namespace QueryProcessor
                         _queryComponents[SyntaxDirectory.SELECT].Add(sbs.Trim().Trim(new Char[] { '<', '>' }));
                 }
             }
-
-
-        }
-      
-
-        private static void PrintParsingResults()
-        {
-            foreach (var oneVar in _variables)
-            {
-                Console.WriteLine("\t{0} - {1}", oneVar.Key, oneVar.Value);
-            }
-
-            foreach (var oneDetail in _queryComponents)
-            {
-                Console.WriteLine("{0}:", oneDetail.Key);
-                foreach (var word in oneDetail.Value)
-                {
-                    Console.WriteLine("\t\"{0}\"", word);
-                }
-
-            }
         }
 
         public static Dictionary<string, EntityType> GetQueryVariables()
@@ -217,9 +196,11 @@ namespace QueryProcessor
                     {
                         variableAttributes[attribtueWithValue[0].Trim()] = new List<string>();
                     }
+
                     variableAttributes[attribtueWithValue[0].Trim()].Add(attribtueWithValue[1].Trim());
                 }
             }
+
             return variableAttributes;
         }
 

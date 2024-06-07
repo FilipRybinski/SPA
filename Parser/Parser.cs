@@ -10,17 +10,18 @@ namespace Parser;
 
 public class Parser
 {
-    private int _lineNumberQuery = 1;
-    private int _lineNumberOld = 0;
-    private readonly List<string> _reservedWords;
     private static readonly IPkb Pkb = global::Parser.Pkb.Instance!;
     private static readonly IAst Ast = AST.Ast.Instance!;
     private static readonly ICalls? Calls = global::Parser.Calls.Calls.Instance;
     private static readonly IStmtTable? StmtTable = StatementTable.Instance;
-    private static readonly IVarTable? VarTable=ViariableTable.Instance;
+    private static readonly IVarTable? VarTable = ViariableTable.Instance;
     private static readonly IProcTable? ProcTable = ProcedureTable.Instance;
-    private static readonly IModifies? Modifies=global::Parser.Modifies.Modifies.Instance;
-    private static readonly IUses? Uses =global::Parser.Uses.Uses.Instance;
+    private static readonly IModifies? Modifies = global::Parser.Modifies.Modifies.Instance;
+    private static readonly IUses? Uses = global::Parser.Uses.Uses.Instance;
+    private readonly List<string> _reservedWords;
+    private int _lineNumberOld = 0;
+    private int _lineNumberQuery = 1;
+
     public Parser()
     {
         _reservedWords = new List<string>
@@ -34,7 +35,7 @@ public class Parser
         };
     }
 
-    private char GetChar(string line, int index)
+    private static char GetValueOfChar(string line, int index)
     {
         var character = line[index];
         if ((char)9 == character)
@@ -42,7 +43,8 @@ public class Parser
         return character;
     }
 
-    private string GetToken(IReadOnlyCollection<string> lines, ref int lineNumber, int startIndex, out int endIndex, bool test)
+    private string RetrieveTokenValue(IReadOnlyCollection<string> lines, ref int lineNumber, int startIndex,
+        out int endIndex, bool test)
     {
         var lineNumberIn = lineNumber;
 
@@ -90,7 +92,7 @@ public class Parser
                 fileLine = lines.ElementAt(lineNumber);
             }
 
-            character = GetChar(fileLine, startIndex);
+            character = GetValueOfChar(fileLine, startIndex);
             while (character == ' ')
             {
                 startIndex++;
@@ -110,7 +112,7 @@ public class Parser
                     break;
                 }
 
-                character = GetChar(fileLine, startIndex);
+                character = GetValueOfChar(fileLine, startIndex);
             }
 
             if (character != ' ') break;
@@ -148,15 +150,15 @@ public class Parser
         return token;
     }
 
-    private void ParseProcedure(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, Node parent)
+    private void DecodeProcedure(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, Node parent)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.Procedure) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         var newNode = Ast!.GenerateNode(EntityType.Procedure);
-        if (IsVarName(token))
+        if (CheckVariableName(token))
         {
             ProcTable!.InsertNewProcedure(token);
             ProcTable.AttachNewValueOfRootNode(token, newNode);
@@ -167,17 +169,17 @@ public class Parser
         var procedureName = token;
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
         if (token != "{")
             throw new Exception(SyntaxDirectory.ERROR);
 
-        Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, newNode);
+        Decode(lines, startIndex, ref lineNumber, out endIndex, procedureName, newNode);
     }
 
-    private void ParseStmtLst(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+    private void DecodeStatementList(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node parent)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
         var newNode = Ast!.GenerateNode(EntityType.Stmtlist);
         Ast.AttachChildToLinkType(newNode, parent);
@@ -185,13 +187,13 @@ public class Parser
 
         while (lineNumber < lines.Count)
         {
-            Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, newNode);
+            Decode(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, newNode);
             startIndex = endIndex;
 
-            token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+            token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
             if (token == "}")
             {
-                token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                 break;
             }
         }
@@ -200,26 +202,26 @@ public class Parser
             throw new Exception(SyntaxDirectory.ERROR);
     }
 
-    private void ParseWhile(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+    private void DecodeWhile(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node parent, Node stmtListNode)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.While) throw new Exception(SyntaxDirectory.ERROR);
         StmtTable.InsertNewStatement(EntityType.While, _lineNumberQuery);
         startIndex = endIndex;
 
-        var whileNode = Ast!.GenerateNode(EntityType.While); 
+        var whileNode = Ast!.GenerateNode(EntityType.While);
         StmtTable.AttachNewValueOfAstRoot(_lineNumberQuery, whileNode);
-        Ast.AttachValueToParentNode(whileNode, parent); 
-        SettingFollows(whileNode, stmtListNode, parent);
-        Ast.AttachChildToLinkType(whileNode, stmtListNode); 
+        Ast.AttachValueToParentNode(whileNode, parent);
+        DefineFollowingFollows(whileNode, stmtListNode, parent);
+        Ast.AttachChildToLinkType(whileNode, stmtListNode);
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (IsVarName(token))
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
+        if (CheckVariableName(token))
         {
             var variableNode =
                 Ast.GenerateNode(EntityType
-                    .Variable); 
+                    .Variable);
             Ast.AttachChildToLinkType(variableNode, whileNode);
 
             var var = new Variable(token);
@@ -228,19 +230,19 @@ public class Parser
                 VarTable.InsertVariable(token);
             }
 
-            SetUsesForFamily(whileNode, var);
+            AttachNewValueForUsesInTheSameFamily(whileNode, var);
         }
         else throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
         if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
-        Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, whileNode);
+        Decode(lines, startIndex, ref lineNumber, out endIndex, procedureName, whileNode);
     }
 
-    private void SettingFollows(Node node, Node stmt, Node parent)
+    private void DefineFollowingFollows(Node node, Node stmt, Node parent)
     {
         var siblingsList = Ast!.FindLinkedNodes(stmt, LinkType.Child);
         if (siblingsList.Count() != 0)
@@ -250,7 +252,7 @@ public class Parser
         }
     }
 
-    private void SetModifiesForFamily(Node node, Variable var)
+    private void AtachNewModifies(Node node, Variable var)
     {
         if (node.EntityType == EntityType.Procedure)
         {
@@ -265,10 +267,10 @@ public class Parser
             Modifies.AttachValueOfModifies(stmt, var);
         }
 
-        if (Ast.GetValueOfParentNode(node) != null) SetModifiesForFamily(Ast.GetValueOfParentNode(node), var);
+        if (Ast.GetValueOfParentNode(node) != null) AtachNewModifies(Ast.GetValueOfParentNode(node), var);
     }
 
-    private void SetUsesForFamily(Node node, Variable var)
+    private void AttachNewValueForUsesInTheSameFamily(Node node, Variable var)
     {
         if (node.EntityType == EntityType.Procedure)
         {
@@ -283,14 +285,15 @@ public class Parser
             Uses.AttachNewUses(stmt, var);
         }
 
-        if (Ast.GetValueOfParentNode(node) != null) SetUsesForFamily(Ast.GetValueOfParentNode(node), var);
+        if (Ast.GetValueOfParentNode(node) != null)
+            AttachNewValueForUsesInTheSameFamily(Ast.GetValueOfParentNode(node), var);
     }
 
-    private void ParseAssign(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+    private void DecodeAssign(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node parent, Node stmtListNode)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (!IsVarName(token))
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
+        if (!CheckVariableName(token))
             throw new Exception(SyntaxDirectory.ERROR);
         StmtTable.InsertNewStatement(EntityType.Assign, _lineNumberQuery);
         startIndex = endIndex;
@@ -300,128 +303,23 @@ public class Parser
         VarTable.InsertVariable(token);
         StmtTable.AttachNewValueOfAstRoot(_lineNumberQuery, assignNode);
         Ast.AttachValueToParentNode(assignNode, parent);
-        SettingFollows(assignNode, stmtListNode, parent);
+        DefineFollowingFollows(assignNode, stmtListNode, parent);
         Ast.AttachChildToLinkType(assignNode, stmtListNode);
         var variableNode = Ast.GenerateNode(EntityType.Variable);
         Ast.AttachChildToLinkType(variableNode, assignNode);
-        SetModifiesForFamily(assignNode, var);
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        AtachNewModifies(assignNode, var);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != "=") throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
         Node expressionRoot;
-        ParseExpr(lines, startIndex, ref lineNumber, out endIndex, procedureName, assignNode, assignNode, false,
+        DecodeExpresion(lines, startIndex, ref lineNumber, out endIndex, procedureName, assignNode, assignNode, false,
             out expressionRoot);
         Ast.AttachChildToLinkType(expressionRoot, assignNode);
         startIndex = endIndex;
     }
 
-    public void ParseAssignOld(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
-        string procedureName, Node parent)
-    {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (!IsVarName(token))
-            throw new Exception(SyntaxDirectory.ERROR);
-        StmtTable.InsertNewStatement(EntityType.Assign, _lineNumberQuery);
-        startIndex = endIndex;
-
-        var assignNode = Ast.GenerateNode(EntityType.Assign);
-        var var = new Variable(token);
-        VarTable.InsertVariable(token);
-        StmtTable.AttachNewValueOfAstRoot(_lineNumberQuery, assignNode);
-        Ast.AttachValueToParentNode(assignNode, parent);
-
-        var stmtListNode = Ast.FindChildByIndex(0, parent);
-        SettingFollows(assignNode, stmtListNode, parent);
-        Ast.AttachChildToLinkType(assignNode, stmtListNode);
-        var variableNode = Ast.GenerateNode(EntityType.Variable);
-        Ast.AttachChildToLinkType(variableNode, assignNode);
-        SetModifiesForFamily(assignNode, var);
-
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (token != "=") throw new Exception(SyntaxDirectory.ERROR);
-        startIndex = endIndex;
-
-        token = "";
-        var expectedOperation = false;
-        Node expressionRoot = null;
-        while (lineNumber < lines.Count)
-        {
-            token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-            startIndex = endIndex;
-            if (expectedOperation)
-            {
-                Node oldAssignRoot;
-                switch (token)
-                {
-                    case "+":
-                        oldAssignRoot = Ast.ReplicateNode(expressionRoot);
-                        expressionRoot = Ast.GenerateNode(EntityType.Plus);
-                        Ast.AttachChildToLinkType(oldAssignRoot, expressionRoot);
-                        break;
-                    case "-":
-                        oldAssignRoot = Ast.ReplicateNode(expressionRoot);
-                        expressionRoot = Ast.GenerateNode(EntityType.Minus);
-                        Ast.AttachChildToLinkType(oldAssignRoot, expressionRoot);
-                        break;
-                    case "*":
-                        break;
-                    default:
-                        throw new Exception(SyntaxDirectory.ERROR);
-                }
-
-                expectedOperation = false;
-            }
-            else
-            {
-                if (IsVarName(token))
-                {
-                    if (expressionRoot == null)
-                    {
-                        expressionRoot = Ast.GenerateNode(EntityType.Variable);
-
-                        var usesVar = new Variable(token);
-                        SetUsesForFamily(assignNode, usesVar);
-                    }
-                    else
-                    {
-                        var rightSide = Ast.GenerateNode(EntityType.Variable);
-                        Ast.AttachChildToLinkType(rightSide, expressionRoot);
-
-                        var usesVar = new Variable(token);
-                        SetUsesForFamily(assignNode, usesVar);
-                    }
-                }
-                else if (IsConstValue(token))
-                {
-                    if (expressionRoot == null) expressionRoot = Ast.GenerateNode(EntityType.Constant);
-                    else
-                    {
-                        var rightSide = Ast.GenerateNode(EntityType.Constant);
-                        Ast.AttachChildToLinkType(rightSide, expressionRoot);
-                    }
-                }
-                else
-                    throw new Exception(SyntaxDirectory.ERROR);
-
-                expectedOperation = true;
-            }
-
-            token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
-            if (token == ";")
-            {
-                token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-                break;
-            }
-        }
-
-        if (lineNumber == lines.Count && token != ";")
-            throw new Exception(SyntaxDirectory.ERROR);
-        
-        Ast.AttachChildToLinkType(expressionRoot, assignNode);
-    }
-
-    private bool ParseExpr(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+    private bool DecodeExpresion(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node assignNode, Node parent, bool inBracket, out Node expressionRoot,
         string prevToken = "")
     {
@@ -435,12 +333,12 @@ public class Parser
         expressionRoot = null;
         while (lineNumber < lines.Count)
         {
-            token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+            token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
             tokenCount++;
             if (expectedOperation)
             {
                 Node oldAssignRoot;
-                token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                 startIndex = endIndex;
                 switch (token)
                 {
@@ -474,7 +372,7 @@ public class Parser
                         bracketsPaired = true;
                         expectedOperation = true;
 
-                        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+                        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
 
                         if (token == "*" || token == "/")
                         {
@@ -495,12 +393,12 @@ public class Parser
             }
             else
             {
-                if (IsVarName(token))
+                if (CheckVariableName(token))
                 {
                     if (expressionRoot == null) expressionRoot = Ast.GenerateNode(EntityType.Variable);
                     else
                     {
-                        var nextToken = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                        var nextToken = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                         if (nextToken == "*" || nextToken == "/")
                         {
                             if (expressionRoot.EntityType == EntityType.Divide ||
@@ -512,7 +410,8 @@ public class Parser
                             else
                             {
                                 Node tinyTreeRoot = null;
-                                endAssign = ParseExpr(lines, startIndex, ref lineNumber, out endIndex, procedureName,
+                                endAssign = DecodeExpresion(lines, startIndex, ref lineNumber, out endIndex,
+                                    procedureName,
                                     assignNode, expressionRoot, false, out tinyTreeRoot, token);
                                 Ast.AttachChildToLinkType(tinyTreeRoot, expressionRoot);
                             }
@@ -530,16 +429,16 @@ public class Parser
                         VarTable.InsertVariable(token);
                     }
 
-                    SetUsesForFamily(assignNode, usesVar);
+                    AttachNewValueForUsesInTheSameFamily(assignNode, usesVar);
                     startIndex = endIndex;
                     expectedOperation = true;
                 }
-                else if (IsConstValue(token))
+                else if (CheckReadOnlyValue(token))
                 {
                     if (expressionRoot == null) expressionRoot = Ast.GenerateNode(EntityType.Constant);
                     else
                     {
-                        var nextToken = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                        var nextToken = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                         if (nextToken == "*" || nextToken == "/")
                         {
                             if (expressionRoot.EntityType == EntityType.Divide ||
@@ -551,7 +450,8 @@ public class Parser
                             else
                             {
                                 Node tinyTreeRoot = null;
-                                endAssign = ParseExpr(lines, startIndex, ref lineNumber, out endIndex, procedureName,
+                                endAssign = DecodeExpresion(lines, startIndex, ref lineNumber, out endIndex,
+                                    procedureName,
                                     assignNode, expressionRoot, false, out tinyTreeRoot, token);
                                 Ast.AttachChildToLinkType(tinyTreeRoot, expressionRoot);
                             }
@@ -572,13 +472,13 @@ public class Parser
                     {
                         possibleBracketClose = true;
                         bracketsPaired = false;
-                        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                         startIndex = endIndex;
                     }
                     else
                     {
                         Node tinyTreeRoot;
-                        endAssign = ParseExpr(lines, startIndex, ref lineNumber, out endIndex, procedureName,
+                        endAssign = DecodeExpresion(lines, startIndex, ref lineNumber, out endIndex, procedureName,
                             assignNode, expressionRoot, true, out tinyTreeRoot);
                         if (expressionRoot == null)
                             expressionRoot = Ast.ReplicateNode(tinyTreeRoot);
@@ -595,12 +495,12 @@ public class Parser
                     throw new Exception(SyntaxDirectory.ERROR);
             }
 
-            token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+            token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
             if (token == ";")
             {
                 if (inBracket && !bracketsPaired)
                     throw new Exception(SyntaxDirectory.ERROR);
-                token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+                token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
                 endAssign = true;
                 break;
             }
@@ -611,10 +511,10 @@ public class Parser
         return endAssign;
     }
 
-    public void ParseCall(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+    private void DecodeCall(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
         string procedureName, Node parent, Node stmtListNode)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.Call) throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
@@ -625,23 +525,24 @@ public class Parser
 
         Ast.AttachValueToParentNode(callNode, parent);
 
-        SettingFollows(callNode, stmtListNode, parent);
+        DefineFollowingFollows(callNode, stmtListNode, parent);
         Ast.AttachChildToLinkType(callNode, stmtListNode);
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (IsVarName(token)) callNode.NodeAttribute.Name = token;
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
+        if (CheckVariableName(token)) callNode.NodeAttribute.Name = token;
         else throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         startIndex = endIndex;
         if (token != ";") throw new Exception(SyntaxDirectory.ERROR);
     }
 
-    private void ParseIf(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, string procedureName,
+    private void DecodeIf(List<string> lines, int startIndex, ref int lineNumber, out int endIndex,
+        string procedureName,
         Node parent, Node stmtListNode)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.If) throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
@@ -651,11 +552,11 @@ public class Parser
         StmtTable?.AttachNewValueOfAstRoot(_lineNumberQuery, ifNode);
 
         Ast.AttachValueToParentNode(ifNode, parent);
-        SettingFollows(ifNode, stmtListNode, parent);
+        DefineFollowingFollows(ifNode, stmtListNode, parent);
         Ast.AttachChildToLinkType(ifNode, stmtListNode);
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
-        if (IsVarName(token))
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
+        if (CheckVariableName(token))
         {
             var var = new Variable(token);
             if (VarTable != null && VarTable.FindIndexOfGetIndex(token) == -1)
@@ -663,65 +564,65 @@ public class Parser
                 VarTable.InsertVariable(token);
             }
 
-            SetUsesForFamily(ifNode, var);
+            AttachNewValueForUsesInTheSameFamily(ifNode, var);
         }
         else throw new Exception(SyntaxDirectory.ERROR);
 
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.Then) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
         if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
-        Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
+        Decode(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, false);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, false);
         if (token != SyntaxDirectory.Else) throw new Exception(SyntaxDirectory.ERROR);
         startIndex = endIndex;
 
-        token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+        token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
         if (token != "{") throw new Exception(SyntaxDirectory.ERROR);
 
-        Parse(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
+        Decode(lines, startIndex, ref lineNumber, out endIndex, procedureName, ifNode);
         startIndex = endIndex;
     }
 
-    private void Parse(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, string procedureName,
+    private void Decode(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, string procedureName,
         Node parent, [Optional] Node stmtList)
     {
-        var token = GetToken(lines, ref lineNumber, startIndex, out endIndex, true);
+        var token = RetrieveTokenValue(lines, ref lineNumber, startIndex, out endIndex, true);
         switch (token)
         {
             case SyntaxDirectory.Procedure:
-                ParseProcedure(lines, startIndex, ref lineNumber, out endIndex, parent);
+                DecodeProcedure(lines, startIndex, ref lineNumber, out endIndex, parent);
                 break;
             case "{":
-                ParseStmtLst(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent);
+                DecodeStatementList(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent);
                 break;
             case SyntaxDirectory.While:
-                ParseWhile(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
+                DecodeWhile(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
             case SyntaxDirectory.Call:
-                ParseCall(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
+                DecodeCall(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
             case SyntaxDirectory.If:
-                ParseIf(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
+                DecodeIf(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                 break;
             default:
-                if (IsVarName(token))
+                if (CheckVariableName(token))
                 {
-                    ParseAssign(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
+                    DecodeAssign(lines, startIndex, ref lineNumber, out endIndex, procedureName, parent, stmtList);
                     break;
                 }
                 else throw new Exception(SyntaxDirectory.ERROR);
         }
     }
 
-    private bool IsVarName(string name)
+    private bool CheckVariableName(string name)
     {
         if (name.Length == 0) return false;
         if (!char.IsLetter(name[0])) return false;
@@ -730,9 +631,9 @@ public class Parser
         return true;
     }
 
-    private bool IsConstValue(string name) => name.Length != 0 && long.TryParse(name, out _);
+    private bool CheckReadOnlyValue(string name) => name.Length != 0 && long.TryParse(name, out _);
 
-    public void StartParse(string code)
+    public void StartDecoding(string code)
     {
         var lines = code.Split(new[] { '\r', '\n' }).ToList();
 
@@ -744,7 +645,7 @@ public class Parser
         var countToken = 0;
         while (lineNumber < lines.Count)
         {
-            var token = GetToken(lines, ref lineNumber, index, out var endIndex, true);
+            var token = RetrieveTokenValue(lines, ref lineNumber, index, out var endIndex, true);
             if (token != "") countToken++;
             if (token == "")
             {
@@ -757,7 +658,7 @@ public class Parser
 
             if (token != SyntaxDirectory.Procedure)
                 throw new Exception(SyntaxDirectory.ERROR);
-            Parse(lines, index, ref lineNumber, out endIndex, "", newRoot);
+            Decode(lines, index, ref lineNumber, out endIndex, "", newRoot);
             index = endIndex;
         }
 
@@ -770,56 +671,17 @@ public class Parser
         try
         {
             var isChanged = false;
-            
+
             do
             {
                 isChanged = false;
                 foreach (var i in Enumerable.Range(0, ProcTable!.CalculateSize()))
                 {
                     var p1 = ProcTable!.FindProcedure(i);
-                    if (p1 != null) 
-                    {
-                        foreach (var j in Enumerable.Range(0, ProcTable!.CalculateSize()))
-                        {
-                            var p2 = ProcTable!.FindProcedure(j); 
-                            if (p2 != null) 
-                            {
-                                if (Calls!.CheckCalls(p1.Identifier, p2.Identifier))
-                                {
-                                    foreach (var variable in p2.ModifiesList)
-                                    {
-                                        isChanged = IsListChanged(p1.ModifiesList, variable.Key);
-                                    }
-                                    foreach (var variable in p2.UsesList)
-                                    {
-                                        isChanged = IsListChanged(p1.UsesList, variable.Key);
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(SyntaxDirectory.ERROR);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(SyntaxDirectory.ERROR);
-                    }
-                }
-            
-                //# b
-                foreach (var i in Enumerable.Range(0, ProcTable!.CalculateSize()))
-                {
-                    var p1 = ProcTable!.FindProcedure(i);
                     if (p1 != null)
                     {
                         foreach (var j in Enumerable.Range(0, ProcTable!.CalculateSize()))
-                        {   
+                        {
                             var p2 = ProcTable!.FindProcedure(j);
                             if (p2 != null)
                             {
@@ -827,11 +689,12 @@ public class Parser
                                 {
                                     foreach (var variable in p2.ModifiesList)
                                     {
-                                        isChanged = IsListChanged(p1.ModifiesList, variable.Key);
+                                        isChanged = CheckListChanged(p1.ModifiesList, variable.Key);
                                     }
+
                                     foreach (var variable in p2.UsesList)
                                     {
-                                        isChanged = IsListChanged(p1.UsesList, variable.Key);
+                                        isChanged = CheckListChanged(p1.UsesList, variable.Key);
                                     }
                                 }
                                 else
@@ -850,7 +713,46 @@ public class Parser
                         throw new Exception(SyntaxDirectory.ERROR);
                     }
                 }
-                
+
+                //# b
+                foreach (var i in Enumerable.Range(0, ProcTable!.CalculateSize()))
+                {
+                    var p1 = ProcTable!.FindProcedure(i);
+                    if (p1 != null)
+                    {
+                        foreach (var j in Enumerable.Range(0, ProcTable!.CalculateSize()))
+                        {
+                            var p2 = ProcTable!.FindProcedure(j);
+                            if (p2 != null)
+                            {
+                                if (Calls!.CheckCalls(p1.Identifier, p2.Identifier))
+                                {
+                                    foreach (var variable in p2.ModifiesList)
+                                    {
+                                        isChanged = CheckListChanged(p1.ModifiesList, variable.Key);
+                                    }
+
+                                    foreach (var variable in p2.UsesList)
+                                    {
+                                        isChanged = CheckListChanged(p1.UsesList, variable.Key);
+                                    }
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception(SyntaxDirectory.ERROR);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(SyntaxDirectory.ERROR);
+                    }
+                }
             } while (isChanged);
 
             foreach (var variable in StmtTable!.StatementsList)
@@ -868,7 +770,7 @@ public class Parser
                     if (procedure != null)
                     {
                         variable.ModifiesList = procedure.ModifiesList;
-                        variable.UsesList = procedure.UsesList;  
+                        variable.UsesList = procedure.UsesList;
                     }
                     else
                     {
@@ -883,7 +785,7 @@ public class Parser
         }
     }
 
-    private bool IsListChanged(Dictionary<int, bool> collection, int i)
+    private bool CheckListChanged(Dictionary<int, bool> collection, int i)
     {
         return collection.TryAdd(i, true) ? true : false;
     }
@@ -893,7 +795,7 @@ public class Parser
         var ifOrWhileStmts = StmtTable!.StatementsList
             .Where(i => i?.AstRoot.EntityType is EntityType.While or EntityType.If).ToList();
 
-        foreach (var stmt in ifOrWhileStmts.Where(i=>i is not null))
+        foreach (var stmt in ifOrWhileStmts.Where(i => i is not null))
         {
             var node = stmt.AstRoot;
             var stmtLstNodes = Ast!
@@ -929,7 +831,7 @@ public class Parser
     {
         if (line.Contains(SyntaxDirectory.Procedure) || line.Contains(SyntaxDirectory.Else)) return;
         if (lineNumber - _lineNumberOld < 1) return;
-        
+
         _lineNumberQuery++;
         _lineNumberOld = lineNumber;
     }

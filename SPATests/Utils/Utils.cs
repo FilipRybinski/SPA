@@ -13,7 +13,7 @@ public static class Utils
 
         return string.Join(", ", results);
     }
-        
+
     public static string PrepareSimpleCode(string filePath)
     {
         var code = File.ReadAllText(filePath);
@@ -25,6 +25,6 @@ public static class Utils
     {
         var parser = new Parser.Parser();
         Parser.Parser.CleanData();
-        parser.StartParse(code);
+        parser.StartDecoding(code);
     }
 }

@@ -1,5 +1,4 @@
-﻿using Parser.AST;
-using Parser.Interfaces;
+﻿using Parser.Interfaces;
 using QueryProcessor.Helper;
 using Utils.Enums;
 using Utils.Helper;
@@ -8,14 +7,14 @@ namespace QueryProcessor.Utils
 {
     public static class QueryParser
     {
-        private static Dictionary<string, List<int>>? _variableIndexes;
-        private static int _currentSum;
-        private static bool _algorithmNotFinished;
         private const string ProcedureNameKey = "procname";
         private const string VariableNameKey = "varname";
         private const string ValueKey = "value";
         private const string StatementKey = "stmt#";
-        private static readonly IPkb Pkb= Parser.Pkb.Instance!;
+        private static Dictionary<string, List<int>>? _variableIndexes;
+        private static int _currentSum;
+        private static bool _algorithmNotFinished;
+        private static readonly IPkb Pkb = Parser.Pkb.Instance!;
         private static readonly IAst Ast = Parser.AST.Ast.Instance!;
 
         private static void Initialize()
@@ -38,8 +37,10 @@ namespace QueryProcessor.Utils
             catch (Exception e)
             {
                 Console.WriteLine("#" + e.Message);
-            };
-            
+            }
+
+            ;
+
             if (suchThatPart.Count > 0)
             {
                 suchThatPart = SortSuchThatPart(suchThatPart);
@@ -50,9 +51,11 @@ namespace QueryProcessor.Utils
                         if (method.Length > 0)
                             DecodeMethod(method);
                     }
+
                     CheckSum();
                 } while (_algorithmNotFinished);
             }
+
             return SendDataToPrint(testing);
         }
 
@@ -65,7 +68,8 @@ namespace QueryProcessor.Utils
                 var attributes = new Dictionary<string, List<string>>();
                 foreach (var entry in varAttributes)
                 {
-                    var attrSplitted = entry.Key.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var attrSplitted =
+                        entry.Key.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (key == attrSplitted[0])
                         attributes.Add(attrSplitted[1].ToLower(), entry.Value);
                 }
@@ -131,6 +135,7 @@ namespace QueryProcessor.Utils
                 else
                     indexes.Add(p.Id);
             }
+
             return indexes;
         }
 
@@ -268,7 +273,7 @@ namespace QueryProcessor.Utils
                 }
             }
 
-            return ResultPrinter.Print(varIndexesToPrint, testing);
+            return DisplayHandler.Print(varIndexesToPrint, testing);
         }
 
         private static void CheckSum()
@@ -285,14 +290,17 @@ namespace QueryProcessor.Utils
 
         private static void DecodeMethod(string method)
         {
-            var typeAndArguments = method.Split(new string[] { " ", "(", ")", "," }, System.StringSplitOptions.RemoveEmptyEntries);
+            var typeAndArguments = method.Split(new string[] { " ", "(", ")", "," },
+                System.StringSplitOptions.RemoveEmptyEntries);
             switch (typeAndArguments[0].ToLower())
             {
                 case StringDirectory.Modifies:
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Modifies!.AttachValueOfModifies, Pkb.Modifies.AttachValueOfModifies);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2],
+                        Pkb.Modifies!.AttachValueOfModifies, Pkb.Modifies.AttachValueOfModifies);
                     break;
                 case StringDirectory.Uses:
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.CheckUsesUsed, Pkb.Uses.CheckUsesUsed);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.CheckUsesUsed,
+                        Pkb.Uses.CheckUsesUsed);
                     break;
                 case StringDirectory.Parent:
                     QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.CheckParent);
@@ -335,7 +343,7 @@ namespace QueryProcessor.Utils
 
                 case string _ when int.TryParse(var, out _):
                     return new List<int>(new int[] { Int32.Parse(var) });
-                
+
                 default:
                     return _variableIndexes![var];
             }
@@ -353,10 +361,11 @@ namespace QueryProcessor.Utils
             return result;
         }
 
-        public static void RemoveIndexesFromLists(string firstArgument, string secondArgument, List<int> firstList, List<int> secondList)
+        public static void RemoveIndexesFromLists(string firstArgument, string secondArgument, List<int> firstList,
+            List<int> secondList)
         {
-
-            if (firstArgument != "_" && !SyntaxDirectory.ArgumentChecker(firstArgument) && !int.TryParse(firstArgument, out _))
+            if (firstArgument != "_" && !SyntaxDirectory.ArgumentChecker(firstArgument) &&
+                !int.TryParse(firstArgument, out _))
             {
                 _variableIndexes![firstArgument] = _variableIndexes[firstArgument]
                     .Where(i => firstList.Any(j => j == i))
@@ -364,7 +373,8 @@ namespace QueryProcessor.Utils
                     .ToList();
             }
 
-            if (secondArgument != "_" && !SyntaxDirectory.ArgumentChecker(secondArgument) && !int.TryParse(secondArgument, out _))
+            if (secondArgument != "_" && !SyntaxDirectory.ArgumentChecker(secondArgument) &&
+                !int.TryParse(secondArgument, out _))
             {
                 _variableIndexes![secondArgument] = _variableIndexes[secondArgument]
                     .Where(i => secondList.Any(j => j == i))

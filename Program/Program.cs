@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Program
 {
@@ -33,7 +32,7 @@ namespace Program
         {
             var parser = new Parser.Parser();
             Parser.Parser.CleanData();
-            parser.StartParse(code);
+            parser.StartDecoding(code);
             Console.WriteLine(QueryProcessorReady);
         }
 

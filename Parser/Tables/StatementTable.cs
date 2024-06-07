@@ -9,17 +9,17 @@ namespace Parser.Tables
     {
         private static StatementTable? _instance;
 
+        private StatementTable()
+        {
+            StatementsList = new List<Statement?>();
+        }
+
         public static IStmtTable? Instance
         {
             get { return _instance ??= new StatementTable(); }
         }
 
         public List<Statement?> StatementsList { get; set; }
-
-        private StatementTable()
-        {
-            StatementsList = new List<Statement?>();
-        }
 
         public Node FindAstRootNode(int lineNumber)
         {
@@ -30,11 +30,6 @@ namespace Parser.Tables
         public List<Statement?> GetStatementsList()
         {
             return StatementsList;
-        }
-
-        public int GetSize()
-        {
-            return StatementsList.Count();
         }
 
         public Statement? FindStatement(int lineNumber)

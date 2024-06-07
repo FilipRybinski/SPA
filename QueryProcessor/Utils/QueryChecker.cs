@@ -1,6 +1,5 @@
 ﻿using Parser.AST.Utils;
 using Parser.Interfaces;
-using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
 using Utils.Helper;
@@ -15,7 +14,7 @@ namespace QueryProcessor.Utils
             Func<Variable, Procedure, bool> methodForProc,
             Func<Variable, Statement, bool> methodForStmt)
         {
-            var firstArgType = DetermineEntityType(firstArgument);
+            var firstArgType = AssignEntityType(firstArgument);
 
             if (firstArgType == EntityType.Procedure)
                 CheckProcedureModifiesOrUses(firstArgument, secondArgument, methodForProc);
@@ -23,7 +22,7 @@ namespace QueryProcessor.Utils
                 CheckStatementModifiesOrUses(firstArgument, secondArgument, methodForStmt);
         }
 
-        private static EntityType DetermineEntityType(string argument)
+        private static EntityType AssignEntityType(string argument)
         {
             if (SyntaxDirectory.ArgumentChecker(argument))
                 return EntityType.Procedure;
@@ -147,8 +146,8 @@ namespace QueryProcessor.Utils
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)
             {
-                var first = GetNodeByType(firstArgType, firstIndex);
-                var second = GetNodeByType(secondArgType, secondIndex);
+                var first = FindNodeType(firstArgType, firstIndex);
+                var second = FindNodeType(secondArgType, secondIndex);
                 if (method(first, second))
                 {
                     firstStayinIndexes.Add(firstIndex);
@@ -212,55 +211,14 @@ namespace QueryProcessor.Utils
                 secondStayinIndexes);
         }
 
-        public static void CheckNext(string firstArgument, string secondArgument, Func<int, int, bool> method)
-        {
-            EntityType firstArgType;
-            EntityType secondArgType;
-            if (int.TryParse(firstArgument, out _))
-                firstArgType = EntityType.Prog_line;
-            else if (firstArgument == "_")
-                firstArgType = EntityType.Prog_line;
-            else
-                firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
-
-            if (int.TryParse(secondArgument, out _))
-                secondArgType = EntityType.Prog_line;
-            else if (secondArgument == "_")
-                secondArgType = EntityType.Prog_line;
-            else
-                secondArgType = QueryProcessor.GetVariableEnumType(secondArgument);
-
-            var firstArgIndexes = QueryParser.GetArgIndexes(firstArgument, firstArgType);
-            var secondArgIndexes = QueryParser.GetArgIndexes(secondArgument, secondArgType);
-
-            var firstStayinIndexes = new List<int>();
-            var secondStayinIndexes = new List<int>();
-
-            foreach (var firstIndex in firstArgIndexes)
-            foreach (var secondIndex in secondArgIndexes)
-            {
-                if (method(firstIndex, secondIndex))
-                {
-                    firstStayinIndexes.Add(firstIndex);
-                    secondStayinIndexes.Add(secondIndex);
-                }
-            }
-
-            QueryParser.RemoveIndexesFromLists(firstArgument, secondArgument,
-                firstStayinIndexes,
-                secondStayinIndexes);
-        }
-
-        private static Node GetNodeByType(EntityType entityType, int index)
+        private static Node FindNodeType(EntityType entityType, int index)
         {
             if (entityType == EntityType.Procedure)
             {
                 return Pkb.ProcTable!.FindAstRootNode(index);
             }
-            else
-            {
-                return Pkb.StmtTable!.FindAstRootNode(index);
-            }
+
+            return Pkb.StmtTable!.FindAstRootNode(index);
         }
     }
 }
