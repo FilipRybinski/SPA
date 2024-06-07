@@ -41,223 +41,109 @@ public class Parser
         return var.ElementAt(i) != '\t' ? var.ElementAt(i) : ' ';
     }
 
-    private string GetToken(IReadOnlyCollection<string> collection, ref int number, int iStart, out int iEnd, bool variable)
+    private string GetToken(IReadOnlyCollection<string> lines, ref int lineNumber, int startIndex, out int endIndex, bool test)
     {
-        var non = "";
-        var failable = false;
-        var r = 'a';
-        var space = ' ';
-        var token = "";
-        var character = 'a';
-        var numberOfLine = number;
-        var line = "";
+        var lineNumberIn = lineNumber;
 
-        if (iStart != -1)
+        var fileLine = "";
+        if (startIndex == -1)
         {
-            if (number < collection.Count)
+            lineNumber++;
+            startIndex = 0;
+        }
+
+        if (lineNumber >= lines.Count)
+            throw new Exception(SyntaxDirectory.ERROR);
+
+        var token = "";
+        char character;
+        while (true)
+        {
+            fileLine = lines.ElementAt(lineNumber);
+            if (startIndex >= fileLine.Length)
             {
-                throw new Exception(SyntaxDirectory.ERROR);
+                AddLineNumberQuery(fileLine, lineNumber);
+                lineNumber++;
+
+                startIndex = 0;
+                if (lineNumber >= lines.Count)
+                {
+                    endIndex = -1;
+                    if (test) lineNumber = lineNumberIn;
+                    return "";
+                }
+
+                fileLine = lines.ElementAt(lineNumber);
+            }
+
+            while (fileLine == "")
+            {
+                lineNumber++;
+                if (lineNumber >= lines.Count)
+                {
+                    endIndex = -1;
+                    if (test) lineNumber = lineNumberIn;
+                    return "";
+                }
+
+                fileLine = lines.ElementAt(lineNumber);
+            }
+
+            character = GetChar(fileLine, startIndex);
+            while (character == ' ')
+            {
+                startIndex++;
+                if (startIndex >= fileLine.Length)
+                {
+                    AddLineNumberQuery(fileLine, lineNumber);
+                    lineNumber++;
+
+                    startIndex = 0;
+                    if (lineNumber >= lines.Count)
+                    {
+                        endIndex = -1;
+                        if (test) lineNumber = lineNumberIn;
+                        return token;
+                    }
+
+                    break;
+                }
+
+                character = GetChar(fileLine, startIndex);
+            }
+
+            if (character != ' ') break;
+        }
+
+        for (var index = startIndex; index < fileLine.Length; index++)
+        {
+            character = fileLine[index];
+            if (char.IsLetter(character) || char.IsDigit(character))
+            {
+                token += character;
             }
             else
             {
-                while (true)
+                if (token == "")
                 {
-                    if (collection.ElementAt(number) != null)
-                    {
-                        line = collection.ElementAt(number);
-                    }
-
-                    if (iStart < line.Length)
-                    {
-                        failable = true;
-                        this.testing = this.testing + 1;
-                    }
-                    else
-                    {
-                        AddLineNumberQuery(line, number);
-                        number++;
-
-                        iStart = 0;
-                        if (number < collection.Count)
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            iEnd = -1;
-                            if (false.Equals(variable))
-                            {
-                                failable = true;
-                                this.testing = this.testing + 1;
-                            }
-                            else
-                            {
-                                number = numberOfLine;
-                            }
-                            return non;   
-                        }
-
-                        line = collection.ElementAt(number);
-                    }
-
-                    while (line.Equals(non))
-                    {
-                        number = number + 1;
-                        if (number < collection.Count)
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            iEnd = -1;
-                            if (false.Equals(variable))
-                            {
-                                failable = true;
-                                this.testing = this.testing + 1;
-                            }
-                            else
-                            {
-                                number = numberOfLine;
-                            }
-                            return non;    
-                        }
-                        line = collection.ElementAt(number);            
-                    }
-                    
-                    character = GetChar(line, iStart);
-                    while (character.Equals(space))
-                    {
-                        iStart = iStart + 1;
-                        if (iStart < line.Length)
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            AddLineNumberQuery(line, number);
-                            number = number + 1;
-                            iStart = 0;
-                            if (number < collection.Count)
-                            {
-                                failable = true;
-                                this.testing = this.testing + 1;
-                            }
-                            else
-                            {
-                                iEnd = -1;
-                                
-                                if (false.Equals(variable))
-                                {
-                                    failable = true;
-                                    this.testing = this.testing + 1;
-                                }
-                                else
-                                {
-                                    number = numberOfLine;
-                                }
-                                return token;
-                            }
-                            break;   
-                        }
-                        character = GetChar(line, iStart);
-                    }
-
-                    if (character.Equals((space)))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            foreach (var i in Enumerable.Range(iStart, line.Length))
-            { 
-                character = line[i];
-                var nletter = !char.IsLetter(character);
-                var ndigit = !char.IsDigit(character);
-                if (!(!ndigit && !nletter))
-                {
-                    token.Append(character);
+                    token += character;
+                    endIndex = index + 1;
+                    if (endIndex > fileLine.Length) endIndex = -1;
+                    if (test) lineNumber = lineNumberIn;
+                    return token;
                 }
                 else
                 {
-                    if (token.Equals(non))
-                    {
-                        token.Append(character);
-                    
-                        iEnd = i + 1;
-                        if (iEnd <= line.Length)
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            iEnd = -1;
-                        }
-
-                        if (false.Equals(variable))
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            number = numberOfLine;
-                        }
-
-                        return token;
-                    }
-                    else
-                    {
-                        iEnd = i;
-                        if (false.Equals(variable))
-                        {
-                            failable = true;
-                            this.testing = this.testing + 1;
-                        }
-                        else
-                        {
-                            number = numberOfLine;
-                        }
-                    
-                        return token;
-                    }
-                }    
-            }        
-            
-        }
-        else
-        {
-            iStart = 0;
-            number = number + 1;
-        }
-        
-        iEnd = line.Length + 1;
-        if (iEnd <= line.Length)
-        {
-            failable = true;
-            this.testing = this.testing + 1;
-        }
-        else
-        {
-            iEnd = -1;
+                    endIndex = index;
+                    if (test) lineNumber = lineNumberIn;
+                    return token;
+                }
+            }
         }
 
-        if (false.Equals(variable))
-        {
-            failable = true;
-            this.testing = this.testing + 1;
-        }
-        else
-        {
-            number = numberOfLine;
-        }
+        endIndex = fileLine.Length + 1;
+        if (endIndex > fileLine.Length) endIndex = -1;
+        if (test) lineNumber = lineNumberIn;
         return token;
     }
 
