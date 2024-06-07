@@ -246,7 +246,7 @@ public class Parser
         if (siblingsList.Count() != 0)
         {
             var prevStmt = siblingsList[siblingsList.Count() - 1];
-            Ast.SetFollows(prevStmt, node);
+            Ast.SetFollows(prevStmt, node); //
         }
     }
 
@@ -767,46 +767,93 @@ public class Parser
 
     private void UpdateModifiesAndUsesTablesInProcedures()
     {
-        bool wasChange;
-        var sizeOfProcTable = ProcTable!.GetSize();
-        do
+        try
         {
-            wasChange = false;
-            for (var i = 0; i < sizeOfProcTable; i++)
+            var isChanged = false;
+            
+            do
             {
-                var p1 = ProcTable!.GetProcedure(i);
-                if (p1 is null)
-                    throw new Exception(SyntaxDirectory.ERROR);
-                for (var j = 0; j < sizeOfProcTable; j++)
-                {
-                    if (i == j) continue;
-                    var p2 = ProcTable!.GetProcedure(j);
-                    if (p2 is null)
-                        throw new Exception(SyntaxDirectory.ERROR);
-                    if (!Calls!.IsCalls(p1.Identifier, p2.Identifier)) continue;
-                    
-                    foreach (var variable in p2.ModifiesList.Where(variable => p1.ModifiesList.TryAdd(variable.Key, true)))
-                        wasChange = true;
+                isChanged = false;
+                isChanged = checkCollection(isChanged);
+                isChanged = checkCollection(isChanged);
+            } while (isChanged);
 
-                    foreach (var variable in p2.UsesList)
-                        if (!p1.UsesList.ContainsKey(variable.Key))
-                        {
-                            p1.UsesList[variable.Key] = true;
-                            wasChange = true;
-                        }
+            foreach (var variable in StmtTable!.StatementsList)
+            {
+                if (!EntityType.Call.Equals(variable.StmtType))
+                {
+                    continue;
+                }
+                else
+                {
+                    var procedure = ProcTable.GetProcedure(
+                        variable.AstRoot.NodeAttribute.Name
+                    );
+
+                    if (procedure != null)
+                    {
+                        variable.ModifiesList = procedure.ModifiesList;
+                        variable.UsesList = procedure.UsesList;  
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
             }
-        } while (wasChange);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(SyntaxDirectory.ERROR);
+        }
+    }
 
-        foreach (var s in StmtTable!.StatementsList)
-            if (s.StmtType == EntityType.Call)
+    private bool IsListChanged(Dictionary<int, bool> collection, int i)
+    {
+        return collection.TryAdd(i, true) ? true : false;
+    }
+
+    private bool checkCollection(bool isChanged)
+    {
+        foreach (var i in Enumerable.Range(0, ProcTable!.GetSize()))
+        {
+            var p1 = ProcTable!.GetProcedure(i);
+            if (p1 != null)
             {
-                var pname = s.AstRoot.NodeAttribute.Name;
-                var p = ProcTable.GetProcedure(pname);
-                if (p == null) continue;
-                s.ModifiesList = p.ModifiesList;
-                s.UsesList = p.UsesList;
+                foreach (var j in Enumerable.Range(0, ProcTable!.GetSize()))
+                {   
+                    var p2 = ProcTable!.GetProcedure(j);
+                    if (p2 != null)
+                    {
+                        if (Calls!.IsCalls(p1.Identifier, p2.Identifier))
+                        {
+                            foreach (var variable in p2.ModifiesList)
+                            {
+                                isChanged = IsListChanged(p1.ModifiesList, variable.Key);
+                            }
+                            foreach (var variable in p2.UsesList)
+                            {
+                                isChanged = IsListChanged(p1.UsesList, variable.Key);
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(SyntaxDirectory.ERROR);
+                    }
+                }
             }
+            else
+            {
+                throw new Exception(SyntaxDirectory.ERROR);
+            }
+        }
+
+        return isChanged;
     }
 
     private void UpdateModifiesAndUsesTablesInWhilesAndIfs()
