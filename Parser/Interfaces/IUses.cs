@@ -4,8 +4,8 @@ namespace Parser.Interfaces;
 
 public interface IUses
 {
-        void SetUses(Statement stmt, Variable var);
-        void SetUses(Procedure proc, Variable var);
-        bool IsUsed(Variable? var, Statement? stat);
-        bool IsUsed(Variable? var, Procedure? proc);
+        void AttachNewUses(Statement stmt, Variable var);
+        void AttachNewUses(Procedure proc, Variable var);
+        bool CheckUsesUsed(Variable? var, Statement? stat);
+        bool CheckUsesUsed(Variable? var, Procedure? proc);
 }

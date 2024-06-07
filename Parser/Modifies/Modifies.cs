@@ -31,20 +31,20 @@ public class Modifies : IModifies
     }
 
     public List<Procedure> GetModifiesForProcs(Variable var) => _procTable!.ProceduresList
-        .Where(procedure => IsModified(var, procedure)).ToList();
+        .Where(procedure => AttachValueOfModifies(var, procedure)).ToList();
 
     public List<Statement?> GetModifiesForStmts(Variable var) => _stmtTable!.StatementsList
-        .Where(statement => IsModified(var, statement)).ToList();
+        .Where(statement => AttachValueOfModifies(var, statement)).ToList();
 
-    public bool IsModified(Variable var, Statement? stat) => 
+    public bool AttachValueOfModifies(Variable var, Statement? stat) => 
         var == null ? false
             : stat.ModifiesList.TryGetValue(var.Id, out var value) && value;
 
-    public bool IsModified(Variable var, Procedure proc) =>
+    public bool AttachValueOfModifies(Variable var, Procedure proc) =>
         var == null || proc == null ? false 
         : proc.ModifiesList.TryGetValue(var.Id, out var value) && value;
 
-    public void SetModifies(Statement stmt, Variable var)
+    public void AttachValueOfModifies(Statement stmt, Variable var)
     {
         if (stmt.ModifiesList.TryGetValue(var.Id, out _))
             stmt.ModifiesList[var.Id] = true;
@@ -52,7 +52,7 @@ public class Modifies : IModifies
             stmt.ModifiesList.Add(var.Id, true);
     }
 
-    public void SetModifies(Procedure proc, Variable var)
+    public void AttachValueOfModifies(Procedure proc, Variable var)
     {
         if (proc.ModifiesList.TryGetValue(var.Id, out _))
             proc.ModifiesList[var.Id] = true;

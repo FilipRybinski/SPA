@@ -5,14 +5,14 @@ namespace Parser.Interfaces;
 
 public interface IProcTable
 {
-        int AddProcedure(string procName);
-        Procedure? GetProcedure(int index);
-        Procedure? GetProcedure(string procName);
-        int GetProcIndex(string procName);
-        int GetSize();
-        int SetAstRootNode(string procName, Node node);
-        Node? GetAstRoot(string procName);
-        Node? GetAstRoot(int index);
+        int InsertNewProcedure(string procName);
+        Procedure? FindProcedure(int index);
+        Procedure? FindProcedure(string procName);
+        int FindIndexOfProcedure(string procName);
+        int CalculateSize();
+        int AttachNewValueOfRootNode(string procName, Node node);
+        Node? FindAstRootNode(string procName);
+        Node? FindAstRootNode(int index);
         List<Procedure> GetProcedureList();
         List<Procedure> ProceduresList { get; }
 }

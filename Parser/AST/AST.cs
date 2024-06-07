@@ -15,13 +15,13 @@ public class Ast : IAst
 
     public Node? Root { get; set; }
 
-    public Node CreateTNode(EntityType et) => new(et);
+    public Node GenerateNode(EntityType et) => new(et);
 
-    public Node GetTNodeDeepCopy(Node node) => new(node);
+    public Node ReplicateNode(Node node) => new(node);
 
     public NodeAttribute GetAttr(Node node) => node.NodeAttribute;
 
-    public Node? GetFirstChild(Node parent) => GetLinkedNodes(parent, LinkType.Child).FirstOrDefault();
+    public Node? ReturnFirstChild(Node parent) => FindLinkedNodes(parent, LinkType.Child).FirstOrDefault();
 
     public List<Node> GetFollowedBy(Node node) => GetPrevLinkedNodes(node, LinkType.Follows);
 
@@ -38,7 +38,7 @@ public class Ast : IAst
         return tempList;
     }
 
-    public List<Node> GetFollows(Node node) => GetLinkedNodes(node, LinkType.Follows);
+    public List<Node> GetFollows(Node node) => FindLinkedNodes(node, LinkType.Follows);
 
     public List<Node> GetFollowsStar(Node node)
     {
@@ -57,18 +57,18 @@ public class Ast : IAst
         return tempList;
     }
 
-    public List<Node> GetLinkedNodes(Node node, LinkType linkType) =>
+    public List<Node> FindLinkedNodes(Node node, LinkType linkType) =>
         node == null ? new() :
         node.Links.Where(i => i.Type == linkType).Select(i => i.LinkNode).ToList();
 
     public List<Node> GetPrevLinkedNodes(Node node, LinkType linkType) =>
         node.PrevLinks.Where(i => i.Type == linkType).Select(i => i.LinkNode).ToList();
 
-    public Node? GetChildOfIdx(int idx, Node parent) =>
-        GetLinkedNodes(parent, LinkType.Child).ElementAtOrDefault(idx);
+    public Node? FindChildByIndex(int idx, Node parent) =>
+        FindLinkedNodes(parent, LinkType.Child).ElementAtOrDefault(idx);
 
-    public Node? GetParent(Node node)
-        => GetLinkedNodes(node, LinkType.Parent).FirstOrDefault();
+    public Node? GetValueOfParentNode(Node node)
+        => FindLinkedNodes(node, LinkType.Parent).FirstOrDefault();
 
 
     public List<Node> GetParentedBy(Node node)
@@ -95,7 +95,7 @@ public class Ast : IAst
         var tempNode = node;
         while (true)
         {
-            var parentNode = GetParent(tempNode);
+            var parentNode = GetValueOfParentNode(tempNode);
 
             if (parentNode is null)
                 break;
@@ -114,39 +114,39 @@ public class Ast : IAst
         => node.EntityType;
 
 
-    public bool IsFollowed(Node node1, Node node2)
+    public bool CheckFollowed(Node node1, Node node2)
         => GetFollows(node2).Contains(node1);
 
 
-    public bool IsFollowedStar(Node node1, Node node2)
+    public bool CheckFollowedStar(Node node1, Node node2)
         => GetFollowsStar(node2).Contains(node1);
 
     public bool IsLinked(LinkType linkType, Node node1, Node node2)
-        => GetLinkedNodes(node1, linkType).Contains(node2);
+        => FindLinkedNodes(node1, linkType).Contains(node2);
 
-    public bool IsParent(Node parent, Node child) => GetParent(child)?.Equals(parent) ?? false;
+    public bool CheckParent(Node parent, Node child) => GetValueOfParentNode(child)?.Equals(parent) ?? false;
 
-    public bool IsParentStar(Node parent, Node child) => GetParentStar(child).Contains(parent);
+    public bool CheckParentStar(Node parent, Node child) => GetParentStar(child).Contains(parent);
 
     public void SetAttr(Node node, NodeAttribute nodeAttribute)
     {
         node.NodeAttribute = nodeAttribute;
     }
 
-    public void SetChildOfLink(Node child, Node parent)
+    public void AttachChildToLinkType(Node child, Node parent)
     {
         SetLink(LinkType.Child, parent, child);
     }
 
     public void SetFirstChild(Node parent, Node child)
     {
-        if (GetFirstChild(parent) == null)
-            SetChildOfLink(child, parent);
+        if (ReturnFirstChild(parent) == null)
+            AttachChildToLinkType(child, parent);
         else
             SetChildOfIdx(1, parent, child);
     }
 
-    public void SetFollows(Node node1, Node node2)
+    public void AssignFollows(Node node1, Node node2)
     {
         SetLink(LinkType.Follows, node2, node1);
         SetPrevLink(LinkType.Follows, node1, node2);
@@ -179,7 +179,7 @@ public class Ast : IAst
             parent.Links.Add(new Link(LinkType.Child, child));
     }
 
-    public void SetParent(Node child, Node parent)
+    public void AttachValueToParentNode(Node child, Node parent)
     {
         SetLink(LinkType.Parent, child, parent);
         SetPrevLink(LinkType.Parent, parent, child);
@@ -191,22 +191,22 @@ public class Ast : IAst
         SetLink(LinkType.LeftSibling, nodeL, nodeR);
     }
 
-    public void SetRoot(Node node)
+    public void AssignToRootNode(Node node)
     {
         Root = node;
     }
 
-    public List<int> GetConstants(Node node)
+    public List<int> GetReadOnlyVariables(Node node)
     {
         var constants = new List<int>();
-        var children = GetLinkedNodes(node, LinkType.Child);
+        var children = FindLinkedNodes(node, LinkType.Child);
         if (children.Count <= 1) return constants.Distinct().ToList();
         foreach (var child in children)
         {
             if (child.EntityType == EntityType.Constant)
                 constants.Add((int)EntityType.Constant);
             else
-                constants.AddRange(GetConstants(child));
+                constants.AddRange(GetReadOnlyVariables(child));
         }
 
         return constants.Distinct().ToList();

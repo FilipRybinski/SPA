@@ -6,19 +6,19 @@ namespace Parser.Interfaces;
 public interface IAst
 {
         Node Root { set; }
-        Node CreateTNode(EntityType et);
-        Node GetTNodeDeepCopy(Node node);
-        void SetRoot(Node node);
-        void SetChildOfLink(Node child, Node parent);
-        Node? GetChildOfIdx(int idx, Node parent);
-        Node? GetFirstChild(Node parent);
-        List<Node> GetLinkedNodes(Node node, LinkType linkType);
-        void SetParent(Node parent, Node child);
-        Node? GetParent(Node node);
-        void SetFollows(Node node1, Node node2);
-        bool IsFollowed(Node node1, Node node2);
-        bool IsFollowedStar(Node node1, Node node2);
-        bool IsParent(Node parent, Node child);
-        bool IsParentStar(Node parent, Node child);
-        List<int> GetConstants(Node node);
+        Node GenerateNode(EntityType et);
+        Node ReplicateNode(Node node);
+        void AssignToRootNode(Node node);
+        void AttachChildToLinkType(Node child, Node parent);
+        Node? FindChildByIndex(int idx, Node parent);
+        Node? ReturnFirstChild(Node parent);
+        List<Node> FindLinkedNodes(Node node, LinkType linkType);
+        void AttachValueToParentNode(Node parent, Node child);
+        Node? GetValueOfParentNode(Node node);
+        void AssignFollows(Node node1, Node node2);
+        bool CheckFollowed(Node node1, Node node2);
+        bool CheckFollowedStar(Node node1, Node node2);
+        bool CheckParent(Node parent, Node child);
+        bool CheckParentStar(Node parent, Node child);
+        List<int> GetReadOnlyVariables(Node node);
 }

@@ -21,46 +21,46 @@ namespace Parser.Tables
         }
 
 
-        public Node? GetAstRoot(string procName)
+        public Node? FindAstRootNode(string procName)
         {
-            var proc = GetProcedure(procName);
+            var proc = FindProcedure(procName);
             return proc?.AstNodeRoot;
         }
 
-        public Node? GetAstRoot(int id)
+        public Node? FindAstRootNode(int id)
         {
-            var proc = GetProcedure(id);
+            var proc = FindProcedure(id);
             return proc?.AstNodeRoot;
         }
 
         public List<Procedure> GetProcedureList() => ProceduresList;
 
-        public Procedure? GetProcedure(int id) => ProceduresList.FirstOrDefault(i => i.Id == id);
+        public Procedure? FindProcedure(int id) => ProceduresList.FirstOrDefault(i => i.Id == id);
 
-        public Procedure? GetProcedure(string procName) => ProceduresList.FirstOrDefault(i => i.Identifier.ToLower() == procName.ToLower());
+        public Procedure? FindProcedure(string procName) => ProceduresList.FirstOrDefault(i => i.Identifier.ToLower() == procName.ToLower());
 
-        public int GetProcIndex(string procName)
+        public int FindIndexOfProcedure(string procName)
         {
-            var procedure = GetProcedure(procName);
+            var procedure = FindProcedure(procName);
             return procedure is null ? -1 : procedure.Id;
         }
 
-        public int GetSize() => ProceduresList.Count;
+        public int CalculateSize() => ProceduresList.Count;
 
-        public int AddProcedure(string procName)
+        public int InsertNewProcedure(string procName)
         {
             if (ProceduresList.Any(i => i.Identifier == procName))
                 return -1;
 
             var newProc = new Procedure(procName);
-            newProc.Id = GetSize();
+            newProc.Id = CalculateSize();
             ProceduresList.Add(newProc);
-            return GetProcIndex(procName);
+            return FindIndexOfProcedure(procName);
         }
 
-        public int SetAstRootNode(string procName, Node node)
+        public int AttachNewValueOfRootNode(string procName, Node node)
         {
-            var procedure = GetProcedure(procName);
+            var procedure = FindProcedure(procName);
             if (procedure is null)
                 return -1;
 

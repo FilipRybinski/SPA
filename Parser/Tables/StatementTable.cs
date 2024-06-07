@@ -21,9 +21,9 @@ namespace Parser.Tables
             StatementsList = new List<Statement?>();
         }
 
-        public Node GetAstRoot(int lineNumber)
+        public Node FindAstRootNode(int lineNumber)
         {
-            var stmt = GetStatement(lineNumber);
+            var stmt = FindStatement(lineNumber);
             return stmt == null ? null : stmt.AstRoot;
         }
 
@@ -37,12 +37,12 @@ namespace Parser.Tables
             return StatementsList.Count();
         }
 
-        public Statement? GetStatement(int lineNumber)
+        public Statement? FindStatement(int lineNumber)
         {
             return StatementsList.FirstOrDefault(i => i.LineNumber == lineNumber)!;
         }
 
-        public int AddStatement(EntityType entityType, int lineNumber)
+        public int InsertNewStatement(EntityType entityType, int lineNumber)
         {
             if (StatementsList.Any(i => i.LineNumber == lineNumber))
             {
@@ -56,9 +56,9 @@ namespace Parser.Tables
             }
         }
 
-        public int SetAstRoot(int lineNumber, Node node)
+        public int AttachNewValueOfAstRoot(int lineNumber, Node node)
         {
-            var procedure = GetStatement(lineNumber);
+            var procedure = FindStatement(lineNumber);
             if (procedure == null)
             {
                 return -1;

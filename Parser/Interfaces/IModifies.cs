@@ -5,11 +5,11 @@ namespace Parser.Interfaces;
 
 public interface IModifies
 {
-        void SetModifies(Statement stmt, Variable var);
+        void AttachValueOfModifies(Statement stmt, Variable var);
      
-        void SetModifies(Procedure proc, Variable var);
+        void AttachValueOfModifies(Procedure proc, Variable var);
 
-        bool IsModified(Variable var, Statement? stat);
+        bool AttachValueOfModifies(Variable var, Statement? stat);
         
-        bool IsModified(Variable var, Procedure proc);
+        bool AttachValueOfModifies(Variable var, Procedure proc);
 }

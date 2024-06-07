@@ -6,10 +6,10 @@ namespace Parser.Interfaces;
 
 public interface IStmtTable
 {
-    int AddStatement(EntityType entityType, int codeLine);
-    Statement? GetStatement(int codeLine);
-    int SetAstRoot(int codeLine, Node node);
-    Node GetAstRoot(int codeLine);
+    int InsertNewStatement(EntityType entityType, int codeLine);
+    Statement? FindStatement(int codeLine);
+    int AttachNewValueOfAstRoot(int codeLine, Node node);
+    Node FindAstRootNode(int codeLine);
     List<Statement?> GetStatementsList();
     List<Statement?> StatementsList { get;}
 }

@@ -62,8 +62,8 @@ namespace QueryProcessor.Utils
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)
             {
-                var proc = Pkb.ProcTable!.GetProcedure(firstIndex);
-                var var = Pkb.VarTable!.GetVar(secondIndex);
+                var proc = Pkb.ProcTable!.FindProcedure(firstIndex);
+                var var = Pkb.VarTable!.FindVariable(secondIndex);
                 if (IsModifiedOrUsedByProc(var, proc))
                 {
                     procStayinIndexes.Add(firstIndex);
@@ -105,8 +105,8 @@ namespace QueryProcessor.Utils
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)
             {
-                var statement = Pkb.StmtTable!.GetStatement(firstIndex);
-                var variable = Pkb.VarTable!.GetVar(secondIndex);
+                var statement = Pkb.StmtTable!.FindStatement(firstIndex);
+                var variable = Pkb.VarTable!.FindVariable(secondIndex);
                 if (IsModifiedOrUsedByStmt(variable, statement))
                 {
                     stmtStayinIndexes.Add(firstIndex);
@@ -194,8 +194,8 @@ namespace QueryProcessor.Utils
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)
             {
-                var p1 = Pkb.ProcTable!.GetProcedure(firstIndex);
-                var p2 = Pkb.ProcTable.GetProcedure(secondIndex);
+                var p1 = Pkb.ProcTable!.FindProcedure(firstIndex);
+                var p2 = Pkb.ProcTable.FindProcedure(secondIndex);
 
                 var first = p1 == null ? "" : p1.Identifier;
                 var second = p2 == null ? "" : p2.Identifier;
@@ -255,11 +255,11 @@ namespace QueryProcessor.Utils
         {
             if (entityType == EntityType.Procedure)
             {
-                return Pkb.ProcTable!.GetAstRoot(index);
+                return Pkb.ProcTable!.FindAstRootNode(index);
             }
             else
             {
-                return Pkb.StmtTable!.GetAstRoot(index);
+                return Pkb.StmtTable!.FindAstRootNode(index);
             }
         }
     }

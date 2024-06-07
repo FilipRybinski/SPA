@@ -52,7 +52,7 @@ namespace QueryProcessor.Utils
             var results = new List<string>();
             foreach (var index in indexes)
             {
-                results.Add(Pkb.VarTable!.GetVar(index)?.Identifier);
+                results.Add(Pkb.VarTable!.FindVariable(index)?.Identifier);
             }
 
             return results;
@@ -63,7 +63,7 @@ namespace QueryProcessor.Utils
             var results = new List<string>();
             foreach (var index in indexes)
             {
-                results.Add(Pkb.ProcTable!.GetProcedure(index)?.Identifier);
+                results.Add(Pkb.ProcTable!.FindProcedure(index)?.Identifier);
 
             }
             

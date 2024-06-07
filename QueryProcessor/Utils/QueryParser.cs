@@ -201,7 +201,7 @@ namespace QueryProcessor.Utils
             foreach (var statement in Pkb.StmtTable!.GetStatementsList())
             {
                 var node = statement.AstRoot;
-                var constValues = Ast!.GetConstants(node);
+                var constValues = Ast!.GetReadOnlyVariables(node);
                 if (constants.Count == 1)
                 {
                     if (constValues.Contains(int.Parse(constants[0])))
@@ -237,7 +237,7 @@ namespace QueryProcessor.Utils
             {
                 try
                 {
-                    var statement = Pkb.StmtTable!.GetStatement(int.Parse(stmtNumbers[0]));
+                    var statement = Pkb.StmtTable!.FindStatement(int.Parse(stmtNumbers[0]));
                     if (statement != null)
                         indexes.Add(statement.LineNumber);
                 }
@@ -289,28 +289,28 @@ namespace QueryProcessor.Utils
             switch (typeAndArguments[0].ToLower())
             {
                 case StringDirectory.Modifies:
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Modifies!.IsModified, Pkb.Modifies.IsModified);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Modifies!.AttachValueOfModifies, Pkb.Modifies.AttachValueOfModifies);
                     break;
                 case StringDirectory.Uses:
-                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.IsUsed, Pkb.Uses.IsUsed);
+                    QueryChecker.CheckModifiesOrUses(typeAndArguments[1], typeAndArguments[2], Pkb.Uses!.CheckUsesUsed, Pkb.Uses.CheckUsesUsed);
                     break;
                 case StringDirectory.Parent:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParent);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.CheckParent);
                     break;
                 case StringDirectory.ParentAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsParentStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.CheckParentStar);
                     break;
                 case StringDirectory.Follows:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowed);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.CheckFollowed);
                     break;
                 case StringDirectory.FollowsAsterisk:
-                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.IsFollowedStar);
+                    QueryChecker.CheckParentOrFollows(typeAndArguments[1], typeAndArguments[2], Ast!.CheckFollowedStar);
                     break;
                 case StringDirectory.Calls:
-                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCalls);
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.CheckCalls);
                     break;
                 case StringDirectory.CallsAsterisk:
-                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.IsCallsStar);
+                    QueryChecker.CheckCalls(typeAndArguments[1], typeAndArguments[2], Pkb.Calls!.CheckCallsStar);
                     break;
                 default:
                     throw new Exception(SyntaxDirectory.ERROR);
@@ -327,10 +327,10 @@ namespace QueryProcessor.Utils
                 case string variable when SyntaxDirectory.ArgumentChecker(variable):
                     var name = var.Substring(1, var.Length - 2);
                     if (type == EntityType.Procedure)
-                        return new List<int>(new int[] { Pkb.ProcTable!.GetProcIndex(name) });
+                        return new List<int>(new int[] { Pkb.ProcTable!.FindIndexOfProcedure(name) });
 
                     else if (type == EntityType.Variable)
-                        return new List<int>(new int[] { Pkb.VarTable!.GetVarIndex(name) });
+                        return new List<int>(new int[] { Pkb.VarTable!.FindIndexOfGetIndex(name) });
                     return _variableIndexes![var];
 
                 case string _ when int.TryParse(var, out _):

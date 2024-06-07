@@ -22,21 +22,21 @@ public class Calls : ICalls
 
     public IEnumerable<Procedure> GetCalledBy(string proc)
     {
-        return ProcTable!.ProceduresList.Where(procedure => IsCalls(procedure.Identifier, proc)).ToList();
+        return ProcTable!.ProceduresList.Where(procedure => CheckCalls(procedure.Identifier, proc)).ToList();
     }
 
     public IEnumerable<Procedure> GetCalledByStar(string proc) => ProcTable!.ProceduresList
-        .Where(procedure => IsCallsStar(procedure.Identifier, proc)).ToList();
+        .Where(procedure => CheckCallsStar(procedure.Identifier, proc)).ToList();
 
-    public List<Procedure> GetCalls(List<Procedure> procedures, Node stmtNode)
+    public List<Procedure> FindCalls(List<Procedure> procedures, Node stmtNode)
     {
         foreach (var procName in Ast!
-                     .GetLinkedNodes(stmtNode, LinkType.Child)
+                     .FindLinkedNodes(stmtNode, LinkType.Child)
                      .Where(i => i.EntityType == EntityType.Call)
                      .Select(i => i.NodeAttribute.Name)
                      .ToList())
         {
-            var findProcedure = ProcTable!.GetProcedure(procName);
+            var findProcedure = ProcTable!.FindProcedure(procName);
             if (findProcedure is null)
                 continue;
 
@@ -45,12 +45,12 @@ public class Calls : ICalls
 
 
         foreach (var node in Ast
-                     .GetLinkedNodes(stmtNode, LinkType.Child)
+                     .FindLinkedNodes(stmtNode, LinkType.Child)
                      .Where(i => i.EntityType is EntityType.While or EntityType.If).ToList())
         foreach (var stmtL in Ast
-                     .GetLinkedNodes(node, LinkType.Child)
+                     .FindLinkedNodes(node, LinkType.Child)
                      .Where(i => i.EntityType == EntityType.Stmtlist).ToList())
-            GetCalls(procedures, stmtL);
+            FindCalls(procedures, stmtL);
 
 
         return procedures;
@@ -60,10 +60,10 @@ public class Calls : ICalls
     public List<Procedure> GetCalls(string proc)
     {
         var procedures = new List<Procedure>();
-        var procNode = ProcTable!.GetAstRoot(proc);
-        var stmtLstChild = Ast!.GetFirstChild(procNode);
+        var procNode = ProcTable!.FindAstRootNode(proc);
+        var stmtLstChild = Ast!.ReturnFirstChild(procNode);
         if (stmtLstChild is not null)
-            GetCalls(procedures, stmtLstChild);
+            FindCalls(procedures, stmtLstChild);
 
         return procedures;
     }
@@ -81,11 +81,11 @@ public class Calls : ICalls
         return procedures;
     }
 
-    public bool IsCalls(string proc1, string proc2) =>
+    public bool CheckCalls(string proc1, string proc2) =>
         GetCalls(proc1)
             .Any(i => i.Identifier == proc2);
 
-    public bool IsCallsStar(string proc1, string proc2) =>
+    public bool CheckCallsStar(string proc1, string proc2) =>
         GetCallsStar(proc1)
             .Any(i => i.Identifier == proc2);
 
