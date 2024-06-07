@@ -40,111 +40,132 @@ public class Parser
     {
         return var.ElementAt(i) != '\t' ? var.ElementAt(i) : ' ';
     }
+    
 
-    private string GetToken(IReadOnlyCollection<string> lines, ref int lineNumber, int startIndex, out int endIndex, bool test)
+    private string GetToken(IReadOnlyCollection<string> collection, ref int number, int iStart, out int iEnd, bool variable)
     {
-        var lineNumberIn = lineNumber;
-
-        var fileLine = "";
-        if (startIndex == -1)
+        var startI = 0;
+        var errorOut = -1;
+        var numberOfLine = number;
+        var empty = "";
+        var space = ' ';
+        var sizeOfCollection = collection.Count;
+        var line = "";
+        if (iStart == -1)
         {
-            lineNumber++;
-            startIndex = 0;
+            number = number + 1;
+            iStart = startI;
         }
 
-        if (lineNumber >= lines.Count)
-            throw new Exception(SyntaxDirectory.ERROR);
-
-        var token = "";
-        char character;
-        while (true)
+        if (number < sizeOfCollection)
         {
-            fileLine = lines.ElementAt(lineNumber);
-            if (startIndex >= fileLine.Length)
+            throw new Exception(SyntaxDirectory.ERROR);
+        }
+        else
+        {
+            var token = "";
+            char character;
+            while (true)
             {
-                AddLineNumberQuery(fileLine, lineNumber);
-                lineNumber++;
-
-                startIndex = 0;
-                if (lineNumber >= lines.Count)
+                line = collection.ElementAt(number);
+                if (iStart >= line.Length)
                 {
-                    endIndex = -1;
-                    if (test) lineNumber = lineNumberIn;
-                    return "";
-                }
-
-                fileLine = lines.ElementAt(lineNumber);
-            }
-
-            while (fileLine == "")
-            {
-                lineNumber++;
-                if (lineNumber >= lines.Count)
-                {
-                    endIndex = -1;
-                    if (test) lineNumber = lineNumberIn;
-                    return "";
-                }
-
-                fileLine = lines.ElementAt(lineNumber);
-            }
-
-            character = GetChar(fileLine, startIndex);
-            while (character == ' ')
-            {
-                startIndex++;
-                if (startIndex >= fileLine.Length)
-                {
-                    AddLineNumberQuery(fileLine, lineNumber);
-                    lineNumber++;
-
-                    startIndex = 0;
-                    if (lineNumber >= lines.Count)
+                    AddLineNumberQuery(line, number);
+                    number = number + 1;
+                    iStart = startI;
+                    if (number >= sizeOfCollection)
                     {
-                        endIndex = -1;
-                        if (test) lineNumber = lineNumberIn;
-                        return token;
+                        iEnd = errorOut;
+                        if (true.Equals(variable))
+                        {
+                            number = numberOfLine;
+                        }
+                        return empty;
                     }
+                    line = collection.ElementAt(number);
+                }
+                while (line.Equals(empty))
+                {
+                    number = number + 1;
+                    if (number >= sizeOfCollection)
+                    {
+                        iEnd = errorOut;
+                        if (true.Equals(variable))
+                        {
+                            number = numberOfLine;
+                        }
+                        return empty;
+                    }
+                    line = collection.ElementAt(number);
+                }
+                character = GetChar(line, iStart);
+                while (character.Equals(space))
+                {
+                    iStart = iStart + 1;
+                    if (iStart >= line.Length)
+                    {
+                        AddLineNumberQuery(line, number);
+                        number = number + 1;
+                        iStart = startI;
+                        if (number >= sizeOfCollection)
+                        {
+                            iEnd = errorOut;
+                            if (true.Equals(variable))
+                            {
+                                number = numberOfLine;
+                            }
+                            return token;
+                        }
+                        break;
+                    }
+                    character = GetChar(line, iStart);
+                }
 
+                if (!character.Equals(space))
+                {
                     break;
                 }
-
-                character = GetChar(fileLine, startIndex);
             }
 
-            if (character != ' ') break;
-        }
-
-        for (var index = startIndex; index < fileLine.Length; index++)
-        {
-            character = fileLine[index];
-            if (char.IsLetter(character) || char.IsDigit(character))
+            foreach (var i in Enumerable.Range(iStart, line.Length))
             {
-                token += character;
-            }
-            else
-            {
-                if (token == "")
+                character = line.ElementAt(i);
+                var isNotLetter = !char.IsLetter(character);
+                var isNotDigit = !char.IsDigit(character);
+                if (!(isNotLetter && isNotDigit))
                 {
-                    token += character;
-                    endIndex = index + 1;
-                    if (endIndex > fileLine.Length) endIndex = -1;
-                    if (test) lineNumber = lineNumberIn;
-                    return token;
+                    token.Append(character);
                 }
                 else
                 {
-                    endIndex = index;
-                    if (test) lineNumber = lineNumberIn;
+                    iEnd = i;
+                    if (token.Equals(empty))
+                    {
+                        token.Append(character);
+                        iEnd = iEnd + 1;
+                        if (iEnd > line.Length)
+                        {
+                            iEnd = errorOut;
+                        }
+                    }
+                    if (true.Equals(variable))
+                    {
+                        number = numberOfLine;
+                    }
                     return token;
                 }
             }
+            iEnd = line.Length + 1;
+            if (iEnd > line.Length)
+            {
+                iEnd = errorOut;
+            }
+            if (true.Equals(variable))
+            {
+                number = numberOfLine;
+            }
+            return token;
         }
-
-        endIndex = fileLine.Length + 1;
-        if (endIndex > fileLine.Length) endIndex = -1;
-        if (test) lineNumber = lineNumberIn;
-        return token;
     }
 
     private void ParseProcedure(List<string> lines, int startIndex, ref int lineNumber, out int endIndex, Node parent)
