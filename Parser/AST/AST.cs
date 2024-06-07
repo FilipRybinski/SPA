@@ -8,13 +8,9 @@ public class Ast : IAst
 {
     private static Ast? _instance;
 
-    public static Ast? Instance
+    public static IAst? Instance
     {
-        get { return _instance ?? (_instance = new Ast()); }
-    }
-
-    private Ast()
-    {
+        get{return _instance ??= new Ast();}
     }
 
     public Node? Root { get; set; }

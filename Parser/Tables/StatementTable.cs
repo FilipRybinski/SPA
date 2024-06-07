@@ -7,11 +7,11 @@ namespace Parser.Tables
 {
     public sealed class StatementTable : IStmtTable
     {
-        private static StatementTable? _singletonInstance;
+        private static StatementTable? _instance;
 
-        public static StatementTable? Instance
+        public static IStmtTable? Instance
         {
-            get { return _singletonInstance ?? (_singletonInstance = new StatementTable()); }
+            get { return _instance ??= new StatementTable(); }
         }
 
         public List<Statement?> StatementsList { get; set; }

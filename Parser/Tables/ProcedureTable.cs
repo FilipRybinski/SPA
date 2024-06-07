@@ -6,19 +6,11 @@ namespace Parser.Tables
 {
     public sealed class ProcedureTable : IProcTable
     {
-        private static ProcedureTable? _singletonInstance;
+        private static ProcedureTable?  _instance;
 
-        public static ProcedureTable? Instance
+        public static IProcTable? Instance
         {
-            get
-            {
-                if (_singletonInstance == null)
-                {
-                    _singletonInstance = new ProcedureTable();
-                }
-
-                return _singletonInstance;
-            }
+            get { return _instance ??= new ProcedureTable(); }
         }
 
         public List<Procedure> ProceduresList { get; set; }
@@ -32,13 +24,13 @@ namespace Parser.Tables
         public Node? GetAstRoot(string procName)
         {
             var proc = GetProcedure(procName);
-            return proc is null ? null : proc.AstNodeRoot;
+            return proc?.AstNodeRoot;
         }
 
         public Node? GetAstRoot(int id)
         {
             var proc = GetProcedure(id);
-            return proc is null ? null : proc.AstNodeRoot;
+            return proc?.AstNodeRoot;
         }
 
         public List<Procedure> GetProcedureList() => ProceduresList;

@@ -3,6 +3,7 @@ using Parser.Interfaces;
 using Parser.Tables;
 using Parser.Tables.Models;
 using Utils.Enums;
+using Utils.Helper;
 
 namespace QueryProcessor.Utils
 {
@@ -24,7 +25,7 @@ namespace QueryProcessor.Utils
 
         private static EntityType DetermineEntityType(string argument)
         {
-            if (argument[0] == '\"' && argument[^1] == '\"')
+            if (SyntaxDirectory.ArgumentChecker(argument))
                 return EntityType.Procedure;
             else if (int.TryParse(argument, out _))
                 return EntityType.Statement;
@@ -40,12 +41,12 @@ namespace QueryProcessor.Utils
             EntityType secondArgType;
             EntityType firstArgType;
 
-            if (firstArgument[0] == '\"' & firstArgument[^1] == '\"')
+            if (SyntaxDirectory.ArgumentChecker(firstArgument))
                 firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
+            if (SyntaxDirectory.ArgumentChecker(secondArgument))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
@@ -88,7 +89,7 @@ namespace QueryProcessor.Utils
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
+            if (SyntaxDirectory.ArgumentChecker(secondArgument))
                 secondArgType = EntityType.Variable;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Variable;
@@ -165,14 +166,14 @@ namespace QueryProcessor.Utils
             EntityType secondArgType;
             EntityType firstArgType;
 
-            if (firstArgument[0] == '\"' & firstArgument[^1] == '\"')
+            if (SyntaxDirectory.ArgumentChecker(firstArgument))
                 firstArgType = EntityType.Procedure;
             else if (firstArgument == "_")
                 firstArgType = EntityType.Procedure;
             else
                 firstArgType = QueryProcessor.GetVariableEnumType(firstArgument);
 
-            if ((secondArgument[0] == '\"' & secondArgument[^1] == '\"'))
+            if (SyntaxDirectory.ArgumentChecker(secondArgument))
                 secondArgType = EntityType.Procedure;
             else if (secondArgument == "_")
                 secondArgType = EntityType.Procedure;
@@ -186,9 +187,9 @@ namespace QueryProcessor.Utils
             var secondStayinIndexes = new List<int>();
 
             if (firstArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", firstArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
             else if (secondArgType != EntityType.Procedure)
-                throw new ArgumentException("Not a procedure: {0}", secondArgument);
+                throw new Exception(SyntaxDirectory.ERROR);
 
             foreach (var firstIndex in firstArgIndexes)
             foreach (var secondIndex in secondArgIndexes)
